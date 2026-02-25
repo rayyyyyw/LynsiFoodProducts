@@ -170,6 +170,44 @@ const TESTIMONIALS = [
     },
 ];
 
+/** Deep-merge incoming landing content with defaults so missing sections (e.g. partners) always have values. */
+function mergeWithDefaults(incoming: ReturnType<typeof getDefaultLandingContent> | null | undefined): ReturnType<typeof getDefaultLandingContent> {
+    const d = getDefaultLandingContent();
+    if (!incoming || typeof incoming !== 'object') return d;
+    return {
+        hero: { ...d.hero, ...incoming.hero },
+        products: {
+            ...d.products,
+            ...incoming.products,
+            items: incoming.products?.items ?? d.products?.items,
+        },
+        benefits: {
+            ...d.benefits,
+            ...incoming.benefits,
+            items: incoming.benefits?.items ?? d.benefits?.items,
+        },
+        howItWorks: {
+            ...d.howItWorks,
+            ...incoming.howItWorks,
+            steps: incoming.howItWorks?.steps ?? d.howItWorks?.steps,
+        },
+        locations: {
+            ...d.locations,
+            ...incoming.locations,
+            items: incoming.locations?.items ?? d.locations?.items,
+        },
+        aboutUs: { ...d.aboutUs, ...incoming.aboutUs },
+        contactUs: { ...d.contactUs, ...incoming.contactUs },
+        partners: {
+            ...d.partners,
+            ...incoming.partners,
+            title: incoming.partners?.title ?? d.partners?.title,
+            // Use incoming items only when server sent an array (so 1 or 0 items show correctly)
+            items: Array.isArray(incoming.partners?.items) ? incoming.partners.items : (d.partners?.items ?? []),
+        },
+    };
+}
+
 /** Default landing content when none is provided from the server (e.g. before migration). */
 function getDefaultLandingContent() {
     return {
@@ -236,6 +274,10 @@ function getDefaultLandingContent() {
             address: 'Metro Manila, Philippines',
             footerNote: "We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.",
         },
+        partners: {
+            title: 'Trusted by leading food brands & retailers',
+            items: [...PARTNERS],
+        },
     };
 }
 
@@ -264,7 +306,7 @@ export default function Welcome({
     landingContent?: LandingContent | null;
 }) {
     const { auth } = usePage().props as { auth: { user: unknown } };
-    const content = landingContent ?? getDefaultLandingContent();
+    const content = mergeWithDefaults(landingContent);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('home');
 
@@ -781,18 +823,22 @@ export default function Welcome({
                 </section>
 
                 {/* ── PARTNERS (TRUSTED BY) ─────────────────────────────────────────── */}
-                <section style={{ background: PALETTE.white, padding: '32px 16px 40px', borderBottom: `1px solid ${PALETTE.border}` }}>
-                    <div className="lynsi-container" style={{ textAlign: 'center' }}>
-                        <p style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, letterSpacing: '1.2px', textTransform: 'uppercase', marginBottom: '20px' }}>
-                            Trusted by leading food brands &amp; retailers
-                        </p>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
-                            {PARTNERS.map(p => (
-                                <span key={p} className="partner-badge">{p}</span>
-                            ))}
+                {(content.partners?.items?.length ?? 0) > 0 && (
+                    <section style={{ background: PALETTE.white, padding: '32px 16px 40px', borderBottom: `1px solid ${PALETTE.border}` }}>
+                        <div className="lynsi-container" style={{ textAlign: 'center' }}>
+                            <p style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, letterSpacing: '1.2px', textTransform: 'uppercase', marginBottom: '20px' }}>
+                                {content.partners?.title ?? 'Trusted by leading food brands & retailers'}
+                            </p>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
+                                {(content.partners?.items ?? [])
+                                    .filter((p): p is string => p != null && String(p).trim() !== '')
+                                    .map((p, i) => (
+                                        <span key={`${i}-${p}`} className="partner-badge">{p}</span>
+                                    ))}
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                )}
 
                 {/* ── PRODUCTS ──────────────────────────────────────────────────────── */}
                 <section id="products" className="lynsi-section" style={{ background: PALETTE.white }}>

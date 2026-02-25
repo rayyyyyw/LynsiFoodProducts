@@ -40,7 +40,27 @@ class LandingPageSetting extends Model
     protected static function mergeWithDefaults(array $content): array
     {
         $defaults = self::defaultContent();
-        return array_replace_recursive($defaults, $content);
+        $merged = array_replace_recursive($defaults, $content);
+
+        // Replace list arrays in full when present (array_replace_recursive merges by index,
+        // so saving e.g. one partner would otherwise keep the rest from defaults).
+        if (isset($content['products']['items'])) {
+            $merged['products']['items'] = $content['products']['items'];
+        }
+        if (isset($content['benefits']['items'])) {
+            $merged['benefits']['items'] = $content['benefits']['items'];
+        }
+        if (isset($content['howItWorks']['steps'])) {
+            $merged['howItWorks']['steps'] = $content['howItWorks']['steps'];
+        }
+        if (isset($content['locations']['items'])) {
+            $merged['locations']['items'] = $content['locations']['items'];
+        }
+        if (isset($content['partners']['items'])) {
+            $merged['partners']['items'] = $content['partners']['items'];
+        }
+
+        return $merged;
     }
 
     public static function defaultContent(): array
@@ -128,6 +148,10 @@ class LandingPageSetting extends Model
                 'phone' => '+63 2 8123 4567',
                 'address' => 'Metro Manila, Philippines',
                 'footerNote' => "We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.",
+            ],
+            'partners' => [
+                'title' => 'Trusted by leading food brands & retailers',
+                'items' => ['FreshMart', 'GreenLeaf Co.', 'NaturaBite', 'OrganicHub', 'EcoFarm', 'PureGrown', 'HarvestPlus', 'VerdeFoods'],
             ],
         ];
     }

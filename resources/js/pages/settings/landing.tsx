@@ -58,6 +58,7 @@ type LandingContent = {
         farmToTableDesc?: string;
     };
     contactUs?: { badge?: string; title?: string; subtitle?: string; email?: string; phone?: string; address?: string; footerNote?: string };
+    partners?: { title?: string; items?: string[] };
 };
 
 function SectionCard({
@@ -182,6 +183,7 @@ export default function Landing({ content, status }: { content: LandingContent; 
     const benefits = (data.content?.benefits?.items ?? []) as BenefitItem[];
     const steps = (data.content?.howItWorks?.steps ?? []) as StepItem[];
     const locations = (data.content?.locations?.items ?? []) as LocationItem[];
+    const partnerNames = (data.content?.partners?.items ?? []) as string[];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -297,6 +299,57 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                     onClick={() => addArrayItem('products', 'items', defaultProductItem)}
                                 >
                                     <Plus className="mr-1 size-4" /> Add product
+                                </Button>
+                            </div>
+                        </div>
+                    </SectionCard>
+
+                    {/* Trusted By / Partners */}
+                    <SectionCard title="Partnerships" description="Brand names shown in the trusted-by section.">
+                        <div className="space-y-3">
+                            <div>
+                                <Label>Section heading</Label>
+                                <Input
+                                    value={(get('partners.title') as string) ?? ''}
+                                    onChange={(e) => update('partners', { ...data.content?.partners, title: e.target.value })}
+                                    placeholder="Trusted by leading food brands & retailers"
+                                />
+                            </div>
+                            <div>
+                                <Label className="mb-2 block">Partner / brand names</Label>
+                                {partnerNames.map((name, i) => (
+                                    <div key={i} className="mb-2 flex gap-2">
+                                        <Input
+                                            className="flex-1"
+                                            placeholder="Brand name"
+                                            value={name}
+                                            onChange={(e) => {
+                                                const next = [...partnerNames];
+                                                next[i] = e.target.value;
+                                                update('partners', { ...data.content?.partners, items: next });
+                                            }}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="shrink-0"
+                                            onClick={() => {
+                                                const next = partnerNames.filter((_, idx) => idx !== i);
+                                                update('partners', { ...data.content?.partners, items: next });
+                                            }}
+                                        >
+                                            <Trash2 className="size-4 text-destructive" />
+                                        </Button>
+                                    </div>
+                                ))}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => update('partners', { ...data.content?.partners, items: [...partnerNames, ''] })}
+                                >
+                                    <Plus className="mr-1 size-4" /> Add brand
                                 </Button>
                             </div>
                         </div>
