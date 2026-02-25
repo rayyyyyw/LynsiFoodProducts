@@ -1,12 +1,22 @@
 <?php
 
+use App\Models\LandingPageSetting;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 Route::get('/', function () {
+    $landingContent = null;
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('landing_page_settings')) {
+            $landingContent = LandingPageSetting::getContent();
+        }
+    } catch (\Throwable $e) {
+        // Table may not exist yet; welcome page will use frontend defaults.
+    }
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
+        'landingContent' => $landingContent,
     ]);
 })->name('home');
 

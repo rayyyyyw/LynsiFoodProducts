@@ -170,6 +170,75 @@ const TESTIMONIALS = [
     },
 ];
 
+/** Default landing content when none is provided from the server (e.g. before migration). */
+function getDefaultLandingContent() {
+    return {
+        hero: {
+            badge: '🌿 Philippines #1 Organic Food Platform',
+            titleLine1: 'Lynsi Food Products,',
+            titleLine2: 'Taste Beyond Compare',
+            subtitle: 'Discover over 500+ certified organic products from trusted local farms. Healthier eating, starting today — no compromises.',
+            ctaPrimary: '🛒 Shop Now',
+            ctaSecondary: '▶ How It Works',
+            stat1Num: '500+',
+            stat1Label: 'Products',
+            stat2Num: '50k+',
+            stat2Label: 'Happy Customers',
+            stat3Num: '100%',
+            stat3Label: 'Organic Certified',
+        },
+        products: {
+            badge: '🛒 Fresh Arrivals',
+            title: 'Featured Products',
+            subtitle: 'Hand-picked, certified organic produce fresh from our local farm partners to your table.',
+            catalogueLabel: 'View Full Catalogue →',
+            items: [...PRODUCTS],
+        },
+        benefits: {
+            badge: '🌿 Why Choose Lynsi',
+            title: 'Benefits That Matter to You',
+            subtitle: "We don't just deliver food — we deliver a healthier, greener, more conscious lifestyle straight to your home.",
+            items: [...BENEFITS],
+        },
+        howItWorks: {
+            badge: '⚡ Simple Process',
+            title: 'How It Works',
+            subtitle: 'From browse to doorstep in 3 effortless steps. Fresh food has never been this easy.',
+            steps: [...STEPS],
+        },
+        locations: {
+            badge: '📍 Visit Us',
+            title: 'Our Locations',
+            subtitle: 'Find a Lynsi store near you. Walk in for fresh picks or order ahead for same-day pickup and delivery.',
+            items: [...LOCATIONS],
+        },
+        aboutUs: {
+            badge: '🌿 Our Story',
+            title: 'About Lynsi Food Products',
+            subtitle: "We're on a mission to make fresh, organic food accessible to every Filipino family.",
+            paragraph1: 'Lynsi Food Products started with a simple belief: everyone deserves access to clean, nutritious food straight from the farm. We partner directly with certified organic growers across the Philippines to bring you over 500+ products — from fresh produce to pantry staples — delivered to your doorstep.',
+            paragraph2: "Our values are rooted in sustainability, transparency, and community. We're committed to zero-waste packaging, fair partnerships with local farmers, and the highest quality standards so you can eat with confidence.",
+            stat1Num: '500+',
+            stat1Label: 'Organic Products',
+            stat2Num: '50k+',
+            stat2Label: 'Happy Families',
+            stat3Num: '100%',
+            stat3Label: 'Philippine Sourced',
+            farmToTableTitle: 'Farm to Table',
+            farmToTableDesc: 'Every product is traceable to our partner farms. Quality you can trust.',
+        },
+        contactUs: {
+            badge: '📬 Get in Touch',
+            title: 'Contact Us',
+            subtitle: "Have questions, feedback, or need support? We'd love to hear from you.",
+            email: 'hello@lynsi.com',
+            phone: '+63 2 8123 4567',
+            address: 'Metro Manila, Philippines',
+            footerNote: "We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.",
+        },
+    };
+}
+
 // ─── Star Rating ──────────────────────────────────────────────────────────────
 function Stars({ count }: { count: number }) {
     return (
@@ -185,8 +254,17 @@ function Stars({ count }: { count: number }) {
 const SECTION_IDS = ['home', 'products', 'our-locations', 'about-us', 'contact-us'];
 const NAV_HEIGHT_PX = 72; // match .lynsi-nav-spacer so "active line" is just below fixed nav
 
-export default function Welcome({ canRegister = true }: { canRegister?: boolean }) {
+type LandingContent = ReturnType<typeof getDefaultLandingContent>;
+
+export default function Welcome({
+    canRegister = true,
+    landingContent,
+}: {
+    canRegister?: boolean;
+    landingContent?: LandingContent | null;
+}) {
     const { auth } = usePage().props as { auth: { user: unknown } };
+    const content = landingContent ?? getDefaultLandingContent();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('home');
 
@@ -641,7 +719,7 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                 }}>
                     <div className="lynsi-container" style={{ textAlign: 'center' }}>
                         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                            <div className="section-badge">🌿 Philippines #1 Organic Food Platform</div>
+                            <div className="section-badge">{content.hero.badge}</div>
                             <h1 className="lynsi-section-title" style={{
                                 fontWeight: 800,
                                 color: PALETTE.primary,
@@ -650,8 +728,8 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                                 fontSize: 'clamp(28px, 4.5vw, 44px)',
                                 lineHeight: 1.25,
                             }}>
-                                Lynsi Food Products,<br />
-                                <span className="gradient-text">Taste Beyond Compare</span>
+                                {content.hero.titleLine1}<br />
+                                <span className="gradient-text">{content.hero.titleLine2}</span>
                             </h1>
                             <p className="lynsi-section-desc" style={{
                                 color: PALETTE.muted,
@@ -659,8 +737,7 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                                 margin: '0 auto 28px',
                                 lineHeight: 1.7,
                             }}>
-                                Discover over 500+ certified organic products from trusted local farms.
-                                Healthier eating, starting today — no compromises.
+                                {content.hero.subtitle}
                             </p>
                             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
                                 <a
@@ -668,14 +745,14 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                                     className="lynsi-btn-primary"
                                     onClick={(e) => { e.preventDefault(); scrollToSection('products'); }}
                                 >
-                                    🛒 Shop Now
+                                    {content.hero.ctaPrimary}
                                 </a>
                                 <a
                                     href="#how-it-works"
                                     className="lynsi-btn-secondary"
                                     onClick={(e) => { e.preventDefault(); scrollToSection('how-it-works'); }}
                                 >
-                                    ▶ How It Works
+                                    {content.hero.ctaSecondary}
                                 </a>
                             </div>
                             <div style={{
@@ -687,7 +764,7 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                                 paddingTop: '24px',
                                 borderTop: `1px solid ${PALETTE.border}`,
                             }}>
-                                {[['500+', 'Products'], ['50k+', 'Happy Customers'], ['100%', 'Organic Certified']].map(([num, label], i) => (
+                                {[[content.hero.stat1Num, content.hero.stat1Label], [content.hero.stat2Num, content.hero.stat2Label], [content.hero.stat3Num, content.hero.stat3Label]].map(([num, label], i) => (
                                     <div key={label} style={{ display: 'flex', alignItems: 'center', gap: i < 2 ? '24px' : 0 }}>
                                         <div style={{ textAlign: 'center' }}>
                                             <div style={{ fontSize: 'clamp(22px, 2.8vw, 28px)', fontWeight: 800, color: PALETTE.primary }}>{num}</div>
@@ -722,20 +799,20 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                     <div className="lynsi-container">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
                             <div>
-                                <div className="section-badge">🛒 Fresh Arrivals</div>
+                                <div className="section-badge">{content.products.badge}</div>
                                 <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
-                                    Featured <span className="gradient-text">Products</span>
+                                    {content.products.title?.replace(/\s*Products\s*$/, '')}<span className="gradient-text">Products</span>
                                 </h2>
                                 <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '500px', lineHeight: 1.7 }}>
-                                    Hand-picked, certified organic produce fresh from our local farm partners to your table.
+                                    {content.products.subtitle}
                                 </p>
                             </div>
                             <a href="#products" className="lynsi-btn-secondary" style={{ display: 'inline-flex', padding: '10px 20px', fontSize: '14px' }}>
-                                View Full Catalogue &rarr;
+                                {content.products.catalogueLabel}
                             </a>
                         </div>
                         <div className="products-grid" style={{ display: 'grid' }}>
-                            {PRODUCTS.map(p => (
+                            {(content.products.items ?? []).map(p => (
                                 <div key={p.name} className="product-card">
                                     <div style={{
                                         position: 'absolute', top: '12px', right: '12px', zIndex: 2,
@@ -786,16 +863,16 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                 <section id="services" className="lynsi-section" style={{ background: PALETTE.bg }}>
                     <div className="lynsi-container">
                         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-                            <div className="section-badge">🌿 Why Choose Lynsi</div>
+                            <div className="section-badge">{content.benefits.badge}</div>
                             <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
-                                Benefits That <span className="gradient-text">Matter to You</span>
+                                {content.benefits.title}
                             </h2>
                             <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '560px', margin: '0 auto', lineHeight: 1.7 }}>
-                                We don't just deliver food — we deliver a healthier, greener, more conscious lifestyle straight to your home.
+                                {content.benefits.subtitle}
                             </p>
                         </div>
                         <div className="benefits-grid" style={{ display: 'grid' }}>
-                            {BENEFITS.map(b => (
+                            {(content.benefits.items ?? []).map(b => (
                                 <div key={b.title} className="benefit-card">
                                     <div style={{
                                         width: '52px', height: '52px', borderRadius: '14px',
@@ -815,16 +892,16 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                 <section id="how-it-works" className="lynsi-section" style={{ background: PALETTE.white }}>
                     <div className="lynsi-container">
                         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-                            <div className="section-badge">⚡ Simple Process</div>
+                            <div className="section-badge">{content.howItWorks.badge}</div>
                             <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
-                                How It Works
+                                {content.howItWorks.title}
                             </h2>
                             <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '500px', margin: '0 auto', lineHeight: 1.7 }}>
-                                From browse to doorstep in 3 effortless steps. Fresh food has never been this easy.
+                                {content.howItWorks.subtitle}
                             </p>
                         </div>
                         <div className="steps-grid" style={{ display: 'grid', position: 'relative' }}>
-                            {STEPS.map((s, i) => (
+                            {(content.howItWorks.steps ?? []).map((s, i) => (
                                 <div key={s.step} className="step-card">
                                     <div style={{
                                         width: '56px', height: '56px', borderRadius: '14px',
@@ -846,16 +923,16 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                 <section id="our-locations" className="lynsi-section" style={{ background: PALETTE.white }}>
                     <div className="lynsi-container">
                         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-                            <div className="section-badge">📍 Visit Us</div>
+                            <div className="section-badge">{content.locations.badge}</div>
                             <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
-                                Our <span className="gradient-text">Locations</span>
+                                {content.locations.title}
                             </h2>
                             <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '560px', margin: '0 auto', lineHeight: 1.7 }}>
-                                Find a Lynsi store near you. Walk in for fresh picks or order ahead for same-day pickup and delivery.
+                                {content.locations.subtitle}
                             </p>
                         </div>
                         <div className="locations-grid" style={{ display: 'grid' }}>
-                            {LOCATIONS.map((loc) => (
+                            {(content.locations.items ?? []).map((loc) => (
                                 <div key={loc.name} className="benefit-card" style={{ textAlign: 'left' }}>
                                     {loc.tag && (
                                         <span style={{
@@ -889,27 +966,27 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                 <section id="about-us" className="lynsi-section" style={{ background: PALETTE.bg }}>
                     <div className="lynsi-container" style={{ maxWidth: '1100px' }}>
                         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-                            <div className="section-badge">🌿 Our Story</div>
+                            <div className="section-badge">{content.aboutUs.badge}</div>
                             <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
                                 About <span className="gradient-text">Lynsi Food Products</span>
                             </h2>
                             <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '640px', margin: '0 auto', lineHeight: 1.7 }}>
-                                We're on a mission to make fresh, organic food accessible to every Filipino family.
+                                {content.aboutUs.subtitle}
                             </p>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '28px', alignItems: 'center' }} className="benefits-grid">
                             <div>
                                 <p className="lynsi-section-desc" style={{ color: PALETTE.primary, lineHeight: 1.8, marginBottom: '16px' }}>
-                                    Lynsi Food Products started with a simple belief: everyone deserves access to clean, nutritious food straight from the farm. We partner directly with certified organic growers across the Philippines to bring you over 500+ products — from fresh produce to pantry staples — delivered to your doorstep.
+                                    {content.aboutUs.paragraph1}
                                 </p>
                                 <p className="lynsi-section-desc" style={{ color: PALETTE.primary, lineHeight: 1.8, marginBottom: '24px' }}>
-                                    Our values are rooted in sustainability, transparency, and community. We're committed to zero-waste packaging, fair partnerships with local farmers, and the highest quality standards so you can eat with confidence.
+                                    {content.aboutUs.paragraph2}
                                 </p>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
                                     {[
-                                        { num: '500+', label: 'Organic Products' },
-                                        { num: '50k+', label: 'Happy Families' },
-                                        { num: '100%', label: 'Philippine Sourced' },
+                                        { num: content.aboutUs.stat1Num, label: content.aboutUs.stat1Label },
+                                        { num: content.aboutUs.stat2Num, label: content.aboutUs.stat2Label },
+                                        { num: content.aboutUs.stat3Num, label: content.aboutUs.stat3Label },
                                     ].map(({ num, label }) => (
                                         <div key={label}>
                                             <div style={{ fontSize: '22px', fontWeight: 800, color: PALETTE.primary }}>{num}</div>
@@ -926,9 +1003,9 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                                 border: `1px solid ${PALETTE.border}`,
                             }}>
                                 <div style={{ fontSize: '64px', marginBottom: '12px' }}>🌱</div>
-                                <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '10px' }}>Farm to Table</h3>
+                                <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '10px' }}>{content.aboutUs.farmToTableTitle}</h3>
                                 <p style={{ fontSize: '14px', color: PALETTE.muted, lineHeight: 1.7 }}>
-                                    Every product is traceable to our partner farms. Quality you can trust.
+                                    {content.aboutUs.farmToTableDesc}
                                 </p>
                             </div>
                         </div>
@@ -976,16 +1053,16 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                 <section id="contact-us" className="lynsi-section" style={{ background: PALETTE.bg }}>
                     <div className="lynsi-container" style={{ maxWidth: '900px' }}>
                         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                            <div className="section-badge">📬 Get in Touch</div>
+                            <div className="section-badge">{content.contactUs.badge}</div>
                             <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
                                 Contact <span className="gradient-text">Us</span>
                             </h2>
                             <p className="lynsi-section-desc" style={{ color: PALETTE.muted, lineHeight: 1.7 }}>
-                                Have questions, feedback, or need support? We'd love to hear from you.
+                                {content.contactUs.subtitle}
                             </p>
                         </div>
                         <div className="contact-grid" style={{ display: 'grid', marginBottom: '32px' }}>
-                            <a href="mailto:hello@lynsi.com" style={{
+                            <a href={`mailto:${content.contactUs.email}`} style={{
                                 display: 'flex', alignItems: 'center', gap: '16px', padding: '24px 20px',
                                 background: PALETTE.white, border: `1px solid ${PALETTE.border}`, borderRadius: '16px',
                                 textDecoration: 'none', color: 'inherit', transition: 'all 0.25s', minHeight: '44px',
@@ -997,10 +1074,10 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                                 }}>✉️</div>
                                 <div>
                                     <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Email</div>
-                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>hello@lynsi.com</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{content.contactUs.email}</div>
                                 </div>
                             </a>
-                            <a href="tel:+63281234567" style={{
+                            <a href={`tel:${(content.contactUs.phone ?? '').replace(/\s/g, '')}`} style={{
                                 display: 'flex', alignItems: 'center', gap: '16px', padding: '24px 20px',
                                 background: PALETTE.white, border: `1px solid ${PALETTE.border}`, borderRadius: '16px',
                                 textDecoration: 'none', color: 'inherit', transition: 'all 0.25s', minHeight: '44px',
@@ -1012,7 +1089,7 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                                 }}>📞</div>
                                 <div>
                                     <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Phone</div>
-                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>+63 2 8123 4567</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{content.contactUs.phone}</div>
                                 </div>
                             </a>
                             <div style={{
@@ -1027,12 +1104,12 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                                 }}>📍</div>
                                 <div>
                                     <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Address</div>
-                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>Metro Manila, Philippines</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{content.contactUs.address}</div>
                                 </div>
                             </div>
                         </div>
                         <p className="lynsi-section-desc" style={{ textAlign: 'center', color: PALETTE.muted, lineHeight: 1.7 }}>
-                            We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.
+                            {content.contactUs.footerNote}
                         </p>
                     </div>
                 </section>

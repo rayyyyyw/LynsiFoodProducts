@@ -1,12 +1,13 @@
 import { Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
-import { Settings, User } from 'lucide-react';
+import { Layout, Settings, User } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { edit } from '@/routes/profile';
 
 const tabs = [
     { label: 'General Settings', href: '/settings/general', icon: Settings },
+    { label: 'Landing Page', href: '/settings/landing', icon: Layout },
     { label: 'Profile & Password', href: edit(), icon: User },
 ];
 
@@ -18,7 +19,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     }
 
     return (
-        <div className="min-h-full w-full px-4 py-4 sm:px-6 lg:px-8">
+        <div className="min-h-full w-full px-4 py-4 sm:px-6 lg:px-8 xl:px-10">
             {/* Header: black/white only */}
             <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted">
@@ -59,7 +60,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 })}
             </nav>
 
-            <div className="w-full max-w-4xl">{children}</div>
+            <div className="w-full max-w-full">{children}</div>
         </div>
     );
 }
