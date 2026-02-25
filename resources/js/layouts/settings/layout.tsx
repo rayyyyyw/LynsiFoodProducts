@@ -1,89 +1,65 @@
 import { Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
-import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Settings, User } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
-import type { NavItem } from '@/types';
-import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
-import { show } from '@/routes/two-factor';
-import { edit as editPassword } from '@/routes/user-password';
 
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: edit(),
-        icon: null,
-    },
-    {
-        title: 'Password',
-        href: editPassword(),
-        icon: null,
-    },
-    {
-        title: 'Two-Factor Auth',
-        href: show(),
-        icon: null,
-    },
-    {
-        title: 'Appearance',
-        href: editAppearance(),
-        icon: null,
-    },
+const tabs = [
+    { label: 'General Settings', href: '/settings/general', icon: Settings },
+    { label: 'Profile & Password', href: edit(), icon: User },
 ];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentUrl } = useCurrentUrl();
 
-    // When server-side rendering, we only render the layout on the client...
     if (typeof window === 'undefined') {
         return null;
     }
 
     return (
-        <div className="px-4 py-6">
-            <Heading
-                title="Settings"
-                description="Manage your profile and account settings"
-            />
-
-            <div className="flex flex-col lg:flex-row lg:space-x-12">
-                <aside className="w-full max-w-xl lg:w-48">
-                    <nav
-                        className="flex flex-col space-y-1 space-x-0"
-                        aria-label="Settings"
-                    >
-                        {sidebarNavItems.map((item, index) => (
-                            <Button
-                                key={`${toUrl(item.href)}-${index}`}
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted': isCurrentUrl(item.href),
-                                })}
-                            >
-                                <Link href={item.href}>
-                                    {item.icon && (
-                                        <item.icon className="h-4 w-4" />
-                                    )}
-                                    {item.title}
-                                </Link>
-                            </Button>
-                        ))}
-                    </nav>
-                </aside>
-
-                <Separator className="my-6 lg:hidden" />
-
-                <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl space-y-12">
-                        {children}
-                    </section>
+        <div className="min-h-full w-full px-4 py-4 sm:px-6 lg:px-8">
+            {/* Header: black/white only */}
+            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted">
+                    <Settings className="size-5 text-foreground" />
+                </div>
+                <div>
+                    <h1 className="text-xl font-bold tracking-tight text-foreground">Settings</h1>
+                    <p className="text-sm text-muted-foreground">
+                        Manage your application preferences, profile, password, and appearance.
+                    </p>
                 </div>
             </div>
+
+            {/* Tabs */}
+            <nav
+                className="mb-4 flex flex-wrap gap-1 border-b border-border"
+                aria-label="Settings sections"
+            >
+                {tabs.map((tab) => {
+                    const href = typeof tab.href === 'string' ? tab.href : toUrl(tab.href);
+                    const active = isCurrentUrl(href);
+                    const Icon = tab.icon;
+                    return (
+                        <Link
+                            key={href}
+                            href={href}
+                            className={cn(
+                                'flex items-center gap-2 rounded-t-md border-b-2 px-3 py-2 text-sm font-medium transition-colors',
+                                active
+                                    ? 'border-foreground text-foreground bg-muted'
+                                    : 'border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                            )}
+                        >
+                            <Icon className="size-4 shrink-0" />
+                            {tab.label}
+                        </Link>
+                    );
+                })}
+            </nav>
+
+            <div className="w-full max-w-4xl">{children}</div>
         </div>
     );
 }

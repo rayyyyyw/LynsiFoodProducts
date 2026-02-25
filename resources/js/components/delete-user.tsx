@@ -1,8 +1,8 @@
 import { Form } from '@inertiajs/react';
 import { useRef } from 'react';
-import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -20,16 +20,18 @@ export default function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
 
     return (
-        <div className="space-y-6">
-            <Heading
-                variant="small"
-                title="Delete account"
-                description="Delete your account and all of its resources"
-            />
-            <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                    <p className="font-medium">Warning</p>
-                    <p className="text-sm">
+        <Card className="border-border shadow-sm">
+            <CardHeader className="pb-3">
+                <CardTitle className="text-base">Delete account</CardTitle>
+                <CardDescription className="text-xs">
+                    Delete your account and all of its resources
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+            <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/50 dark:bg-red-950/30">
+                <div className="space-y-0.5 text-red-800 dark:text-red-200">
+                    <p className="text-sm font-medium">Warning</p>
+                    <p className="text-xs">
                         Please proceed with caution, this cannot be undone.
                     </p>
                 </div>
@@ -116,6 +118,7 @@ export default function DeleteUser() {
                     </DialogContent>
                 </Dialog>
             </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 }

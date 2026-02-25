@@ -7,8 +7,11 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', '/settings/profile');
+    Route::redirect('settings', '/settings/general');
+    Route::redirect('settings/password', '/settings/profile');
 
+    Route::get('settings/general', fn () => Inertia::render('settings/general'))->name('settings.general');
+    Route::get('settings/appearance', fn () => redirect()->route('profile.edit'))->name('appearance.edit');
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
@@ -21,10 +24,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('settings/password', [PasswordController::class, 'update'])
         ->middleware('throttle:6,1')
         ->name('user-password.update');
-
-    Route::get('settings/appearance', function () {
-        return Inertia::render('settings/appearance');
-    })->name('appearance.edit');
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');

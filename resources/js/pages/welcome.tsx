@@ -267,27 +267,10 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                     @media (min-width: 768px) { .lynsi-hero-section { padding: 40px 24px 48px; } }
                     @media (min-width: 1024px) { .lynsi-hero-section { padding: 48px 24px 56px; } }
 
-                    @keyframes hero-blob-float {
-                        0%, 100% { transform: translate(0, 0) scale(1); }
-                        33% { transform: translate(8px, -12px) scale(1.02); }
-                        66% { transform: translate(-6px, 8px) scale(0.98); }
-                    }
-                    @keyframes hero-blob-float-slow {
-                        0%, 100% { transform: translate(0, 0); }
-                        50% { transform: translate(-10px, -8px); }
-                    }
-                    .hero-blob { animation: hero-blob-float 18s ease-in-out infinite; }
-                    .hero-blob-slow { animation: hero-blob-float-slow 22s ease-in-out infinite; }
-
-                    .lynsi-hero-text { min-width: 0; max-width: 100%; overflow-wrap: break-word; word-wrap: break-word; }
-                    .lynsi-hero-text h1 { overflow-wrap: break-word; word-wrap: break-word; }
-                    .lynsi-hero-text p { max-width: 100%; }
-                    .lynsi-hero-stats { gap: 20px; }
+                    .lynsi-hero-section .section-badge { margin-bottom: 12px; }
                     @media (max-width: 480px) {
-                        .lynsi-hero-stats { flex-direction: column; gap: 16px; align-items: center; margin-top: 32px; }
-                        .lynsi-hero-stats > div { text-align: center; white-space: nowrap; }
                         .lynsi-hero-section .section-badge { font-size: 11px; padding: 6px 12px; white-space: normal; text-align: center; }
-                        .lynsi-hero-text h1 { font-size: 28px; }
+                        .lynsi-hero-section .lynsi-section-title { font-size: 26px; }
                     }
 
                     .lynsi-btn-primary {
@@ -653,109 +636,66 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
                 <div className="lynsi-nav-spacer">
                 {/* ── HERO AREA ─────────────────────────────────────────────────────── */}
                 <section id="home" className="lynsi-hero-section" style={{
-                    background: `linear-gradient(165deg, ${PALETTE.primary} 0%, ${PALETTE.secondary} 40%, ${PALETTE.accent} 100%)`,
-                    position: 'relative',
-                    overflow: 'hidden',
+                    background: PALETTE.bg,
+                    borderBottom: `1px solid ${PALETTE.border}`,
                 }}>
-                    {/* Background blobs with gentle animation */}
-                    <div className="hero-blob" style={{
-                        position: 'absolute', top: '-120px', right: '-80px', width: '480px', height: '480px',
-                        borderRadius: '60% 40% 70% 30% / 60% 60% 40% 40%', background: 'rgba(16,185,129,0.28)', filter: 'blur(70px)', opacity: 0.9,
-                    }} />
-                    <div className="hero-blob-slow" style={{
-                        position: 'absolute', bottom: '-100px', left: '-120px', width: '380px', height: '380px',
-                        borderRadius: '40% 60% 30% 70% / 50% 50% 50% 50%', background: 'rgba(167,243,208,0.22)', filter: 'blur(60px)', opacity: 0.9,
-                    }} />
-                    <div className="hero-blob" style={{
-                        position: 'absolute', top: '30%', left: '-60px', width: '280px', height: '280px',
-                        borderRadius: '50%', background: 'rgba(110,231,183,0.18)', filter: 'blur(50px)', opacity: 0.85, animationDelay: '-4s',
-                    }} />
-                    <div className="hero-blob-slow" style={{
-                        position: 'absolute', bottom: '20%', right: '-40px', width: '320px', height: '320px',
-                        borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%', background: 'rgba(6,95,70,0.22)', filter: 'blur(55px)', opacity: 0.85, animationDelay: '-8s',
-                    }} />
-                    <div style={{
-                        position: 'absolute', top: '50%', left: '50%', width: '420px', height: '420px',
-                        transform: 'translate(-50%, -50%)', borderRadius: '50%',
-                        background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 65%)', filter: 'blur(24px)',
-                    }} />
-                    <div className="hero-blob" style={{
-                        position: 'absolute', top: '10%', right: '15%', width: '180px', height: '180px',
-                        borderRadius: '63% 37% 54% 46% / 55% 48% 52% 45%', background: 'rgba(255,255,255,0.06)', filter: 'blur(40px)', animationDelay: '-2s',
-                    }} />
-                    <div className="hero-blob-slow" style={{
-                        position: 'absolute', bottom: '15%', left: '20%', width: '220px', height: '220px',
-                        borderRadius: '37% 63% 46% 54% / 48% 55% 45% 52%', background: 'rgba(52,211,153,0.14)', filter: 'blur(45px)', animationDelay: '-6s',
-                    }} />
-                    {/* Soft overlay for depth and readability */}
-                    <div style={{
-                        position: 'absolute', inset: 0,
-                        background: 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(2,44,34,0.15) 100%)',
-                        pointerEvents: 'none',
-                    }} />
-                    {/* Subtle top/bottom vignette */}
-                    <div style={{
-                        position: 'absolute', inset: 0,
-                        background: 'linear-gradient(to bottom, rgba(0,0,0,0.03) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.04) 100%)',
-                        pointerEvents: 'none',
-                    }} />
-
-                    <div className="lynsi-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <div style={{ width: '100%', maxWidth: '640px', textAlign: 'center' }}>
-                            <div style={{
-                                display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '50px',
-                                background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                                color: PALETTE.onDarkMuted, border: '1px solid rgba(255,255,255,0.3)', fontSize: '12px', fontWeight: 600,
-                                letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '14px',
-                                boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-                            }}>
-                                🌿 Philippines #1 Organic Food Platform
-                            </div>
-                            <h1 style={{
-                                fontSize: 'clamp(26px, 4.2vw, 42px)',
-                                fontWeight: 900,
-                                lineHeight: 1.2,
-                                color: PALETTE.white,
+                    <div className="lynsi-container" style={{ textAlign: 'center' }}>
+                        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                            <div className="section-badge">🌿 Philippines #1 Organic Food Platform</div>
+                            <h1 className="lynsi-section-title" style={{
+                                fontWeight: 800,
+                                color: PALETTE.primary,
                                 marginBottom: '12px',
                                 letterSpacing: '-0.02em',
-                                textShadow: '0 2px 20px rgba(0,0,0,0.15)',
+                                fontSize: 'clamp(28px, 4.5vw, 44px)',
+                                lineHeight: 1.25,
                             }}>
                                 Lynsi Food Products,<br />
-                                <span style={{ color: PALETTE.onDarkMuted }}>Taste Beyond</span><br />
-                                <span style={{ color: PALETTE.onDark }}>Compare</span>
+                                <span className="gradient-text">Taste Beyond Compare</span>
                             </h1>
                             <p className="lynsi-section-desc" style={{
-                                color: PALETTE.onDarkMuted, lineHeight: 1.6, marginBottom: '20px', maxWidth: '100%', marginLeft: 'auto', marginRight: 'auto',
-                                textShadow: '0 1px 8px rgba(0,0,0,0.1)', fontSize: 'clamp(14px, 1.8vw, 16px)',
+                                color: PALETTE.muted,
+                                maxWidth: '100%',
+                                margin: '0 auto 28px',
+                                lineHeight: 1.7,
                             }}>
                                 Discover over 500+ certified organic products from trusted local farms.
                                 Healthier eating, starting today — no compromises.
                             </p>
-                            <div className="hero-buttons" style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                                <a href="#products" className="lynsi-btn-primary" style={{
-                                    background: `linear-gradient(135deg, ${PALETTE.accent}, ${PALETTE.secondary})`, color: '#fff',
-                                    boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(16,185,129,0.3)', border: 'none',
-                                }}>
+                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
+                                <a
+                                    href="#products"
+                                    className="lynsi-btn-primary"
+                                    onClick={(e) => { e.preventDefault(); scrollToSection('products'); }}
+                                >
                                     🛒 Shop Now
                                 </a>
-                                <a href="#how-it-works" className="lynsi-btn-secondary" style={{
-                                    color: PALETTE.onDark, borderColor: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.12)',
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                }}>
+                                <a
+                                    href="#how-it-works"
+                                    className="lynsi-btn-secondary"
+                                    onClick={(e) => { e.preventDefault(); scrollToSection('how-it-works'); }}
+                                >
                                     ▶ How It Works
                                 </a>
                             </div>
                             <div style={{
-                                display: 'flex', gap: '14px', marginTop: '28px', flexWrap: 'wrap', justifyContent: 'center',
+                                display: 'flex',
+                                gap: '24px',
+                                flexWrap: 'wrap',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                paddingTop: '24px',
+                                borderTop: `1px solid ${PALETTE.border}`,
                             }}>
-                                {[['500+', 'Products'], ['50k+', 'Happy Customers'], ['100%', 'Organic Certified']].map(([num, label]) => (
-                                    <div key={label} style={{
-                                        padding: '12px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.08)',
-                                        border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', minWidth: '100px',
-                                        boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-                                    }}>
-                                        <div style={{ fontSize: 'clamp(20px, 2.5vw, 24px)', fontWeight: 800, color: PALETTE.white, textShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>{num}</div>
-                                        <div style={{ fontSize: '11px', color: PALETTE.onDarkMuted, fontWeight: 500, marginTop: '2px' }}>{label}</div>
+                                {[['500+', 'Products'], ['50k+', 'Happy Customers'], ['100%', 'Organic Certified']].map(([num, label], i) => (
+                                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: i < 2 ? '24px' : 0 }}>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <div style={{ fontSize: 'clamp(22px, 2.8vw, 28px)', fontWeight: 800, color: PALETTE.primary }}>{num}</div>
+                                            <div style={{ fontSize: '12px', color: PALETTE.muted, fontWeight: 500, marginTop: '2px' }}>{label}</div>
+                                        </div>
+                                        {i < 2 && (
+                                            <div style={{ width: '1px', height: '36px', background: PALETTE.border, flexShrink: 0 }} aria-hidden />
+                                        )}
                                     </div>
                                 ))}
                             </div>
