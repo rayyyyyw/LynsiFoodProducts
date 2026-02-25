@@ -1,806 +1,1247 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { dashboard, login, register } from '@/routes';
+import { useState, useEffect } from 'react';
+import { Home, ShoppingBag, MapPin, Info, Mail } from 'lucide-react';
 
-export default function Welcome({
-    canRegister = true,
-}: {
-    canRegister?: boolean;
-}) {
-    const { auth } = usePage().props;
+// ─── Emerald E‑commerce Palette ───────────────────────────────────────────────
+const PALETTE = {
+    primary: '#065f46',      // emerald-800
+    secondary: '#047857',   // emerald-700
+    accent: '#10b981',      // emerald-500
+    muted: '#059669',       // emerald-600
+    light: '#d1fae5',       // emerald-100
+    bg: '#ecfdf5',          // emerald-50
+    border: '#a7f3d0',       // emerald-200
+    dark: '#022c22',        // emerald-950
+    onDark: '#a7f3d0',      // emerald-200 on dark bg
+    onDarkMuted: '#6ee7b7', // emerald-300
+    white: '#ffffff',
+} as const;
+
+const LOGO_URL = '/mylogo/logopng%20(1).png';
+
+const NAV_ITEMS: { id: string; label: string; icon: typeof Home }[] = [
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'products', label: 'Products', icon: ShoppingBag },
+    { id: 'our-locations', label: 'Our Locations', icon: MapPin },
+    { id: 'about-us', label: 'About Us', icon: Info },
+    { id: 'contact-us', label: 'Contact Us', icon: Mail },
+];
+
+const LOCATIONS = [
+    {
+        name: 'Lynsi Manila Hub',
+        address: '123 Organic Way, Bonifacio Global City',
+        city: 'Metro Manila',
+        phone: '+63 2 8123 4567',
+        hours: 'Mon–Sat 7AM–8PM',
+        tag: 'Headquarters',
+    },
+    {
+        name: 'Lynsi Cebu Store',
+        address: '456 Fresh Farm Road, Cebu Business Park',
+        city: 'Cebu City',
+        phone: '+63 32 412 3456',
+        hours: 'Mon–Sat 8AM–7PM',
+        tag: 'Pick-up & Delivery',
+    },
+    {
+        name: 'Lynsi Davao Branch',
+        address: '789 Eco Street, Lanang',
+        city: 'Davao City',
+        phone: '+63 82 221 5678',
+        hours: 'Mon–Sat 7AM–7PM',
+        tag: 'Full Service',
+    },
+];
+
+const PRODUCTS = [
+    {
+        name: 'Organic Hass Avocados',
+        price: '₱350',
+        unit: '/kg',
+        category: 'Fresh Fruits',
+        icon: '🥑',
+        badge: 'Bestseller',
+        color: '#dcfce7',
+    },
+    {
+        name: 'Farm-Fresh Tomatoes',
+        price: '₱120',
+        unit: '/kg',
+        category: 'Vegetables',
+        icon: '🍅',
+        badge: 'Harvested Today',
+        color: '#fee2e2',
+    },
+    {
+        name: 'Free-Range Brown Eggs',
+        price: '₱240',
+        unit: '/doz',
+        category: 'Dairy & Eggs',
+        icon: '🥚',
+        badge: 'Organic',
+        color: '#fef3c7',
+    },
+    {
+        name: 'Artisan Sourdough',
+        price: '₱180',
+        unit: '/loaf',
+        category: 'Bakery',
+        icon: '🥖',
+        badge: 'Fresh Baked',
+        color: '#ffedd5',
+    },
+];
+
+const PARTNERS = ['FreshMart', 'GreenLeaf Co.', 'NaturaBite', 'OrganicHub', 'EcoFarm', 'PureGrown', 'HarvestPlus', 'VerdeFoods'];
+
+const BENEFITS = [
+    {
+        icon: '🍃',
+        title: '100% Organic',
+        desc: 'Every product is certified organic — no pesticides, no additives, just pure goodness from farm to table.',
+    },
+    {
+        icon: '🚚',
+        title: 'Same-Day Delivery',
+        desc: 'Order before noon and get your fresh produce delivered to your door the very same day.',
+    },
+    {
+        icon: '🌱',
+        title: 'Sustainably Sourced',
+        desc: 'We partner directly with local eco-farms to reduce food miles and support sustainable agriculture.',
+    },
+    {
+        icon: '💚',
+        title: 'Health-First Selection',
+        desc: 'Every product is hand-picked by nutritionists to ensure maximum health benefits for your family.',
+    },
+    {
+        icon: '♻️',
+        title: 'Zero-Waste Packaging',
+        desc: 'All packaging is 100% compostable or recyclable — because we care about the planet as much as you do.',
+    },
+    {
+        icon: '🔒',
+        title: 'Quality Guarantee',
+        desc: 'Not satisfied? We offer a full refund, no questions asked. Your satisfaction is our promise.',
+    },
+];
+
+const STEPS = [
+    {
+        step: '01',
+        title: 'Choose Your Products',
+        desc: 'Browse our curated selection of over 500 fresh, organic food products sourced from certified local farms.',
+    },
+    {
+        step: '02',
+        title: 'We Pack & Prepare',
+        desc: "Our team carefully handpicks, inspects, and packs your order in eco-friendly, temperature-controlled packaging.",
+    },
+    {
+        step: '03',
+        title: 'Delivered Fresh to You',
+        desc: 'Receive your fresh order right at your doorstep within hours — guaranteed fresh or your money back.',
+    },
+];
+
+const TESTIMONIALS = [
+    {
+        name: 'Maria Santos',
+        role: 'Home Chef, Manila',
+        avatar: '👩‍🍳',
+        stars: 5,
+        text: "Lynsi Food Products has completely transformed how I cook. The freshness is unbeatable and I love knowing exactly where my food comes from. Highly recommend!",
+    },
+    {
+        name: 'Carlos Reyes',
+        role: 'Fitness Coach, Cebu',
+        avatar: '🏋️',
+        stars: 5,
+        text: "As a fitness coach, I recommend Lynsi to all my clients. The organic quality is top-notch and my clients have seen real improvements in their energy levels.",
+    },
+    {
+        name: 'Ana Lim',
+        role: 'Mother of 3, Davao',
+        avatar: '👨‍👩‍👧',
+        stars: 5,
+        text: "I feel so much better knowing my kids are eating clean food. The same-day delivery is a game changer for our busy family schedule. We love Lynsi!",
+    },
+];
+
+// ─── Star Rating ──────────────────────────────────────────────────────────────
+function Stars({ count }: { count: number }) {
+    return (
+        <div style={{ display: 'flex', gap: '2px', marginBottom: '12px' }} aria-label={`${count} stars`}>
+            {Array.from({ length: count }).map((_, i) => (
+                <span key={i} style={{ color: '#f59e0b', fontSize: '16px' }}>★</span>
+            ))}
+        </div>
+    );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+const SECTION_IDS = ['home', 'products', 'our-locations', 'about-us', 'contact-us'];
+const NAV_HEIGHT_PX = 72; // match .lynsi-nav-spacer so "active line" is just below fixed nav
+
+export default function Welcome({ canRegister = true }: { canRegister?: boolean }) {
+    const { auth } = usePage().props as { auth: { user: unknown } };
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [activeSection, setActiveSection] = useState('home');
+
+    // Scroll-spy: which section is at the "active line" (just below fixed nav)
+    useEffect(() => {
+        let raf = 0;
+        const onScroll = () => {
+            if (raf) cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(() => {
+                raf = 0;
+                let best: { id: string; top: number } | null = null;
+                for (const id of SECTION_IDS) {
+                    const el = document.getElementById(id);
+                    if (!el) continue;
+                    const top = el.getBoundingClientRect().top;
+                    // Section is "current" if its top is at or above the active line; pick the one closest below the line
+                    if (top <= NAV_HEIGHT_PX + 24) {
+                        if (!best || top >= best.top) best = { id, top };
+                    }
+                }
+                if (best) setActiveSection(best.id);
+                else if (SECTION_IDS.length) setActiveSection(SECTION_IDS[0]);
+            });
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+        return () => {
+            window.removeEventListener('scroll', onScroll);
+            if (raf) cancelAnimationFrame(raf);
+        };
+    }, []);
+
+    const scrollToSection = (id: string) => {
+        setActiveSection(id);
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
     return (
         <>
-            <Head title="Welcome">
-                <link rel="preconnect" href="https://fonts.bunny.net" />
+            <Head title="Lynsi Food Products – Fresh Organic Delivered to You">
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                 <link
-                    href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600"
+                    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
                     rel="stylesheet"
                 />
+                <style>{`
+                    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+                    html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+                    body { font-family: 'Inter', sans-serif; font-size: 16px; overflow-x: hidden; }
+
+                    .lynsi-nav-sticky {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        z-index: 1000;
+                    }
+                    .lynsi-nav-spacer { padding-top: 64px; }
+                    @media (min-width: 768px) {
+                        .lynsi-nav-spacer { padding-top: 68px; }
+                    }
+                    section[id] { scroll-margin-top: 72px; }
+
+                    .lynsi-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; }
+                    @media (min-width: 768px) { .lynsi-container { padding: 0 24px; } }
+                    @supports (padding: max(0px)) {
+                        .lynsi-container { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
+                    }
+
+                    .lynsi-section { padding: 48px 20px; }
+                    @media (min-width: 768px) { .lynsi-section { padding: 80px 24px; } }
+                    @media (min-width: 1024px) { .lynsi-section { padding: 96px 24px; } }
+
+                    .lynsi-hero-section { padding: 28px 20px 36px; }
+                    @media (min-width: 768px) { .lynsi-hero-section { padding: 40px 24px 48px; } }
+                    @media (min-width: 1024px) { .lynsi-hero-section { padding: 48px 24px 56px; } }
+
+                    @keyframes hero-blob-float {
+                        0%, 100% { transform: translate(0, 0) scale(1); }
+                        33% { transform: translate(8px, -12px) scale(1.02); }
+                        66% { transform: translate(-6px, 8px) scale(0.98); }
+                    }
+                    @keyframes hero-blob-float-slow {
+                        0%, 100% { transform: translate(0, 0); }
+                        50% { transform: translate(-10px, -8px); }
+                    }
+                    .hero-blob { animation: hero-blob-float 18s ease-in-out infinite; }
+                    .hero-blob-slow { animation: hero-blob-float-slow 22s ease-in-out infinite; }
+
+                    .lynsi-hero-text { min-width: 0; max-width: 100%; overflow-wrap: break-word; word-wrap: break-word; }
+                    .lynsi-hero-text h1 { overflow-wrap: break-word; word-wrap: break-word; }
+                    .lynsi-hero-text p { max-width: 100%; }
+                    .lynsi-hero-stats { gap: 20px; }
+                    @media (max-width: 480px) {
+                        .lynsi-hero-stats { flex-direction: column; gap: 16px; align-items: center; margin-top: 32px; }
+                        .lynsi-hero-stats > div { text-align: center; white-space: nowrap; }
+                        .lynsi-hero-section .section-badge { font-size: 11px; padding: 6px 12px; white-space: normal; text-align: center; }
+                        .lynsi-hero-text h1 { font-size: 28px; }
+                    }
+
+                    .lynsi-btn-primary {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        min-height: 44px;
+                        min-width: 44px;
+                        background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+                        color: #fff;
+                        font-weight: 600;
+                        font-size: 15px;
+                        padding: 14px 28px;
+                        border-radius: 12px;
+                        border: none;
+                        cursor: pointer;
+                        transition: all 0.25s ease;
+                        box-shadow: 0 4px 14px rgba(6,95,70,0.35);
+                        text-decoration: none;
+                    }
+                    .lynsi-btn-primary:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 24px rgba(6,95,70,0.4);
+                        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                    }
+                    @media (max-width: 480px) { .lynsi-btn-primary { padding: 12px 20px; font-size: 14px; width: 100%; justify-content: center; } }
+
+                    .lynsi-btn-secondary {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        min-height: 44px;
+                        background: transparent;
+                        color: #065f46;
+                        font-weight: 600;
+                        font-size: 15px;
+                        padding: 12px 28px;
+                        border-radius: 12px;
+                        border: 2px solid #047857;
+                        cursor: pointer;
+                        transition: all 0.25s ease;
+                        text-decoration: none;
+                    }
+                    .lynsi-btn-secondary:hover {
+                        background: #ecfdf5;
+                        transform: translateY(-2px);
+                    }
+                    @media (max-width: 480px) { .lynsi-btn-secondary { padding: 12px 20px; font-size: 14px; } }
+
+                    .benefit-card {
+                        background: #fff;
+                        border: 1px solid #a7f3d0;
+                        border-radius: 16px;
+                        padding: 24px 20px;
+                        transition: all 0.3s ease;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .benefit-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0; left: 0; right: 0;
+                        height: 3px;
+                        background: linear-gradient(90deg, #10b981, #065f46);
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    }
+                    .benefit-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 16px 40px rgba(6,95,70,0.12);
+                        border-color: #6ee7b7;
+                    }
+                    .benefit-card:hover::before { opacity: 1; }
+                    @media (max-width: 767px) { .benefit-card { padding: 20px 16px; } }
+
+                    .product-card {
+                        background: #fff;
+                        border: 1px solid #a7f3d0;
+                        border-radius: 16px;
+                        padding: 20px;
+                        transition: all 0.3s ease;
+                        position: relative;
+                        overflow: hidden;
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    .product-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 16px 40px rgba(6,95,70,0.12);
+                        border-color: #6ee7b7;
+                    }
+                    .product-image-placeholder {
+                        height: 140px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 56px;
+                        margin-bottom: 16px;
+                        background: #ecfdf5;
+                        transition: transform 0.3s ease;
+                    }
+                    .product-card:hover .product-image-placeholder { transform: scale(1.03); }
+                    @media (min-width: 768px) { .product-image-placeholder { height: 160px; font-size: 64px; } }
+
+                    .testimonial-card {
+                        background: #fff;
+                        border: 1px solid #a7f3d0;
+                        border-radius: 16px;
+                        padding: 24px;
+                        transition: all 0.3s ease;
+                    }
+                    .testimonial-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 12px 32px rgba(6,95,70,0.1);
+                    }
+                    @media (min-width: 768px) { .testimonial-card { padding: 32px; } }
+
+                    .step-card {
+                        background: #fff;
+                        border: 1px solid #a7f3d0;
+                        border-radius: 16px;
+                        padding: 28px 20px;
+                        text-align: center;
+                        transition: all 0.3s ease;
+                        position: relative;
+                    }
+                    .step-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 16px 40px rgba(6,95,70,0.1);
+                    }
+                    @media (min-width: 768px) { .step-card { padding: 36px 28px; } }
+
+                    .lynsi-hero-inner { flex-direction: column; gap: 32px; text-align: center; }
+                    .lynsi-hero-inner .lynsi-hero-text { text-align: center; }
+                    .lynsi-hero-inner .lynsi-hero-text p { margin-left: auto; margin-right: auto; }
+                    .lynsi-hero-stats { justify-content: center; }
+                    .lynsi-hero-visual { width: 100%; max-width: 320px; margin: 0 auto; height: 280px; }
+                    .lynsi-hero-visual .lynsi-hero-emoji { font-size: 64px; }
+                    @media (min-width: 768px) {
+                        .lynsi-hero-inner { flex-direction: row; gap: 48px; text-align: left; }
+                        .lynsi-hero-inner .lynsi-hero-text { text-align: left; }
+                        .lynsi-hero-inner .lynsi-hero-text p { margin-left: 0; margin-right: 0; }
+                        .lynsi-hero-stats { justify-content: flex-start; }
+                        .lynsi-hero-visual { width: 380px; max-width: none; height: 380px; }
+                        .lynsi-hero-visual .lynsi-hero-emoji { font-size: 80px; }
+                    }
+                    @media (min-width: 1024px) { .lynsi-hero-inner { gap: 60px; } }
+
+                    .hero-buttons { flex-direction: column; align-items: stretch; gap: 12px; }
+                    @media (min-width: 480px) { .hero-buttons { flex-direction: row; align-items: center; flex-wrap: wrap; } }
+
+                    .section-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        background: #d1fae5;
+                        color: #065f46;
+                        font-size: 12px;
+                        font-weight: 600;
+                        padding: 6px 14px;
+                        border-radius: 50px;
+                        border: 1px solid #a7f3d0;
+                        margin-bottom: 12px;
+                        letter-spacing: 0.5px;
+                        text-transform: uppercase;
+                    }
+                    @media (min-width: 768px) { .section-badge { font-size: 13px; padding: 6px 16px; margin-bottom: 16px; } }
+
+                    .nav-link {
+                        color: #64748b;
+                        font-weight: 500;
+                        font-size: 14px;
+                        text-decoration: none;
+                        padding: 10px 14px;
+                        min-height: 44px;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        border-radius: 10px;
+                        border-bottom: 2px solid transparent;
+                        transition: all 0.2s;
+                    }
+                    .nav-link:hover { color: #065f46; background: rgba(6,95,70,0.06); }
+                    .nav-link.nav-link-active {
+                        color: #065f46;
+                        background: #ecfdf5;
+                        border-bottom-color: #10b981;
+                    }
+                    .nav-link.nav-link-active .nav-link-icon { color: #065f46; }
+
+                    .nav-desktop { display: none; }
+                    @media (min-width: 768px) { .nav-desktop { display: flex; } }
+                    .nav-mobile-btn { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+                    @media (min-width: 768px) { .nav-mobile-btn { display: none; } }
+
+                    @media (max-width: 767px) {
+                        .lynsi-nav-bar .lynsi-nav-brand { min-width: 0; }
+                        .lynsi-nav-bar .lynsi-nav-brand img { max-width: 100px; height: 36px; }
+                        .lynsi-nav-bar .lynsi-nav-brand span { font-size: 15px; }
+                        .lynsi-nav-bar .lynsi-nav-cta {
+                            padding: 6px 12px !important;
+                            font-size: 12px !important;
+                            font-weight: 600 !important;
+                            min-height: 36px !important;
+                            white-space: nowrap;
+                            border-radius: 10px;
+                        }
+                    }
+
+                    .partner-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        padding: 8px 16px;
+                        border-radius: 50px;
+                        background: #fff;
+                        border: 1px solid #a7f3d0;
+                        color: #047857;
+                        font-weight: 600;
+                        font-size: 12px;
+                        white-space: nowrap;
+                        transition: all 0.2s;
+                    }
+                    .partner-badge:hover {
+                        background: #ecfdf5;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(6,95,70,0.12);
+                    }
+                    @media (min-width: 768px) { .partner-badge { padding: 10px 22px; font-size: 14px; } }
+
+                    .gradient-text {
+                        background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                    }
+
+                    .lynsi-section-title { font-size: clamp(28px, 4vw, 48px); }
+                    .lynsi-section-desc { font-size: 15px; }
+                    @media (min-width: 768px) { .lynsi-section-desc { font-size: 17px; } }
+
+                    .products-grid { grid-template-columns: 1fr; gap: 16px; }
+                    @media (min-width: 480px) { .products-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+                    @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; } }
+
+                    .benefits-grid { grid-template-columns: 1fr; gap: 16px; }
+                    @media (min-width: 640px) { .benefits-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+                    @media (min-width: 1024px) { .benefits-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+
+                    .steps-grid { grid-template-columns: 1fr; gap: 20px; }
+                    @media (min-width: 768px) { .steps-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+
+                    .testimonials-grid { grid-template-columns: 1fr; gap: 20px; }
+                    @media (min-width: 640px) { .testimonials-grid { grid-template-columns: repeat(2, 1fr); } }
+                    @media (min-width: 1024px) { .testimonials-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+
+                    .contact-grid { grid-template-columns: 1fr; gap: 16px; }
+                    @media (min-width: 480px) { .contact-grid { grid-template-columns: repeat(2, 1fr); } }
+                    @media (min-width: 768px) { .contact-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+
+                    .locations-grid { grid-template-columns: 1fr; gap: 20px; }
+                    @media (min-width: 640px) { .locations-grid { grid-template-columns: repeat(2, 1fr); } }
+                    @media (min-width: 1024px) { .locations-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+
+                    .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+                    @media (min-width: 640px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
+                    @media (min-width: 1024px) { .footer-grid { grid-template-columns: repeat(4, 1fr); gap: 48px; } }
+
+                    .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+                    @media (min-width: 640px) { .footer-bottom { flex-direction: row; justify-content: space-between; text-align: left; } }
+                `}</style>
             </Head>
-            <div className="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:justify-center lg:p-8 dark:bg-[#0a0a0a]">
-                <header className="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
-                    <nav className="flex items-center justify-end gap-4">
-                        {auth.user ? (
-                            <Link
-                                href={dashboard()}
-                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                            >
-                                Dashboard
-                            </Link>
-                        ) : (
-                            <>
-                                <Link
-                                    href={login()}
-                                    className="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
+
+            <div style={{ background: PALETTE.bg, minHeight: '100vh', fontFamily: "'Inter', sans-serif", color: PALETTE.primary }}>
+
+                {/* ── STICKY NAVBAR ─────────────────────────────────────────────────── */}
+                <nav className="lynsi-nav-sticky" style={{
+                    background: 'rgba(255,255,255,0.96)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    borderBottom: `1px solid ${PALETTE.border}`,
+                    boxShadow: '0 2px 20px rgba(6,95,70,0.08)',
+                }}>
+                    <div className="lynsi-container lynsi-nav-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '64px', gap: '12px' }}>
+                        <Link href="/" className="lynsi-nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit', minWidth: 0 }} aria-label="Lynsi Food Products - Home">
+                            <img
+                                src={LOGO_URL}
+                                alt=""
+                                style={{ height: '40px', width: 'auto', maxWidth: '140px', objectFit: 'contain', display: 'block', flexShrink: 1 }}
+                            />
+                            <span style={{ fontWeight: 800, fontSize: '18px', color: PALETTE.primary, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
+                                Lynsi<span style={{ color: PALETTE.accent }}>FoodProducts</span>
+                            </span>
+                        </Link>
+
+                        <div className="nav-desktop" style={{ alignItems: 'center', gap: '12px' }}>
+                            {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
+                                <a
+                                    key={id}
+                                    href={`#${id}`}
+                                    className={`nav-link ${activeSection === id ? 'nav-link-active' : ''}`}
+                                    onClick={(e) => { e.preventDefault(); scrollToSection(id); }}
                                 >
-                                    Log in
-                                </Link>
-                                {canRegister && (
-                                    <Link
-                                        href={register()}
-                                        className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                                    >
-                                        Register
-                                    </Link>
-                                )}
-                            </>
-                        )}
-                    </nav>
-                </header>
-                <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <div className="flex-1 rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]">
-                            <h1 className="mb-1 font-medium">
-                                Let's get started
-                            </h1>
-                            <p className="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                                Laravel has an incredibly rich ecosystem.
-                                <br />
-                                We suggest starting with the following.
-                            </p>
-                            <ul className="mb-4 flex flex-col lg:mb-6">
-                                <li className="relative flex items-center gap-4 py-2 before:absolute before:top-1/2 before:bottom-0 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A]">
-                                    <span className="relative bg-white py-1 dark:bg-[#161615]">
-                                        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A]" />
-                                        </span>
-                                    </span>
-                                    <span>
-                                        Read the
-                                        <a
-                                            href="https://laravel.com/docs"
-                                            target="_blank"
-                                            className="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
-                                        >
-                                            <span>Documentation</span>
-                                            <svg
-                                                width={10}
-                                                height={11}
-                                                viewBox="0 0 10 11"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-2.5 w-2.5"
-                                            >
-                                                <path
-                                                    d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="square"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </span>
-                                </li>
-                                <li className="relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-1/2 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A]">
-                                    <span className="relative bg-white py-1 dark:bg-[#161615]">
-                                        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A]" />
-                                        </span>
-                                    </span>
-                                    <span>
-                                        Watch video tutorials at
-                                        <a
-                                            href="https://laracasts.com"
-                                            target="_blank"
-                                            className="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
-                                        >
-                                            <span>Laracasts</span>
-                                            <svg
-                                                width={10}
-                                                height={11}
-                                                viewBox="0 0 10 11"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-2.5 w-2.5"
-                                            >
-                                                <path
-                                                    d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="square"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </span>
-                                </li>
-                            </ul>
-                            <ul className="flex gap-3 text-sm leading-normal">
-                                <li>
+                                    <Icon size={18} className="nav-link-icon" style={{ flexShrink: 0 }} />
+                                    <span>{label}</span>
+                                </a>
+                            ))}
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            {auth.user ? (
+                                <Link href="/dashboard" className="lynsi-btn-primary" style={{ padding: '10px 20px', fontSize: '14px' }}>Dashboard</Link>
+                            ) : (
+                                <>
+                                    <Link href="/login" className="nav-link nav-desktop">Log in</Link>
+                                    {canRegister && (
+                                        <Link href="/register" className="lynsi-btn-primary lynsi-nav-cta" style={{ padding: '10px 20px', fontSize: '14px', whiteSpace: 'nowrap' }}>
+                                            Get Started Free
+                                        </Link>
+                                    )}
+                                </>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="nav-mobile-btn"
+                                style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: PALETTE.primary }}
+                                id="mobile-menu-toggle"
+                                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                            >
+                                {mobileMenuOpen ? '✕' : '☰'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {mobileMenuOpen && (
+                        <div style={{ background: PALETTE.white, borderTop: `1px solid ${PALETTE.border}`, padding: '12px 16px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
                                     <a
-                                        href="https://cloud.laravel.com"
-                                        target="_blank"
-                                        className="inline-block rounded-sm border border-black bg-[#1b1b18] px-5 py-1.5 text-sm leading-normal text-white hover:border-black hover:bg-black dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
+                                        key={id}
+                                        href={`#${id}`}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
+                                            color: activeSection === id ? PALETTE.primary : PALETTE.muted,
+                                            fontWeight: 500, textDecoration: 'none', borderRadius: '10px',
+                                            background: activeSection === id ? PALETTE.bg : 'transparent',
+                                            minHeight: 44,
+                                        }}
+                                        onClick={(e) => { e.preventDefault(); scrollToSection(id); setMobileMenuOpen(false); }}
                                     >
-                                        Deploy now
+                                        <Icon size={20} />
+                                        <span>{label}</span>
                                     </a>
-                                </li>
-                            </ul>
+                                ))}
+                            </div>
                         </div>
-                        <div className="relative -mb-px aspect-[335/376] w-full shrink-0 overflow-hidden rounded-t-lg bg-[#fff2f2] lg:mb-0 lg:-ml-px lg:aspect-auto lg:w-[438px] lg:rounded-t-none lg:rounded-r-lg dark:bg-[#1D0002]">
-                            <svg
-                                className="w-full max-w-none translate-y-0 text-[#F53003] opacity-100 transition-all duration-750 dark:text-[#F61500] starting:translate-y-6 starting:opacity-0"
-                                viewBox="0 0 438 104"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M17.2036 -3H0V102.197H49.5189V86.7187H17.2036V-3Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M110.256 41.6337C108.061 38.1275 104.945 35.3731 100.905 33.3681C96.8667 31.3647 92.8016 30.3618 88.7131 30.3618C83.4247 30.3618 78.5885 31.3389 74.201 33.2923C69.8111 35.2456 66.0474 37.928 62.9059 41.3333C59.7643 44.7401 57.3198 48.6726 55.5754 53.1293C53.8287 57.589 52.9572 62.274 52.9572 67.1813C52.9572 72.1925 53.8287 76.8995 55.5754 81.3069C57.3191 85.7173 59.7636 89.6241 62.9059 93.0293C66.0474 96.4361 69.8119 99.1155 74.201 101.069C78.5885 103.022 83.4247 103.999 88.7131 103.999C92.8016 103.999 96.8667 102.997 100.905 100.994C104.945 98.9911 108.061 96.2359 110.256 92.7282V102.195H126.563V32.1642H110.256V41.6337ZM108.76 75.7472C107.762 78.4531 106.366 80.8078 104.572 82.8112C102.776 84.8161 100.606 86.4183 98.0637 87.6206C95.5202 88.823 92.7004 89.4238 89.6103 89.4238C86.5178 89.4238 83.7252 88.823 81.2324 87.6206C78.7388 86.4183 76.5949 84.8161 74.7998 82.8112C73.004 80.8078 71.6319 78.4531 70.6856 75.7472C69.7356 73.0421 69.2644 70.1868 69.2644 67.1821C69.2644 64.1758 69.7356 61.3205 70.6856 58.6154C71.6319 55.9102 73.004 53.5571 74.7998 51.5522C76.5949 49.5495 78.738 47.9451 81.2324 46.7427C83.7252 45.5404 86.5178 44.9396 89.6103 44.9396C92.7012 44.9396 95.5202 45.5404 98.0637 46.7427C100.606 47.9451 102.776 49.5487 104.572 51.5522C106.367 53.5571 107.762 55.9102 108.76 58.6154C109.756 61.3205 110.256 64.1758 110.256 67.1821C110.256 70.1868 109.756 73.0421 108.76 75.7472Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M242.805 41.6337C240.611 38.1275 237.494 35.3731 233.455 33.3681C229.416 31.3647 225.351 30.3618 221.262 30.3618C215.974 30.3618 211.138 31.3389 206.75 33.2923C202.36 35.2456 198.597 37.928 195.455 41.3333C192.314 44.7401 189.869 48.6726 188.125 53.1293C186.378 57.589 185.507 62.274 185.507 67.1813C185.507 72.1925 186.378 76.8995 188.125 81.3069C189.868 85.7173 192.313 89.6241 195.455 93.0293C198.597 96.4361 202.361 99.1155 206.75 101.069C211.138 103.022 215.974 103.999 221.262 103.999C225.351 103.999 229.416 102.997 233.455 100.994C237.494 98.9911 240.611 96.2359 242.805 92.7282V102.195H259.112V32.1642H242.805V41.6337ZM241.31 75.7472C240.312 78.4531 238.916 80.8078 237.122 82.8112C235.326 84.8161 233.156 86.4183 230.614 87.6206C228.07 88.823 225.251 89.4238 222.16 89.4238C219.068 89.4238 216.275 88.823 213.782 87.6206C211.289 86.4183 209.145 84.8161 207.35 82.8112C205.554 80.8078 204.182 78.4531 203.236 75.7472C202.286 73.0421 201.814 70.1868 201.814 67.1821C201.814 64.1758 202.286 61.3205 203.236 58.6154C204.182 55.9102 205.554 53.5571 207.35 51.5522C209.145 49.5495 211.288 47.9451 213.782 46.7427C216.275 45.5404 219.068 44.9396 222.16 44.9396C225.251 44.9396 228.07 45.5404 230.614 46.7427C233.156 47.9451 235.326 49.5487 237.122 51.5522C238.917 53.5571 240.312 55.9102 241.31 58.6154C242.306 61.3205 242.806 64.1758 242.806 67.1821C242.805 70.1868 242.305 73.0421 241.31 75.7472Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M438 -3H421.694V102.197H438V-3Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M139.43 102.197H155.735V48.2834H183.712V32.1665H139.43V102.197Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M324.49 32.1665L303.995 85.794L283.498 32.1665H266.983L293.748 102.197H314.242L341.006 32.1665H324.49Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M376.571 30.3656C356.603 30.3656 340.797 46.8497 340.797 67.1828C340.797 89.6597 356.094 104 378.661 104C391.29 104 399.354 99.1488 409.206 88.5848L398.189 80.0226C398.183 80.031 389.874 90.9895 377.468 90.9895C363.048 90.9895 356.977 79.3111 356.977 73.269H411.075C413.917 50.1328 398.775 30.3656 376.571 30.3656ZM357.02 61.0967C357.145 59.7487 359.023 43.3761 376.442 43.3761C393.861 43.3761 395.978 59.7464 396.099 61.0967H357.02Z"
-                                    fill="currentColor"
-                                />
-                            </svg>
-                            <svg
-                                className="relative -mt-[4.9rem] -ml-8 w-[448px] max-w-none lg:-mt-[6.6rem] lg:ml-0 dark:hidden"
-                                viewBox="0 0 440 376"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <g className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0">
-                                    <path
-                                        d="M188.263 355.73L188.595 355.73C195.441 348.845 205.766 339.761 219.569 328.477C232.93 317.193 242.978 308.205 249.714 301.511C256.34 294.626 260.867 287.358 263.296 279.708C265.725 272.058 264.565 264.121 259.816 255.896C254.516 246.716 247.062 239.352 237.454 233.805C227.957 228.067 217.908 225.198 207.307 225.198C196.927 225.197 190.136 227.97 186.934 233.516C183.621 238.872 184.726 246.331 190.247 255.894L125.647 255.891C116.371 239.825 112.395 225.481 113.72 212.858C115.265 200.235 121.559 190.481 132.602 183.596C143.754 176.52 158.607 172.982 177.159 172.983C196.594 172.984 215.863 176.523 234.968 183.6C253.961 190.486 271.299 200.241 286.98 212.864C302.661 225.488 315.14 239.833 324.416 255.899C333.03 270.817 336.841 283.918 335.847 295.203C335.075 306.487 331.376 316.336 324.75 324.751C318.346 333.167 308.408 343.494 294.936 355.734L377.094 355.737L405.917 405.656L217.087 405.649L188.263 355.73Z"
-                                        fill="black"
-                                    />
-                                    <path
-                                        d="M9.11884 226.339L-13.7396 226.338L-42.7286 176.132L43.0733 176.135L175.595 405.649L112.651 405.647L9.11884 226.339Z"
-                                        fill="black"
-                                    />
-                                    <path
-                                        d="M188.263 355.73L188.595 355.73C195.441 348.845 205.766 339.761 219.569 328.477C232.93 317.193 242.978 308.205 249.714 301.511C256.34 294.626 260.867 287.358 263.296 279.708C265.725 272.058 264.565 264.121 259.816 255.896C254.516 246.716 247.062 239.352 237.454 233.805C227.957 228.067 217.908 225.198 207.307 225.198C196.927 225.197 190.136 227.97 186.934 233.516C183.621 238.872 184.726 246.331 190.247 255.894L125.647 255.891C116.371 239.825 112.395 225.481 113.72 212.858C115.265 200.235 121.559 190.481 132.602 183.596C143.754 176.52 158.607 172.982 177.159 172.983C196.594 172.984 215.863 176.523 234.968 183.6C253.961 190.486 271.299 200.241 286.98 212.864C302.661 225.488 315.14 239.833 324.416 255.899C333.03 270.817 336.841 283.918 335.847 295.203C335.075 306.487 331.376 316.336 324.75 324.751C318.346 333.167 308.408 343.494 294.936 355.734L377.094 355.737L405.917 405.656L217.087 405.649L188.263 355.73Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M9.11884 226.339L-13.7396 226.338L-42.7286 176.132L43.0733 176.135L175.595 405.649L112.651 405.647L9.11884 226.339Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M204.592 327.449L204.923 327.449C211.769 320.564 222.094 311.479 235.897 300.196C249.258 288.912 259.306 279.923 266.042 273.23C272.668 266.345 277.195 259.077 279.624 251.427C282.053 243.777 280.893 235.839 276.145 227.615C270.844 218.435 263.39 211.071 253.782 205.524C244.285 199.786 234.236 196.917 223.635 196.916C213.255 196.916 206.464 199.689 203.262 205.235C199.949 210.59 201.054 218.049 206.575 227.612L141.975 227.61C132.699 211.544 128.723 197.2 130.048 184.577C131.593 171.954 137.887 162.2 148.93 155.315C160.083 148.239 174.935 144.701 193.487 144.702C212.922 144.703 232.192 148.242 251.296 155.319C270.289 162.205 287.627 171.96 303.308 184.583C318.989 197.207 331.468 211.552 340.745 227.618C349.358 242.536 353.169 255.637 352.175 266.921C351.403 278.205 347.704 288.055 341.078 296.47C334.674 304.885 324.736 315.213 311.264 327.453L393.422 327.456L422.246 377.375L233.415 377.368L204.592 327.449Z"
-                                        fill="#F8B803"
-                                    />
-                                    <path
-                                        d="M25.447 198.058L2.58852 198.057L-26.4005 147.851L59.4015 147.854L191.923 377.368L128.979 377.365L25.447 198.058Z"
-                                        fill="#F8B803"
-                                    />
-                                    <path
-                                        d="M204.592 327.449L204.923 327.449C211.769 320.564 222.094 311.479 235.897 300.196C249.258 288.912 259.306 279.923 266.042 273.23C272.668 266.345 277.195 259.077 279.624 251.427C282.053 243.777 280.893 235.839 276.145 227.615C270.844 218.435 263.39 211.071 253.782 205.524C244.285 199.786 234.236 196.917 223.635 196.916C213.255 196.916 206.464 199.689 203.262 205.235C199.949 210.59 201.054 218.049 206.575 227.612L141.975 227.61C132.699 211.544 128.723 197.2 130.048 184.577C131.593 171.954 137.887 162.2 148.93 155.315C160.083 148.239 174.935 144.701 193.487 144.702C212.922 144.703 232.192 148.242 251.296 155.319C270.289 162.205 287.627 171.96 303.308 184.583C318.989 197.207 331.468 211.552 340.745 227.618C349.358 242.536 353.169 255.637 352.175 266.921C351.403 278.205 347.704 288.055 341.078 296.47C334.674 304.885 324.736 315.213 311.264 327.453L393.422 327.456L422.246 377.375L233.415 377.368L204.592 327.449Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M25.447 198.058L2.58852 198.057L-26.4005 147.851L59.4015 147.854L191.923 377.368L128.979 377.365L25.447 198.058Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                </g>
-                                <g
-                                    style={{ mixBlendMode: 'hard-light' }}
-                                    className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0"
-                                >
-                                    <path
-                                        d="M217.342 305.363L217.673 305.363C224.519 298.478 234.844 289.393 248.647 278.11C262.008 266.826 272.056 257.837 278.792 251.144C285.418 244.259 289.945 236.991 292.374 229.341C294.803 221.691 293.643 213.753 288.895 205.529C283.594 196.349 276.14 188.985 266.532 183.438C257.035 177.7 246.986 174.831 236.385 174.83C226.005 174.83 219.214 177.603 216.012 183.149C212.699 188.504 213.804 195.963 219.325 205.527L154.725 205.524C145.449 189.458 141.473 175.114 142.798 162.491C144.343 149.868 150.637 140.114 161.68 133.229C172.833 126.153 187.685 122.615 206.237 122.616C225.672 122.617 244.942 126.156 264.046 133.233C283.039 140.119 300.377 149.874 316.058 162.497C331.739 175.121 344.218 189.466 353.495 205.532C362.108 220.45 365.919 233.551 364.925 244.835C364.153 256.12 360.454 265.969 353.828 274.384C347.424 282.799 337.486 293.127 324.014 305.367L406.172 305.37L434.996 355.289L246.165 355.282L217.342 305.363Z"
-                                        fill="#F0ACB8"
-                                    />
-                                    <path
-                                        d="M38.197 175.972L15.3385 175.971L-13.6505 125.765L72.1515 125.768L204.673 355.282L141.729 355.279L38.197 175.972Z"
-                                        fill="#F0ACB8"
-                                    />
-                                    <path
-                                        d="M217.342 305.363L217.673 305.363C224.519 298.478 234.844 289.393 248.647 278.11C262.008 266.826 272.056 257.837 278.792 251.144C285.418 244.259 289.945 236.991 292.374 229.341C294.803 221.691 293.643 213.753 288.895 205.529C283.594 196.349 276.14 188.985 266.532 183.438C257.035 177.7 246.986 174.831 236.385 174.83C226.005 174.83 219.214 177.603 216.012 183.149C212.699 188.504 213.804 195.963 219.325 205.527L154.725 205.524C145.449 189.458 141.473 175.114 142.798 162.491C144.343 149.868 150.637 140.114 161.68 133.229C172.833 126.153 187.685 122.615 206.237 122.616C225.672 122.617 244.942 126.156 264.046 133.233C283.039 140.119 300.377 149.874 316.058 162.497C331.739 175.121 344.218 189.466 353.495 205.532C362.108 220.45 365.919 233.551 364.925 244.835C364.153 256.12 360.454 265.969 353.828 274.384C347.424 282.799 337.486 293.127 324.014 305.367L406.172 305.37L434.996 355.289L246.165 355.282L217.342 305.363Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M38.197 175.972L15.3385 175.971L-13.6505 125.765L72.1515 125.768L204.673 355.282L141.729 355.279L38.197 175.972Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                </g>
-                                <g className="translate-y-0 opacity-100 mix-blend-plus-darker transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0">
-                                    <path
-                                        d="M230.951 281.792L231.282 281.793C238.128 274.907 248.453 265.823 262.256 254.539C275.617 243.256 285.666 234.267 292.402 227.573C299.027 220.688 303.554 213.421 305.983 205.771C308.412 198.12 307.253 190.183 302.504 181.959C297.203 172.778 289.749 165.415 280.142 159.868C270.645 154.13 260.596 151.26 249.995 151.26C239.615 151.26 232.823 154.033 229.621 159.579C226.309 164.934 227.413 172.393 232.935 181.956L168.335 181.954C159.058 165.888 155.082 151.543 156.407 138.92C157.953 126.298 164.247 116.544 175.289 109.659C186.442 102.583 201.294 99.045 219.846 99.0457C239.281 99.0464 258.551 102.585 277.655 109.663C296.649 116.549 313.986 126.303 329.667 138.927C345.349 151.551 357.827 165.895 367.104 181.961C375.718 196.88 379.528 209.981 378.535 221.265C377.762 232.549 374.063 242.399 367.438 250.814C361.033 259.229 351.095 269.557 337.624 281.796L419.782 281.8L448.605 331.719L259.774 331.712L230.951 281.792Z"
-                                        fill="#F3BEC7"
-                                    />
-                                    <path
-                                        d="M51.8063 152.402L28.9479 152.401L-0.0411453 102.195L85.7608 102.198L218.282 331.711L155.339 331.709L51.8063 152.402Z"
-                                        fill="#F3BEC7"
-                                    />
-                                    <path
-                                        d="M230.951 281.792L231.282 281.793C238.128 274.907 248.453 265.823 262.256 254.539C275.617 243.256 285.666 234.267 292.402 227.573C299.027 220.688 303.554 213.421 305.983 205.771C308.412 198.12 307.253 190.183 302.504 181.959C297.203 172.778 289.749 165.415 280.142 159.868C270.645 154.13 260.596 151.26 249.995 151.26C239.615 151.26 232.823 154.033 229.621 159.579C226.309 164.934 227.413 172.393 232.935 181.956L168.335 181.954C159.058 165.888 155.082 151.543 156.407 138.92C157.953 126.298 164.247 116.544 175.289 109.659C186.442 102.583 201.294 99.045 219.846 99.0457C239.281 99.0464 258.551 102.585 277.655 109.663C296.649 116.549 313.986 126.303 329.667 138.927C345.349 151.551 357.827 165.895 367.104 181.961C375.718 196.88 379.528 209.981 378.535 221.265C377.762 232.549 374.063 242.399 367.438 250.814C361.033 259.229 351.095 269.557 337.624 281.796L419.782 281.8L448.605 331.719L259.774 331.712L230.951 281.792Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M51.8063 152.402L28.9479 152.401L-0.0411453 102.195L85.7608 102.198L218.282 331.711L155.339 331.709L51.8063 152.402Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                </g>
-                                <g className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0">
-                                    <path
-                                        d="M188.467 355.363L188.798 355.363C195.644 348.478 205.969 339.393 219.772 328.11C233.133 316.826 243.181 307.837 249.917 301.144C253.696 297.217 256.792 293.166 259.205 288.991C261.024 285.845 262.455 282.628 263.499 279.341C265.928 271.691 264.768 263.753 260.02 255.529C254.719 246.349 247.265 238.985 237.657 233.438C228.16 227.7 218.111 224.831 207.51 224.83C197.13 224.83 190.339 227.603 187.137 233.149C183.824 238.504 184.929 245.963 190.45 255.527L125.851 255.524C116.574 239.458 112.598 225.114 113.923 212.491C114.615 206.836 116.261 201.756 118.859 197.253C122.061 191.704 126.709 187.03 132.805 183.229C143.958 176.153 158.81 172.615 177.362 172.616C196.797 172.617 216.067 176.156 235.171 183.233C254.164 190.119 271.502 199.874 287.183 212.497C302.864 225.121 315.343 239.466 324.62 255.532C333.233 270.45 337.044 283.551 336.05 294.835C335.46 303.459 333.16 311.245 329.151 318.194C327.915 320.337 326.515 322.4 324.953 324.384C318.549 332.799 308.611 343.127 295.139 355.367L377.297 355.37L406.121 405.289L217.29 405.282L188.467 355.363Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M9.32197 225.972L-13.5365 225.971L-42.5255 175.765L43.2765 175.768L175.798 405.282L112.854 405.279L9.32197 225.972Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M345.247 111.915C329.566 99.2919 312.229 89.5371 293.235 82.6512L235.167 183.228C254.161 190.114 271.498 199.869 287.179 212.492L345.247 111.915Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M382.686 154.964C373.41 138.898 360.931 124.553 345.25 111.93L287.182 212.506C302.863 225.13 315.342 239.475 324.618 255.541L382.686 154.964Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M293.243 82.6472C274.139 75.57 254.869 72.031 235.434 72.0303L177.366 172.607C196.801 172.608 216.071 176.147 235.175 183.224L293.243 82.6472Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M394.118 194.257C395.112 182.973 391.301 169.872 382.688 154.953L324.619 255.53C333.233 270.448 337.044 283.55 336.05 294.834L394.118 194.257Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M235.432 72.0311C216.88 72.0304 202.027 75.5681 190.875 82.6442L132.806 183.221C143.959 176.145 158.812 172.607 177.363 172.608L235.432 72.0311Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M265.59 124.25C276.191 124.251 286.24 127.12 295.737 132.858L237.669 233.435C228.172 227.697 218.123 224.828 207.522 224.827L265.59 124.25Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M295.719 132.859C305.326 138.406 312.78 145.77 318.081 154.95L260.013 255.527C254.712 246.347 247.258 238.983 237.651 233.436L295.719 132.859Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M387.218 217.608C391.227 210.66 393.527 202.874 394.117 194.25L336.049 294.827C335.459 303.451 333.159 311.237 329.15 318.185L387.218 217.608Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M245.211 132.577C248.413 127.03 255.204 124.257 265.584 124.258L207.516 224.835C197.136 224.834 190.345 227.607 187.143 233.154L245.211 132.577Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M318.094 154.945C322.842 163.17 324.002 171.107 321.573 178.757L263.505 279.334C265.934 271.684 264.774 263.746 260.026 255.522L318.094 154.945Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M176.925 96.6737C180.127 91.1249 184.776 86.4503 190.871 82.6499L132.803 183.227C126.708 187.027 122.059 191.702 118.857 197.25L176.925 96.6737Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M387.226 217.606C385.989 219.749 384.59 221.813 383.028 223.797L324.96 324.373C326.522 322.39 327.921 320.326 329.157 318.183L387.226 217.606Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M317.269 188.408C319.087 185.262 320.519 182.045 321.562 178.758L263.494 279.335C262.451 282.622 261.019 285.839 259.201 288.985L317.269 188.408Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M245.208 132.573C241.895 137.928 243 145.387 248.522 154.95L190.454 255.527C184.932 245.964 183.827 238.505 187.14 233.15L245.208 132.573Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M176.93 96.6719C174.331 101.175 172.686 106.255 171.993 111.91L113.925 212.487C114.618 206.831 116.263 201.752 118.862 197.249L176.93 96.6719Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M317.266 188.413C314.853 192.589 311.757 196.64 307.978 200.566L249.91 301.143C253.689 297.216 256.785 293.166 259.198 288.99L317.266 188.413Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M464.198 304.708L435.375 254.789L377.307 355.366L406.13 405.285L464.198 304.708Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M353.209 254.787C366.68 242.548 376.618 232.22 383.023 223.805L324.955 324.382C318.55 332.797 308.612 343.124 295.141 355.364L353.209 254.787Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M435.37 254.787L353.212 254.784L295.144 355.361L377.302 355.364L435.37 254.787Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M183.921 154.947L248.521 154.95L190.453 255.527L125.853 255.524L183.921 154.947Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M171.992 111.914C170.668 124.537 174.643 138.881 183.92 154.947L125.852 255.524C116.575 239.458 112.599 225.114 113.924 212.491L171.992 111.914Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M307.987 200.562C301.251 207.256 291.203 216.244 277.842 227.528L219.774 328.105C233.135 316.821 243.183 307.832 249.919 301.139L307.987 200.562Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M15.5469 75.1797L44.5359 125.386L-13.5321 225.963L-42.5212 175.756L15.5469 75.1797Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M277.836 227.536C264.033 238.82 253.708 247.904 246.862 254.789L188.794 355.366C195.64 348.481 205.965 339.397 219.768 328.113L277.836 227.536Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M275.358 304.706L464.189 304.713L406.12 405.29L217.29 405.283L275.358 304.706Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M44.5279 125.39L67.3864 125.39L9.31834 225.967L-13.5401 225.966L44.5279 125.39Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M101.341 75.1911L233.863 304.705L175.795 405.282L43.2733 175.768L101.341 75.1911ZM15.5431 75.19L-42.525 175.767L43.277 175.77L101.345 75.1932L15.5431 75.19Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M246.866 254.784L246.534 254.784L188.466 355.361L188.798 355.361L246.866 254.784Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M246.539 254.781L275.362 304.701L217.294 405.277L188.471 355.358L246.539 254.781Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M67.3906 125.391L170.923 304.698L112.855 405.275L9.32257 225.967L67.3906 125.391Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M170.921 304.699L233.865 304.701L175.797 405.278L112.853 405.276L170.921 304.699Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                </g>
-                                <g
-                                    style={{ mixBlendMode: 'hard-light' }}
-                                    className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0"
-                                >
-                                    <path
-                                        d="M246.544 254.79L246.875 254.79C253.722 247.905 264.046 238.82 277.849 227.537C291.21 216.253 301.259 207.264 307.995 200.57C314.62 193.685 319.147 186.418 321.577 178.768C324.006 171.117 322.846 163.18 318.097 154.956C312.796 145.775 305.342 138.412 295.735 132.865C286.238 127.127 276.189 124.258 265.588 124.257C255.208 124.257 248.416 127.03 245.214 132.576C241.902 137.931 243.006 145.39 248.528 154.953L183.928 154.951C174.652 138.885 170.676 124.541 172 111.918C173.546 99.2946 179.84 89.5408 190.882 82.6559C202.035 75.5798 216.887 72.0421 235.439 72.0428C254.874 72.0435 274.144 75.5825 293.248 82.6598C312.242 89.5457 329.579 99.3005 345.261 111.924C360.942 124.548 373.421 138.892 382.697 154.958C391.311 169.877 395.121 182.978 394.128 194.262C393.355 205.546 389.656 215.396 383.031 223.811C376.627 232.226 366.688 242.554 353.217 254.794L435.375 254.797L464.198 304.716L275.367 304.709L246.544 254.79Z"
-                                        fill="#F0ACB8"
-                                    />
-                                    <path
-                                        d="M246.544 254.79L246.875 254.79C253.722 247.905 264.046 238.82 277.849 227.537C291.21 216.253 301.259 207.264 307.995 200.57C314.62 193.685 319.147 186.418 321.577 178.768C324.006 171.117 322.846 163.18 318.097 154.956C312.796 145.775 305.342 138.412 295.735 132.865C286.238 127.127 276.189 124.258 265.588 124.257C255.208 124.257 248.416 127.03 245.214 132.576C241.902 137.931 243.006 145.39 248.528 154.953L183.928 154.951C174.652 138.885 170.676 124.541 172 111.918C173.546 99.2946 179.84 89.5408 190.882 82.6559C202.035 75.5798 216.887 72.0421 235.439 72.0428C254.874 72.0435 274.144 75.5825 293.248 82.6598C312.242 89.5457 329.579 99.3005 345.261 111.924C360.942 124.548 373.421 138.892 382.697 154.958C391.311 169.877 395.121 182.978 394.128 194.262C393.355 205.546 389.656 215.396 383.031 223.811C376.627 232.226 366.688 242.554 353.217 254.794L435.375 254.797L464.198 304.716L275.367 304.709L246.544 254.79Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                        strokeLinejoin="round"
-                                    />
-                                </g>
-                                <g
-                                    style={{ mixBlendMode: 'hard-light' }}
-                                    className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0"
-                                >
-                                    <path
-                                        d="M67.41 125.402L44.5515 125.401L15.5625 75.1953L101.364 75.1985L233.886 304.712L170.942 304.71L67.41 125.402Z"
-                                        fill="#F0ACB8"
-                                    />
-                                    <path
-                                        d="M67.41 125.402L44.5515 125.401L15.5625 75.1953L101.364 75.1985L233.886 304.712L170.942 304.71L67.41 125.402Z"
-                                        stroke="#1B1B18"
-                                        strokeWidth={1}
-                                    />
-                                </g>
-                            </svg>
-                            <svg
-                                className="relative -mt-[4.9rem] -ml-8 hidden w-[448px] max-w-none lg:-mt-[6.6rem] lg:ml-0 dark:block"
-                                viewBox="0 0 440 376"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <g className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0">
-                                    <path
-                                        d="M188.263 355.73L188.595 355.73C195.441 348.845 205.766 339.761 219.569 328.477C232.93 317.193 242.978 308.205 249.714 301.511C256.34 294.626 260.867 287.358 263.296 279.708C265.725 272.058 264.565 264.121 259.816 255.896C254.516 246.716 247.062 239.352 237.454 233.805C227.957 228.067 217.908 225.198 207.307 225.198C196.927 225.197 190.136 227.97 186.934 233.516C183.621 238.872 184.726 246.331 190.247 255.894L125.647 255.891C116.371 239.825 112.395 225.481 113.72 212.858C115.265 200.235 121.559 190.481 132.602 183.596C143.754 176.52 158.607 172.982 177.159 172.983C196.594 172.984 215.863 176.523 234.968 183.6C253.961 190.486 271.299 200.241 286.98 212.864C302.661 225.488 315.14 239.833 324.416 255.899C333.03 270.817 336.841 283.918 335.847 295.203C335.075 306.487 331.376 316.336 324.75 324.751C318.346 333.167 308.408 343.494 294.936 355.734L377.094 355.737L405.917 405.656L217.087 405.649L188.263 355.73Z"
-                                        fill="black"
-                                    />
-                                    <path
-                                        d="M9.11884 226.339L-13.7396 226.338L-42.7286 176.132L43.0733 176.135L175.595 405.649L112.651 405.647L9.11884 226.339Z"
-                                        fill="black"
-                                    />
-                                    <path
-                                        d="M188.263 355.73L188.595 355.73C195.441 348.845 205.766 339.761 219.569 328.477C232.93 317.193 242.978 308.205 249.714 301.511C256.34 294.626 260.867 287.358 263.296 279.708C265.725 272.058 264.565 264.121 259.816 255.896C254.516 246.716 247.062 239.352 237.454 233.805C227.957 228.067 217.908 225.198 207.307 225.198C196.927 225.197 190.136 227.97 186.934 233.516C183.621 238.872 184.726 246.331 190.247 255.894L125.647 255.891C116.371 239.825 112.395 225.481 113.72 212.858C115.265 200.235 121.559 190.481 132.602 183.596C143.754 176.52 158.607 172.982 177.159 172.983C196.594 172.984 215.863 176.523 234.968 183.6C253.961 190.486 271.299 200.241 286.98 212.864C302.661 225.488 315.14 239.833 324.416 255.899C333.03 270.817 336.841 283.918 335.847 295.203C335.075 306.487 331.376 316.336 324.75 324.751C318.346 333.167 308.408 343.494 294.936 355.734L377.094 355.737L405.917 405.656L217.087 405.649L188.263 355.73Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M9.11884 226.339L-13.7396 226.338L-42.7286 176.132L43.0733 176.135L175.595 405.649L112.651 405.647L9.11884 226.339Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M204.592 327.449L204.923 327.449C211.769 320.564 222.094 311.479 235.897 300.196C249.258 288.912 259.306 279.923 266.042 273.23C272.668 266.345 277.195 259.077 279.624 251.427C282.053 243.777 280.893 235.839 276.145 227.615C270.844 218.435 263.39 211.071 253.782 205.524C244.285 199.786 234.236 196.917 223.635 196.916C213.255 196.916 206.464 199.689 203.262 205.235C199.949 210.59 201.054 218.049 206.575 227.612L141.975 227.61C132.699 211.544 128.723 197.2 130.048 184.577C131.593 171.954 137.887 162.2 148.93 155.315C160.083 148.239 174.935 144.701 193.487 144.702C212.922 144.703 232.192 148.242 251.296 155.319C270.289 162.205 287.627 171.96 303.308 184.583C318.989 197.207 331.468 211.552 340.745 227.618C349.358 242.536 353.169 255.637 352.175 266.921C351.403 278.205 347.704 288.055 341.078 296.47C334.674 304.885 324.736 315.213 311.264 327.453L393.422 327.456L422.246 377.375L233.415 377.368L204.592 327.449Z"
-                                        fill="#391800"
-                                    />
-                                    <path
-                                        d="M25.447 198.058L2.58852 198.057L-26.4005 147.851L59.4015 147.854L191.923 377.368L128.979 377.365L25.447 198.058Z"
-                                        fill="#391800"
-                                    />
-                                    <path
-                                        d="M204.592 327.449L204.923 327.449C211.769 320.564 222.094 311.479 235.897 300.196C249.258 288.912 259.306 279.923 266.042 273.23C272.668 266.345 277.195 259.077 279.624 251.427C282.053 243.777 280.893 235.839 276.145 227.615C270.844 218.435 263.39 211.071 253.782 205.524C244.285 199.786 234.236 196.917 223.635 196.916C213.255 196.916 206.464 199.689 203.262 205.235C199.949 210.59 201.054 218.049 206.575 227.612L141.975 227.61C132.699 211.544 128.723 197.2 130.048 184.577C131.593 171.954 137.887 162.2 148.93 155.315C160.083 148.239 174.935 144.701 193.487 144.702C212.922 144.703 232.192 148.242 251.296 155.319C270.289 162.205 287.627 171.96 303.308 184.583C318.989 197.207 331.468 211.552 340.745 227.618C349.358 242.536 353.169 255.637 352.175 266.921C351.403 278.205 347.704 288.055 341.078 296.47C334.674 304.885 324.736 315.213 311.264 327.453L393.422 327.456L422.246 377.375L233.415 377.368L204.592 327.449Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M25.447 198.058L2.58852 198.057L-26.4005 147.851L59.4015 147.854L191.923 377.368L128.979 377.365L25.447 198.058Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                </g>
-                                <g
-                                    className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0"
-                                    style={{ mixBlendMode: 'hard-light' }}
-                                >
-                                    <path
-                                        d="M217.342 305.363L217.673 305.363C224.519 298.478 234.844 289.393 248.647 278.11C262.008 266.826 272.056 257.837 278.792 251.144C285.418 244.259 289.945 236.991 292.374 229.341C294.803 221.691 293.643 213.753 288.895 205.529C283.594 196.349 276.14 188.985 266.532 183.438C257.035 177.7 246.986 174.831 236.385 174.83C226.005 174.83 219.214 177.603 216.012 183.149C212.699 188.504 213.804 195.963 219.325 205.527L154.725 205.524C145.449 189.458 141.473 175.114 142.798 162.491C144.343 149.868 150.637 140.114 161.68 133.229C172.833 126.153 187.685 122.615 206.237 122.616C225.672 122.617 244.942 126.156 264.046 133.233C283.039 140.119 300.377 149.874 316.058 162.497C331.739 175.121 344.218 189.466 353.495 205.532C362.108 220.45 365.919 233.551 364.925 244.835C364.153 256.12 360.454 265.969 353.828 274.384C347.424 282.799 337.486 293.127 324.014 305.367L406.172 305.37L434.996 355.289L246.165 355.282L217.342 305.363Z"
-                                        fill="#733000"
-                                    />
-                                    <path
-                                        d="M38.197 175.972L15.3385 175.971L-13.6505 125.765L72.1515 125.768L204.673 355.282L141.729 355.279L38.197 175.972Z"
-                                        fill="#733000"
-                                    />
-                                    <path
-                                        d="M217.342 305.363L217.673 305.363C224.519 298.478 234.844 289.393 248.647 278.11C262.008 266.826 272.056 257.837 278.792 251.144C285.418 244.259 289.945 236.991 292.374 229.341C294.803 221.691 293.643 213.753 288.895 205.529C283.594 196.349 276.14 188.985 266.532 183.438C257.035 177.7 246.986 174.831 236.385 174.83C226.005 174.83 219.214 177.603 216.012 183.149C212.699 188.504 213.804 195.963 219.325 205.527L154.725 205.524C145.449 189.458 141.473 175.114 142.798 162.491C144.343 149.868 150.637 140.114 161.68 133.229C172.833 126.153 187.685 122.615 206.237 122.616C225.672 122.617 244.942 126.156 264.046 133.233C283.039 140.119 300.377 149.874 316.058 162.497C331.739 175.121 344.218 189.466 353.495 205.532C362.108 220.45 365.919 233.551 364.925 244.835C364.153 256.12 360.454 265.969 353.828 274.384C347.424 282.799 337.486 293.127 324.014 305.367L406.172 305.37L434.996 355.289L246.165 355.282L217.342 305.363Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M38.197 175.972L15.3385 175.971L-13.6505 125.765L72.1515 125.768L204.673 355.282L141.729 355.279L38.197 175.972Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                </g>
-                                <g className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0">
-                                    <path
-                                        d="M217.342 305.363L217.673 305.363C224.519 298.478 234.844 289.393 248.647 278.11C262.008 266.826 272.056 257.837 278.792 251.144C285.418 244.259 289.945 236.991 292.374 229.341C294.803 221.691 293.643 213.753 288.895 205.529C283.594 196.349 276.14 188.985 266.532 183.438C257.035 177.7 246.986 174.831 236.385 174.83C226.005 174.83 219.214 177.603 216.012 183.149C212.699 188.504 213.804 195.963 219.325 205.527L154.726 205.524C145.449 189.458 141.473 175.114 142.798 162.491C144.343 149.868 150.637 140.114 161.68 133.229C172.833 126.153 187.685 122.615 206.237 122.616C225.672 122.617 244.942 126.156 264.046 133.233C283.039 140.119 300.377 149.874 316.058 162.497C331.739 175.121 344.218 189.466 353.495 205.532C362.108 220.45 365.919 233.551 364.925 244.835C364.153 256.12 360.454 265.969 353.828 274.384C347.424 282.799 337.486 293.127 324.014 305.367L406.172 305.37L434.996 355.289L246.165 355.282L217.342 305.363Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                    <path
-                                        d="M38.197 175.972L15.3385 175.971L-13.6505 125.765L72.1515 125.768L204.673 355.282L141.729 355.279L38.197 175.972Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                </g>
-                                <g className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0">
-                                    <path
-                                        d="M188.467 355.363L188.798 355.363C195.644 348.478 205.969 339.393 219.772 328.11C233.133 316.826 243.181 307.837 249.917 301.144C253.696 297.217 256.792 293.166 259.205 288.991C261.024 285.845 262.455 282.628 263.499 279.341C265.928 271.691 264.768 263.753 260.02 255.529C254.719 246.349 247.265 238.985 237.657 233.438C228.16 227.7 218.111 224.831 207.51 224.83C197.13 224.83 190.339 227.603 187.137 233.149C183.824 238.504 184.929 245.963 190.45 255.527L125.851 255.524C116.574 239.458 112.598 225.114 113.923 212.491C114.615 206.836 116.261 201.756 118.859 197.253C122.061 191.704 126.709 187.03 132.805 183.229C143.958 176.153 158.81 172.615 177.362 172.616C196.797 172.617 216.067 176.156 235.171 183.233C254.164 190.119 271.502 199.874 287.183 212.497C302.864 225.121 315.343 239.466 324.62 255.532C333.233 270.45 337.044 283.551 336.05 294.835C335.46 303.459 333.16 311.245 329.151 318.194C327.915 320.337 326.515 322.4 324.953 324.384C318.549 332.799 308.611 343.127 295.139 355.367L377.297 355.37L406.121 405.289L217.29 405.282L188.467 355.363Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M9.32197 225.972L-13.5365 225.971L-42.5255 175.765L43.2765 175.768L175.798 405.282L112.854 405.279L9.32197 225.972Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M345.247 111.915C329.566 99.2919 312.229 89.5371 293.235 82.6512L235.167 183.228C254.161 190.114 271.498 199.869 287.179 212.492L345.247 111.915Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M382.686 154.964C373.41 138.898 360.931 124.553 345.25 111.93L287.182 212.506C302.863 225.13 315.342 239.475 324.618 255.541L382.686 154.964Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M293.243 82.6472C274.139 75.57 254.869 72.031 235.434 72.0303L177.366 172.607C196.801 172.608 216.071 176.147 235.175 183.224L293.243 82.6472Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M394.118 194.257C395.112 182.973 391.301 169.872 382.688 154.953L324.619 255.53C333.233 270.448 337.044 283.55 336.05 294.834L394.118 194.257Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M235.432 72.0311C216.88 72.0304 202.027 75.5681 190.875 82.6442L132.806 183.221C143.959 176.145 158.812 172.607 177.363 172.608L235.432 72.0311Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M265.59 124.25C276.191 124.251 286.24 127.12 295.737 132.858L237.669 233.435C228.172 227.697 218.123 224.828 207.522 224.827L265.59 124.25Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M295.719 132.859C305.326 138.406 312.78 145.77 318.081 154.95L260.013 255.527C254.712 246.347 247.258 238.983 237.651 233.436L295.719 132.859Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M387.218 217.608C391.227 210.66 393.527 202.874 394.117 194.25L336.049 294.827C335.459 303.451 333.159 311.237 329.15 318.185L387.218 217.608Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M245.211 132.577C248.413 127.03 255.204 124.257 265.584 124.258L207.516 224.835C197.136 224.834 190.345 227.607 187.143 233.154L245.211 132.577Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M318.094 154.945C322.842 163.17 324.002 171.107 321.573 178.757L263.505 279.334C265.934 271.684 264.774 263.746 260.026 255.522L318.094 154.945Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M176.925 96.6737C180.127 91.1249 184.776 86.4503 190.871 82.6499L132.803 183.227C126.708 187.027 122.059 191.702 118.857 197.25L176.925 96.6737Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M387.226 217.606C385.989 219.749 384.59 221.813 383.028 223.797L324.96 324.373C326.522 322.39 327.921 320.326 329.157 318.183L387.226 217.606Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M317.269 188.408C319.087 185.262 320.519 182.045 321.562 178.758L263.494 279.335C262.451 282.622 261.019 285.839 259.201 288.985L317.269 188.408Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M245.208 132.573C241.895 137.928 243 145.387 248.522 154.95L190.454 255.527C184.932 245.964 183.827 238.505 187.14 233.15L245.208 132.573Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M176.93 96.6719C174.331 101.175 172.686 106.255 171.993 111.91L113.925 212.487C114.618 206.831 116.263 201.752 118.862 197.249L176.93 96.6719Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M317.266 188.413C314.853 192.589 311.757 196.64 307.978 200.566L249.91 301.143C253.689 297.216 256.785 293.166 259.198 288.99L317.266 188.413Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M464.198 304.708L435.375 254.789L377.307 355.366L406.13 405.285L464.198 304.708Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M353.209 254.787C366.68 242.548 376.618 232.22 383.023 223.805L324.955 324.382C318.55 332.797 308.612 343.124 295.141 355.364L353.209 254.787Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M435.37 254.787L353.212 254.784L295.144 355.361L377.302 355.364L435.37 254.787Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M183.921 154.947L248.521 154.95L190.453 255.527L125.853 255.524L183.921 154.947Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M171.992 111.914C170.668 124.537 174.643 138.881 183.92 154.947L125.852 255.524C116.575 239.458 112.599 225.114 113.924 212.491L171.992 111.914Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M307.987 200.562C301.251 207.256 291.203 216.244 277.842 227.528L219.774 328.105C233.135 316.821 243.183 307.832 249.919 301.139L307.987 200.562Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M15.5469 75.1797L44.5359 125.386L-13.5321 225.963L-42.5212 175.756L15.5469 75.1797Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M277.836 227.536C264.033 238.82 253.708 247.904 246.862 254.789L188.794 355.366C195.64 348.481 205.965 339.397 219.768 328.113L277.836 227.536Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M275.358 304.706L464.189 304.713L406.12 405.29L217.29 405.283L275.358 304.706Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M44.5279 125.39L67.3864 125.39L9.31834 225.967L-13.5401 225.966L44.5279 125.39Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M101.341 75.1911L233.863 304.705L175.795 405.282L43.2733 175.768L101.341 75.1911ZM15.5431 75.19L-42.525 175.767L43.277 175.77L101.345 75.1932L15.5431 75.19Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M246.866 254.784L246.534 254.784L188.466 355.361L188.798 355.361L246.866 254.784Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M246.539 254.781L275.362 304.701L217.294 405.277L188.471 355.358L246.539 254.781Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M67.3906 125.391L170.923 304.698L112.855 405.275L9.32257 225.967L67.3906 125.391Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                    <path
-                                        d="M170.921 304.699L233.865 304.701L175.797 405.278L112.853 405.276L170.921 304.699Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="bevel"
-                                    />
-                                </g>
-                                <g
-                                    className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0"
-                                    style={{ mixBlendMode: 'hard-light' }}
-                                >
-                                    <path
-                                        d="M246.544 254.79L246.875 254.79C253.722 247.905 264.046 238.82 277.849 227.537C291.21 216.253 301.259 207.264 307.995 200.57C314.62 193.685 319.147 186.418 321.577 178.768C324.006 171.117 322.846 163.18 318.097 154.956C312.796 145.775 305.342 138.412 295.735 132.865C286.238 127.127 276.189 124.258 265.588 124.257C255.208 124.257 248.416 127.03 245.214 132.576C241.902 137.931 243.006 145.39 248.528 154.953L183.928 154.951C174.652 138.885 170.676 124.541 172 111.918C173.546 99.2946 179.84 89.5408 190.882 82.6559C202.035 75.5798 216.887 72.0421 235.439 72.0428C254.874 72.0435 274.144 75.5825 293.248 82.6598C312.242 89.5457 329.579 99.3005 345.261 111.924C360.942 124.548 373.421 138.892 382.697 154.958C391.311 169.877 395.121 182.978 394.128 194.262C393.355 205.546 389.656 215.396 383.031 223.811C376.627 232.226 366.688 242.554 353.217 254.794L435.375 254.797L464.198 304.716L275.367 304.709L246.544 254.79Z"
-                                        fill="#4B0600"
-                                    />
-                                    <path
-                                        d="M246.544 254.79L246.875 254.79C253.722 247.905 264.046 238.82 277.849 227.537C291.21 216.253 301.259 207.264 307.995 200.57C314.62 193.685 319.147 186.418 321.577 178.768C324.006 171.117 322.846 163.18 318.097 154.956C312.796 145.775 305.342 138.412 295.735 132.865C286.238 127.127 276.189 124.258 265.588 124.257C255.208 124.257 248.416 127.03 245.214 132.576C241.902 137.931 243.006 145.39 248.528 154.953L183.928 154.951C174.652 138.885 170.676 124.541 172 111.918C173.546 99.2946 179.84 89.5408 190.882 82.6559C202.035 75.5798 216.887 72.0421 235.439 72.0428C254.874 72.0435 274.144 75.5825 293.248 82.6598C312.242 89.5457 329.579 99.3005 345.261 111.924C360.942 124.548 373.421 138.892 382.697 154.958C391.311 169.877 395.121 182.978 394.128 194.262C393.355 205.546 389.656 215.396 383.031 223.811C376.627 232.226 366.688 242.554 353.217 254.794L435.375 254.797L464.198 304.716L275.367 304.709L246.544 254.79Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                        strokeLinejoin="round"
-                                    />
-                                </g>
-                                <g
-                                    className="translate-y-0 opacity-100 transition-all delay-300 duration-750 starting:translate-y-4 starting:opacity-0"
-                                    style={{ mixBlendMode: 'hard-light' }}
-                                >
-                                    <path
-                                        d="M67.41 125.402L44.5515 125.401L15.5625 75.1953L101.364 75.1985L233.886 304.712L170.942 304.71L67.41 125.402Z"
-                                        fill="#4B0600"
-                                    />
-                                    <path
-                                        d="M67.41 125.402L44.5515 125.401L15.5625 75.1953L101.364 75.1985L233.886 304.712L170.942 304.71L67.41 125.402Z"
-                                        stroke="#FF750F"
-                                        strokeWidth={1}
-                                    />
-                                </g>
-                            </svg>
-                            <div className="absolute inset-0 rounded-t-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-t-none lg:rounded-r-lg dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]" />
+                    )}
+                </nav>
+
+                <div className="lynsi-nav-spacer">
+                {/* ── HERO AREA ─────────────────────────────────────────────────────── */}
+                <section id="home" className="lynsi-hero-section" style={{
+                    background: `linear-gradient(165deg, ${PALETTE.primary} 0%, ${PALETTE.secondary} 40%, ${PALETTE.accent} 100%)`,
+                    position: 'relative',
+                    overflow: 'hidden',
+                }}>
+                    {/* Background blobs with gentle animation */}
+                    <div className="hero-blob" style={{
+                        position: 'absolute', top: '-120px', right: '-80px', width: '480px', height: '480px',
+                        borderRadius: '60% 40% 70% 30% / 60% 60% 40% 40%', background: 'rgba(16,185,129,0.28)', filter: 'blur(70px)', opacity: 0.9,
+                    }} />
+                    <div className="hero-blob-slow" style={{
+                        position: 'absolute', bottom: '-100px', left: '-120px', width: '380px', height: '380px',
+                        borderRadius: '40% 60% 30% 70% / 50% 50% 50% 50%', background: 'rgba(167,243,208,0.22)', filter: 'blur(60px)', opacity: 0.9,
+                    }} />
+                    <div className="hero-blob" style={{
+                        position: 'absolute', top: '30%', left: '-60px', width: '280px', height: '280px',
+                        borderRadius: '50%', background: 'rgba(110,231,183,0.18)', filter: 'blur(50px)', opacity: 0.85, animationDelay: '-4s',
+                    }} />
+                    <div className="hero-blob-slow" style={{
+                        position: 'absolute', bottom: '20%', right: '-40px', width: '320px', height: '320px',
+                        borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%', background: 'rgba(6,95,70,0.22)', filter: 'blur(55px)', opacity: 0.85, animationDelay: '-8s',
+                    }} />
+                    <div style={{
+                        position: 'absolute', top: '50%', left: '50%', width: '420px', height: '420px',
+                        transform: 'translate(-50%, -50%)', borderRadius: '50%',
+                        background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 65%)', filter: 'blur(24px)',
+                    }} />
+                    <div className="hero-blob" style={{
+                        position: 'absolute', top: '10%', right: '15%', width: '180px', height: '180px',
+                        borderRadius: '63% 37% 54% 46% / 55% 48% 52% 45%', background: 'rgba(255,255,255,0.06)', filter: 'blur(40px)', animationDelay: '-2s',
+                    }} />
+                    <div className="hero-blob-slow" style={{
+                        position: 'absolute', bottom: '15%', left: '20%', width: '220px', height: '220px',
+                        borderRadius: '37% 63% 46% 54% / 48% 55% 45% 52%', background: 'rgba(52,211,153,0.14)', filter: 'blur(45px)', animationDelay: '-6s',
+                    }} />
+                    {/* Soft overlay for depth and readability */}
+                    <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(2,44,34,0.15) 100%)',
+                        pointerEvents: 'none',
+                    }} />
+                    {/* Subtle top/bottom vignette */}
+                    <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'linear-gradient(to bottom, rgba(0,0,0,0.03) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.04) 100%)',
+                        pointerEvents: 'none',
+                    }} />
+
+                    <div className="lynsi-container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <div style={{ width: '100%', maxWidth: '640px', textAlign: 'center' }}>
+                            <div style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '50px',
+                                background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                                color: PALETTE.onDarkMuted, border: '1px solid rgba(255,255,255,0.3)', fontSize: '12px', fontWeight: 600,
+                                letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '14px',
+                                boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+                            }}>
+                                🌿 Philippines #1 Organic Food Platform
+                            </div>
+                            <h1 style={{
+                                fontSize: 'clamp(26px, 4.2vw, 42px)',
+                                fontWeight: 900,
+                                lineHeight: 1.2,
+                                color: PALETTE.white,
+                                marginBottom: '12px',
+                                letterSpacing: '-0.02em',
+                                textShadow: '0 2px 20px rgba(0,0,0,0.15)',
+                            }}>
+                                Lynsi Food Products,<br />
+                                <span style={{ color: PALETTE.onDarkMuted }}>Taste Beyond</span><br />
+                                <span style={{ color: PALETTE.onDark }}>Compare</span>
+                            </h1>
+                            <p className="lynsi-section-desc" style={{
+                                color: PALETTE.onDarkMuted, lineHeight: 1.6, marginBottom: '20px', maxWidth: '100%', marginLeft: 'auto', marginRight: 'auto',
+                                textShadow: '0 1px 8px rgba(0,0,0,0.1)', fontSize: 'clamp(14px, 1.8vw, 16px)',
+                            }}>
+                                Discover over 500+ certified organic products from trusted local farms.
+                                Healthier eating, starting today — no compromises.
+                            </p>
+                            <div className="hero-buttons" style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                <a href="#products" className="lynsi-btn-primary" style={{
+                                    background: `linear-gradient(135deg, ${PALETTE.accent}, ${PALETTE.secondary})`, color: '#fff',
+                                    boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(16,185,129,0.3)', border: 'none',
+                                }}>
+                                    🛒 Shop Now
+                                </a>
+                                <a href="#how-it-works" className="lynsi-btn-secondary" style={{
+                                    color: PALETTE.onDark, borderColor: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.12)',
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                }}>
+                                    ▶ How It Works
+                                </a>
+                            </div>
+                            <div style={{
+                                display: 'flex', gap: '14px', marginTop: '28px', flexWrap: 'wrap', justifyContent: 'center',
+                            }}>
+                                {[['500+', 'Products'], ['50k+', 'Happy Customers'], ['100%', 'Organic Certified']].map(([num, label]) => (
+                                    <div key={label} style={{
+                                        padding: '12px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.08)',
+                                        border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', minWidth: '100px',
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+                                    }}>
+                                        <div style={{ fontSize: 'clamp(20px, 2.5vw, 24px)', fontWeight: 800, color: PALETTE.white, textShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>{num}</div>
+                                        <div style={{ fontSize: '11px', color: PALETTE.onDarkMuted, fontWeight: 500, marginTop: '2px' }}>{label}</div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </main>
+                    </div>
+                </section>
+
+                {/* ── PARTNERS (TRUSTED BY) ─────────────────────────────────────────── */}
+                <section style={{ background: PALETTE.white, padding: '32px 16px 40px', borderBottom: `1px solid ${PALETTE.border}` }}>
+                    <div className="lynsi-container" style={{ textAlign: 'center' }}>
+                        <p style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, letterSpacing: '1.2px', textTransform: 'uppercase', marginBottom: '20px' }}>
+                            Trusted by leading food brands &amp; retailers
+                        </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
+                            {PARTNERS.map(p => (
+                                <span key={p} className="partner-badge">{p}</span>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── PRODUCTS ──────────────────────────────────────────────────────── */}
+                <section id="products" className="lynsi-section" style={{ background: PALETTE.white }}>
+                    <div className="lynsi-container">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
+                            <div>
+                                <div className="section-badge">🛒 Fresh Arrivals</div>
+                                <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+                                    Featured <span className="gradient-text">Products</span>
+                                </h2>
+                                <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '500px', lineHeight: 1.7 }}>
+                                    Hand-picked, certified organic produce fresh from our local farm partners to your table.
+                                </p>
+                            </div>
+                            <a href="#products" className="lynsi-btn-secondary" style={{ display: 'inline-flex', padding: '10px 20px', fontSize: '14px' }}>
+                                View Full Catalogue &rarr;
+                            </a>
+                        </div>
+                        <div className="products-grid" style={{ display: 'grid' }}>
+                            {PRODUCTS.map(p => (
+                                <div key={p.name} className="product-card">
+                                    <div style={{
+                                        position: 'absolute', top: '12px', right: '12px', zIndex: 2,
+                                        background: PALETTE.white, color: PALETTE.secondary, fontSize: '11px', fontWeight: 700,
+                                        padding: '4px 10px', borderRadius: '50px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                    }}>
+                                        {p.badge}
+                                    </div>
+                                    <div className="product-image-placeholder" style={{ background: p.color }}>
+                                        {p.icon}
+                                    </div>
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                        <div style={{ fontSize: '12px', color: PALETTE.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+                                            {p.category}
+                                        </div>
+                                        <h3 style={{ fontSize: '16px', fontWeight: 700, color: PALETTE.primary, marginBottom: '12px', lineHeight: 1.4 }}>
+                                            {p.name}
+                                        </h3>
+                                        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px' }}>
+                                            <div>
+                                                <span style={{ fontSize: '22px', fontWeight: 800, color: PALETTE.secondary }}>{p.price}</span>
+                                                <span style={{ fontSize: '13px', color: PALETTE.muted }}>{p.unit}</span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                style={{
+                                                    width: '44px', height: '44px', minWidth: '44px', minHeight: '44px',
+                                                    borderRadius: '12px', border: 'none',
+                                                    background: PALETTE.light, color: PALETTE.primary, fontSize: '20px',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    cursor: 'pointer', transition: 'all 0.2s',
+                                                }}
+                                                onMouseEnter={e => { e.currentTarget.style.background = PALETTE.primary; e.currentTarget.style.color = PALETTE.white; }}
+                                                onMouseLeave={e => { e.currentTarget.style.background = PALETTE.light; e.currentTarget.style.color = PALETTE.primary; }}
+                                                aria-label={`Add ${p.name} to cart`}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── BENEFITS ──────────────────────────────────────────────────────── */}
+                <section id="services" className="lynsi-section" style={{ background: PALETTE.bg }}>
+                    <div className="lynsi-container">
+                        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                            <div className="section-badge">🌿 Why Choose Lynsi</div>
+                            <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+                                Benefits That <span className="gradient-text">Matter to You</span>
+                            </h2>
+                            <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '560px', margin: '0 auto', lineHeight: 1.7 }}>
+                                We don't just deliver food — we deliver a healthier, greener, more conscious lifestyle straight to your home.
+                            </p>
+                        </div>
+                        <div className="benefits-grid" style={{ display: 'grid' }}>
+                            {BENEFITS.map(b => (
+                                <div key={b.title} className="benefit-card">
+                                    <div style={{
+                                        width: '52px', height: '52px', borderRadius: '14px',
+                                        background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '26px', marginBottom: '16px',
+                                    }}>{b.icon}</div>
+                                    <h3 style={{ fontSize: '17px', fontWeight: 700, color: PALETTE.primary, marginBottom: '8px' }}>{b.title}</h3>
+                                    <p style={{ fontSize: '14px', color: PALETTE.muted, lineHeight: 1.7 }}>{b.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
+                <section id="how-it-works" className="lynsi-section" style={{ background: PALETTE.white }}>
+                    <div className="lynsi-container">
+                        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                            <div className="section-badge">⚡ Simple Process</div>
+                            <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+                                How It Works
+                            </h2>
+                            <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '500px', margin: '0 auto', lineHeight: 1.7 }}>
+                                From browse to doorstep in 3 effortless steps. Fresh food has never been this easy.
+                            </p>
+                        </div>
+                        <div className="steps-grid" style={{ display: 'grid', position: 'relative' }}>
+                            {STEPS.map((s, i) => (
+                                <div key={s.step} className="step-card">
+                                    <div style={{
+                                        width: '56px', height: '56px', borderRadius: '14px',
+                                        background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '20px', fontWeight: 800, color: PALETTE.white,
+                                        margin: '0 auto 20px',
+                                        boxShadow: '0 6px 20px rgba(6,95,70,0.3)',
+                                    }}>{s.step}</div>
+                                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '10px' }}>{s.title}</h3>
+                                    <p style={{ fontSize: '14px', color: PALETTE.muted, lineHeight: 1.7 }}>{s.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── OUR LOCATIONS ──────────────────────────────────────────────────── */}
+                <section id="our-locations" className="lynsi-section" style={{ background: PALETTE.white }}>
+                    <div className="lynsi-container">
+                        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                            <div className="section-badge">📍 Visit Us</div>
+                            <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+                                Our <span className="gradient-text">Locations</span>
+                            </h2>
+                            <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '560px', margin: '0 auto', lineHeight: 1.7 }}>
+                                Find a Lynsi store near you. Walk in for fresh picks or order ahead for same-day pickup and delivery.
+                            </p>
+                        </div>
+                        <div className="locations-grid" style={{ display: 'grid' }}>
+                            {LOCATIONS.map((loc) => (
+                                <div key={loc.name} className="benefit-card" style={{ textAlign: 'left' }}>
+                                    {loc.tag && (
+                                        <span style={{
+                                            position: 'absolute', top: '16px', right: '16px',
+                                            fontSize: '11px', fontWeight: 700, color: PALETTE.secondary,
+                                            background: PALETTE.light, padding: '4px 10px', borderRadius: '50px',
+                                        }}>
+                                            {loc.tag}
+                                        </span>
+                                    )}
+                                    <div style={{
+                                        width: '48px', height: '48px', borderRadius: '12px',
+                                        background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '22px', marginBottom: '16px',
+                                    }}>📍</div>
+                                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '10px' }}>{loc.name}</h3>
+                                    <p style={{ fontSize: '14px', color: PALETTE.primary, lineHeight: 1.6, marginBottom: '8px' }}>{loc.address}</p>
+                                    <p style={{ fontSize: '13px', color: PALETTE.muted, fontWeight: 600, marginBottom: '12px' }}>{loc.city}</p>
+                                    <a href={`tel:${loc.phone.replace(/\s/g, '')}`} style={{ fontSize: '14px', color: PALETTE.accent, fontWeight: 600, textDecoration: 'none', display: 'block', marginBottom: '6px' }}>
+                                        {loc.phone}
+                                    </a>
+                                    <p style={{ fontSize: '13px', color: PALETTE.muted }}>{loc.hours}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── ABOUT US ─────────────────────────────────────────────────────── */}
+                <section id="about-us" className="lynsi-section" style={{ background: PALETTE.bg }}>
+                    <div className="lynsi-container" style={{ maxWidth: '1100px' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                            <div className="section-badge">🌿 Our Story</div>
+                            <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+                                About <span className="gradient-text">Lynsi Food Products</span>
+                            </h2>
+                            <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '640px', margin: '0 auto', lineHeight: 1.7 }}>
+                                We're on a mission to make fresh, organic food accessible to every Filipino family.
+                            </p>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '28px', alignItems: 'center' }} className="benefits-grid">
+                            <div>
+                                <p className="lynsi-section-desc" style={{ color: PALETTE.primary, lineHeight: 1.8, marginBottom: '16px' }}>
+                                    Lynsi Food Products started with a simple belief: everyone deserves access to clean, nutritious food straight from the farm. We partner directly with certified organic growers across the Philippines to bring you over 500+ products — from fresh produce to pantry staples — delivered to your doorstep.
+                                </p>
+                                <p className="lynsi-section-desc" style={{ color: PALETTE.primary, lineHeight: 1.8, marginBottom: '24px' }}>
+                                    Our values are rooted in sustainability, transparency, and community. We're committed to zero-waste packaging, fair partnerships with local farmers, and the highest quality standards so you can eat with confidence.
+                                </p>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+                                    {[
+                                        { num: '500+', label: 'Organic Products' },
+                                        { num: '50k+', label: 'Happy Families' },
+                                        { num: '100%', label: 'Philippine Sourced' },
+                                    ].map(({ num, label }) => (
+                                        <div key={label}>
+                                            <div style={{ fontSize: '22px', fontWeight: 800, color: PALETTE.primary }}>{num}</div>
+                                            <div style={{ fontSize: '12px', color: PALETTE.muted, fontWeight: 600 }}>{label}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="benefit-card" style={{
+                                borderRadius: '20px',
+                                background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+                                padding: '40px 24px',
+                                textAlign: 'center',
+                                border: `1px solid ${PALETTE.border}`,
+                            }}>
+                                <div style={{ fontSize: '64px', marginBottom: '12px' }}>🌱</div>
+                                <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '10px' }}>Farm to Table</h3>
+                                <p style={{ fontSize: '14px', color: PALETTE.muted, lineHeight: 1.7 }}>
+                                    Every product is traceable to our partner farms. Quality you can trust.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── TESTIMONIALS ──────────────────────────────────────────────────── */}
+                <section className="lynsi-section" style={{ background: PALETTE.white }}>
+                    <div className="lynsi-container">
+                        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                            <div className="section-badge">💬 Customer Stories</div>
+                            <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+                                Loved by People Worldwide
+                            </h2>
+                            <p className="lynsi-section-desc" style={{ color: PALETTE.muted, maxWidth: '460px', margin: '0 auto', lineHeight: 1.7 }}>
+                                Real people, real results. See what our customers say about Lynsi Foods.
+                            </p>
+                        </div>
+                        <div className="testimonials-grid" style={{ display: 'grid' }}>
+                            {TESTIMONIALS.map(t => (
+                                <div key={t.name} className="testimonial-card">
+                                    <Stars count={t.stars} />
+                                    <p style={{ fontSize: '15px', color: PALETTE.primary, lineHeight: 1.8, marginBottom: '20px', fontStyle: 'italic' }}>
+                                        "{t.text}"
+                                    </p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{
+                                            width: '48px', height: '48px', borderRadius: '50%',
+                                            background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontSize: '24px',
+                                        }}>{t.avatar}</div>
+                                        <div>
+                                            <div style={{ fontWeight: 700, color: PALETTE.primary, fontSize: '15px' }}>{t.name}</div>
+                                            <div style={{ fontSize: '13px', color: PALETTE.muted }}>{t.role}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── CONTACT US ────────────────────────────────────────────────────── */}
+                <section id="contact-us" className="lynsi-section" style={{ background: PALETTE.bg }}>
+                    <div className="lynsi-container" style={{ maxWidth: '900px' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                            <div className="section-badge">📬 Get in Touch</div>
+                            <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+                                Contact <span className="gradient-text">Us</span>
+                            </h2>
+                            <p className="lynsi-section-desc" style={{ color: PALETTE.muted, lineHeight: 1.7 }}>
+                                Have questions, feedback, or need support? We'd love to hear from you.
+                            </p>
+                        </div>
+                        <div className="contact-grid" style={{ display: 'grid', marginBottom: '32px' }}>
+                            <a href="mailto:hello@lynsi.com" style={{
+                                display: 'flex', alignItems: 'center', gap: '16px', padding: '24px 20px',
+                                background: PALETTE.white, border: `1px solid ${PALETTE.border}`, borderRadius: '16px',
+                                textDecoration: 'none', color: 'inherit', transition: 'all 0.25s', minHeight: '44px',
+                            }} className="benefit-card">
+                                <div style={{
+                                    width: '48px', height: '48px', borderRadius: '12px',
+                                    background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0,
+                                }}>✉️</div>
+                                <div>
+                                    <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Email</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>hello@lynsi.com</div>
+                                </div>
+                            </a>
+                            <a href="tel:+63281234567" style={{
+                                display: 'flex', alignItems: 'center', gap: '16px', padding: '24px 20px',
+                                background: PALETTE.white, border: `1px solid ${PALETTE.border}`, borderRadius: '16px',
+                                textDecoration: 'none', color: 'inherit', transition: 'all 0.25s', minHeight: '44px',
+                            }} className="benefit-card">
+                                <div style={{
+                                    width: '48px', height: '48px', borderRadius: '12px',
+                                    background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0,
+                                }}>📞</div>
+                                <div>
+                                    <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Phone</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>+63 2 8123 4567</div>
+                                </div>
+                            </a>
+                            <div style={{
+                                display: 'flex', alignItems: 'center', gap: '16px', padding: '24px 20px',
+                                background: PALETTE.white, border: `1px solid ${PALETTE.border}`, borderRadius: '16px',
+                                minHeight: '44px',
+                            }} className="benefit-card">
+                                <div style={{
+                                    width: '48px', height: '48px', borderRadius: '12px',
+                                    background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0,
+                                }}>📍</div>
+                                <div>
+                                    <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Address</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>Metro Manila, Philippines</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p className="lynsi-section-desc" style={{ textAlign: 'center', color: PALETTE.muted, lineHeight: 1.7 }}>
+                            We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.
+                        </p>
+                    </div>
+                </section>
+
+                {/* ── CTA SECTION ───────────────────────────────────────────────────── */}
+                <section className="lynsi-section" style={{ padding: '48px 16px 64px' }}>
+                    <div className="lynsi-container" style={{ maxWidth: '1100px' }}>
+                        <div style={{
+                            background: `linear-gradient(135deg, ${PALETTE.primary} 0%, ${PALETTE.secondary} 50%, ${PALETTE.accent} 100%)`,
+                            borderRadius: '24px',
+                            padding: 'clamp(40px, 5vw, 64px) clamp(24px, 4vw, 48px)',
+                            textAlign: 'center',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            boxShadow: '0 24px 60px rgba(6,95,70,0.35)',
+                        }}>
+                            <div style={{
+                                position: 'absolute', top: '-50px', right: '-50px',
+                                width: '240px', height: '240px', borderRadius: '50%',
+                                background: 'rgba(255,255,255,0.08)', filter: 'blur(24px)',
+                            }} />
+                            <div style={{
+                                position: 'absolute', bottom: '-50px', left: '-50px',
+                                width: '200px', height: '200px', borderRadius: '50%',
+                                background: 'rgba(255,255,255,0.06)', filter: 'blur(24px)',
+                            }} />
+                            <div style={{ position: 'relative', zIndex: 1 }}>
+                                <div style={{ fontSize: 'clamp(36px, 5vw, 48px)', marginBottom: '12px' }}>🌿</div>
+                                <h2 className="lynsi-section-title" style={{ fontWeight: 900, color: PALETTE.white, marginBottom: '12px', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                                    Start Eating Healthier Today
+                                </h2>
+                                <p className="lynsi-section-desc" style={{ color: PALETTE.onDarkMuted, marginBottom: '32px', maxWidth: '500px', margin: '0 auto 32px', lineHeight: 1.7 }}>
+                                    Join 50,000+ customers who have already made the switch to fresh, organic living.
+                                </p>
+                                <div className="hero-buttons" style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                    <a href="/register" className="lynsi-btn-primary" style={{
+                                        background: PALETTE.white, color: PALETTE.primary, padding: '14px 32px',
+                                        boxShadow: '0 6px 24px rgba(0,0,0,0.2)',
+                                    }} id="cta-get-started">
+                                        🛒 Get Started Free
+                                    </a>
+                                    <a href="#how-it-works" className="lynsi-btn-secondary" style={{
+                                        background: 'rgba(255,255,255,0.12)', color: PALETTE.white, borderColor: 'rgba(255,255,255,0.4)',
+                                    }}>
+                                        Learn More
+                                    </a>
+                                </div>
+                                <p style={{ marginTop: '20px', fontSize: '12px', color: PALETTE.onDark }}>
+                                    ✓ No credit card required &nbsp;·&nbsp; ✓ Cancel anytime &nbsp;·&nbsp; ✓ 100% satisfaction guarantee
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── FOOTER ────────────────────────────────────────────────────────── */}
+                <footer style={{ background: PALETTE.dark, color: PALETTE.onDark, padding: '48px 16px 24px' }}>
+                    <div className="lynsi-container">
+                        <div className="footer-grid" style={{ display: 'grid', marginBottom: '48px' }}>
+                            <div>
+                                <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '14px', textDecoration: 'none', color: 'inherit' }} aria-label="Lynsi Food Products - Home">
+                                    <img
+                                        src={LOGO_URL}
+                                        alt=""
+                                        style={{ height: '40px', width: 'auto', maxWidth: '140px', objectFit: 'contain', display: 'block' }}
+                                    />
+                                    <span style={{ fontWeight: 800, fontSize: '18px', color: PALETTE.white }}>
+                                        Lynsi<span style={{ color: PALETTE.accent }}>FoodProducts</span>
+                                    </span>
+                                </Link>
+                                <p style={{ fontSize: '14px', lineHeight: 1.75, color: PALETTE.onDarkMuted, maxWidth: '260px' }}>
+                                    Philippines' leading organic food delivery platform. Fresh, healthy, and sustainably sourced.
+                                </p>
+                                <div style={{ display: 'flex', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
+                                    {['📘', '📷', '🐦', '▶️'].map((icon, i) => (
+                                        <a key={i} href="#" style={{
+                                            width: '44px', height: '44px', minWidth: '44px', minHeight: '44px', borderRadius: '12px',
+                                            background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center',
+                                            justifyContent: 'center', fontSize: '18px', textDecoration: 'none',
+                                            transition: 'background 0.2s',
+                                        }} aria-label={`Social link ${i + 1}`}>{icon}</a>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 style={{ fontWeight: 700, color: PALETTE.white, fontSize: '14px', marginBottom: '16px' }}>Menu</h4>
+                                {['Fresh Produce', 'Dairy & Eggs', 'Meat & Seafood', 'Pantry Staples', 'Beverages', 'Snacks'].map(item => (
+                                    <a key={item} href="#" style={{ display: 'block', fontSize: '14px', color: PALETTE.onDarkMuted, marginBottom: '10px', textDecoration: 'none', transition: 'color 0.2s', padding: '4px 0' }}
+                                        onMouseEnter={e => { e.currentTarget.style.color = PALETTE.onDark; }}
+                                        onMouseLeave={e => { e.currentTarget.style.color = PALETTE.onDarkMuted; }}
+                                    >{item}</a>
+                                ))}
+                            </div>
+
+                            <div>
+                                <h4 style={{ fontWeight: 700, color: PALETTE.white, fontSize: '14px', marginBottom: '16px' }}>Legal</h4>
+                                {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Refund Policy'].map(item => (
+                                    <a key={item} href="#" style={{ display: 'block', fontSize: '14px', color: PALETTE.onDarkMuted, marginBottom: '10px', textDecoration: 'none', transition: 'color 0.2s', padding: '4px 0' }}
+                                        onMouseEnter={e => { e.currentTarget.style.color = PALETTE.onDark; }}
+                                        onMouseLeave={e => { e.currentTarget.style.color = PALETTE.onDarkMuted; }}
+                                    >{item}</a>
+                                ))}
+                            </div>
+
+                            <div>
+                                <h4 style={{ fontWeight: 700, color: PALETTE.white, fontSize: '14px', marginBottom: '8px' }}>Newsletter</h4>
+                                <p style={{ fontSize: '13px', color: PALETTE.onDarkMuted, marginBottom: '14px', lineHeight: 1.6 }}>
+                                    Get healthy recipes &amp; exclusive deals in your inbox.
+                                </p>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <input
+                                        type="email"
+                                        placeholder="Enter your email"
+                                        id="newsletter-email"
+                                        style={{
+                                            background: 'rgba(255,255,255,0.08)',
+                                            border: '1px solid rgba(255,255,255,0.12)',
+                                            borderRadius: '12px', padding: '12px 16px', minHeight: '44px',
+                                            color: PALETTE.white, fontSize: '14px', outline: 'none',
+                                        }}
+                                        aria-label="Email for newsletter"
+                                    />
+                                    <button type="button" id="newsletter-submit" style={{
+                                        background: `linear-gradient(135deg, ${PALETTE.accent}, ${PALETTE.secondary})`,
+                                        border: 'none', borderRadius: '12px', padding: '12px 16px', minHeight: '44px',
+                                        color: PALETTE.white, fontWeight: 600, fontSize: '14px',
+                                        cursor: 'pointer', transition: 'all 0.25s',
+                                    }}>
+                                        Subscribe
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="footer-bottom" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '24px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+                            <p style={{ fontSize: '12px', color: PALETTE.onDarkMuted }}>
+                                © 2026 LynsiFood Products. All rights reserved. Made with 💚 in the Philippines.
+                            </p>
+                            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                                {['Privacy', 'Terms', 'Sitemap'].map(item => (
+                                    <a key={item} href="#" style={{ fontSize: '12px', color: PALETTE.onDarkMuted, textDecoration: 'none' }}>{item}</a>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+
                 </div>
-                <div className="hidden h-14.5 lg:block"></div>
             </div>
         </>
     );
