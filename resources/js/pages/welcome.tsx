@@ -300,6 +300,7 @@ type LandingContent = ReturnType<typeof getDefaultLandingContent>;
 
 type FeaturedProduct = {
     id: number;
+    slug?: string;
     name: string;
     description: string | null;
     expiry: string | null;
@@ -701,17 +702,28 @@ export default function Welcome({
                         </Link>
 
                         <div className="nav-desktop" style={{ alignItems: 'center', gap: '12px' }}>
-                            {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
-                                <a
-                                    key={id}
-                                    href={`#${id}`}
-                                    className={`nav-link ${activeSection === id ? 'nav-link-active' : ''}`}
-                                    onClick={(e) => { e.preventDefault(); scrollToSection(id); }}
-                                >
-                                    <Icon size={18} className="nav-link-icon" style={{ flexShrink: 0 }} />
-                                    <span>{label}</span>
-                                </a>
-                            ))}
+                            {NAV_ITEMS.map(({ id, label, icon: Icon }) =>
+                                id === 'products' ? (
+                                    <Link
+                                        key={id}
+                                        href="/shop"
+                                        className={`nav-link ${activeSection === id ? 'nav-link-active' : ''}`}
+                                    >
+                                        <Icon size={18} className="nav-link-icon" style={{ flexShrink: 0 }} />
+                                        <span>{label}</span>
+                                    </Link>
+                                ) : (
+                                    <a
+                                        key={id}
+                                        href={`#${id}`}
+                                        className={`nav-link ${activeSection === id ? 'nav-link-active' : ''}`}
+                                        onClick={(e) => { e.preventDefault(); scrollToSection(id); }}
+                                    >
+                                        <Icon size={18} className="nav-link-icon" style={{ flexShrink: 0 }} />
+                                        <span>{label}</span>
+                                    </a>
+                                ),
+                            )}
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -743,23 +755,41 @@ export default function Welcome({
                     {mobileMenuOpen && (
                         <div style={{ background: PALETTE.white, borderTop: `1px solid ${PALETTE.border}`, padding: '12px 16px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
-                                    <a
-                                        key={id}
-                                        href={`#${id}`}
-                                        style={{
-                                            display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
-                                            color: activeSection === id ? PALETTE.primary : PALETTE.muted,
-                                            fontWeight: 500, textDecoration: 'none', borderRadius: '10px',
-                                            background: activeSection === id ? PALETTE.bg : 'transparent',
-                                            minHeight: 44,
-                                        }}
-                                        onClick={(e) => { e.preventDefault(); scrollToSection(id); setMobileMenuOpen(false); }}
-                                    >
-                                        <Icon size={20} />
-                                        <span>{label}</span>
-                                    </a>
-                                ))}
+                                {NAV_ITEMS.map(({ id, label, icon: Icon }) =>
+                                    id === 'products' ? (
+                                        <Link
+                                            key={id}
+                                            href="/shop"
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
+                                                color: activeSection === id ? PALETTE.primary : PALETTE.muted,
+                                                fontWeight: 500, textDecoration: 'none', borderRadius: '10px',
+                                                background: activeSection === id ? PALETTE.bg : 'transparent',
+                                                minHeight: 44,
+                                            }}
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            <Icon size={20} />
+                                            <span>{label}</span>
+                                        </Link>
+                                    ) : (
+                                        <a
+                                            key={id}
+                                            href={`#${id}`}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
+                                                color: activeSection === id ? PALETTE.primary : PALETTE.muted,
+                                                fontWeight: 500, textDecoration: 'none', borderRadius: '10px',
+                                                background: activeSection === id ? PALETTE.bg : 'transparent',
+                                                minHeight: 44,
+                                            }}
+                                            onClick={(e) => { e.preventDefault(); scrollToSection(id); setMobileMenuOpen(false); }}
+                                        >
+                                            <Icon size={20} />
+                                            <span>{label}</span>
+                                        </a>
+                                    ),
+                                )}
                             </div>
                         </div>
                     )}
@@ -865,9 +895,9 @@ export default function Welcome({
                                     {content.products.subtitle}
                                 </p>
                             </div>
-                            <a href="#products" className="lynsi-btn-secondary" style={{ display: 'inline-flex', padding: '10px 20px', fontSize: '14px' }}>
+                            <Link href="/shop" className="lynsi-btn-secondary" style={{ display: 'inline-flex', padding: '10px 20px', fontSize: '14px' }}>
                                 {content.products.catalogueLabel}
-                            </a>
+                            </Link>
                         </div>
                         <div className="products-grid" style={{ display: 'grid' }}>
                             {featuredProducts && featuredProducts.length > 0
@@ -875,8 +905,8 @@ export default function Welcome({
                                         const minPrice = p.variants?.length
                                             ? Math.min(...p.variants.map((v) => Number(v.price)))
                                             : null;
-                                        return (
-                                            <div key={p.id} className="product-card">
+                                        const cardContent = (
+                                            <>
                                                 {p.image_url ? (
                                                     <div className="product-image-placeholder" style={{ background: PALETTE.light, padding: 0, overflow: 'hidden' }}>
                                                         <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -911,6 +941,7 @@ export default function Welcome({
                                                         </div>
                                                         <button
                                                             type="button"
+                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                                                             style={{
                                                                 width: '44px', height: '44px', minWidth: '44px', minHeight: '44px',
                                                                 borderRadius: '12px', border: 'none',
@@ -926,6 +957,15 @@ export default function Welcome({
                                                         </button>
                                                     </div>
                                                 </div>
+                                            </>
+                                        );
+                                        return p.slug ? (
+                                            <Link key={p.id} href={`/shop/product/${p.slug}`} className="product-card">
+                                                {cardContent}
+                                            </Link>
+                                        ) : (
+                                            <div key={p.id} className="product-card">
+                                                {cardContent}
                                             </div>
                                         );
                                   })

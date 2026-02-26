@@ -17,24 +17,29 @@ Route::get('/', function () {
             $landingContent = \App\Models\LandingPageSetting::getContent();
         }
         if (\Illuminate\Support\Facades\Schema::hasTable('products')) {
-            $featuredProducts = Product::with('category', 'variants')
+            $featured = Product::with('category', 'variants')
                 ->where('featured', true)
                 ->orderBy('name')
-                ->get()
-                ->map(fn ($p) => [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                    'description' => $p->description,
-                    'expiry' => $p->expiry?->format('Y-m-d'),
-                    'image_url' => $p->image_url,
-                    'category' => $p->category?->name,
-                    'variants' => $p->variants->map(fn ($v) => [
-                        'size' => $v->size,
-                        'flavor' => $v->flavor,
-                        'price' => $v->price,
-                        'stock_quantity' => $v->stock_quantity,
-                    ]),
-                ]);
+                ->get();
+            // Use featured products when available; otherwise show latest 8 from admin so section always shows real data
+            $productsForLanding = $featured->isNotEmpty()
+                ? $featured
+                : Product::with('category', 'variants')->orderBy('updated_at', 'desc')->limit(8)->get();
+            $featuredProducts = $productsForLanding->map(fn ($p) => [
+                'id' => $p->id,
+                'slug' => $p->slug,
+                'name' => $p->name,
+                'description' => $p->description,
+                'expiry' => $p->expiry?->format('Y-m-d'),
+                'image_url' => $p->image_url,
+                'category' => $p->category?->name,
+                'variants' => $p->variants->map(fn ($v) => [
+                    'size' => $v->size,
+                    'flavor' => $v->flavor,
+                    'price' => $v->price,
+                    'stock_quantity' => $v->stock_quantity,
+                ]),
+            ]);
         }
     } catch (\Throwable $e) {
     }
@@ -44,6 +49,70 @@ Route::get('/', function () {
         'featuredProducts' => $featuredProducts,
     ]);
 })->name('home');
+
+Route::get('/shop', function () {
+    $products = [];
+    $categories = [];
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('categories')) {
+            $categories = \App\Models\Category::orderBy('sort_order')->orderBy('name')->get(['id', 'name', 'slug']);
+        }
+        if (\Illuminate\Support\Facades\Schema::hasTable('products')) {
+            $products = Product::with('category', 'variants')
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($p) => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'slug' => $p->slug,
+                    'description' => $p->description,
+                    'image_url' => $p->image_url,
+                    'featured' => $p->featured,
+                    'category' => $p->category ? ['id' => $p->category->id, 'name' => $p->category->name, 'slug' => $p->category->slug] : null,
+                    'variants' => $p->variants->map(fn ($v) => [
+                        'id' => $v->id,
+                        'size' => $v->size,
+                        'flavor' => $v->flavor,
+                        'price' => (float) $v->price,
+                        'stock_quantity' => $v->stock_quantity,
+                    ]),
+                ]);
+        }
+    } catch (\Throwable $e) {
+    }
+    return Inertia::render('LandingPage/Shop', [
+        'products' => $products,
+        'categories' => $categories,
+        'canRegister' => Features::enabled(Features::registration()),
+    ]);
+})->name('shop');
+
+Route::get('/shop/product/{slug}', function (string $slug) {
+    $product = Product::with('category', 'variants')
+        ->where('slug', $slug)
+        ->firstOrFail();
+    $payload = [
+        'id' => $product->id,
+        'name' => $product->name,
+        'slug' => $product->slug,
+        'description' => $product->description,
+        'expiry' => $product->expiry?->format('Y-m-d'),
+        'image_url' => $product->image_url,
+        'featured' => $product->featured,
+        'category' => $product->category ? ['id' => $product->category->id, 'name' => $product->category->name, 'slug' => $product->category->slug] : null,
+        'variants' => $product->variants->map(fn ($v) => [
+            'id' => $v->id,
+            'size' => $v->size,
+            'flavor' => $v->flavor,
+            'price' => (float) $v->price,
+            'stock_quantity' => $v->stock_quantity,
+        ]),
+    ];
+    return Inertia::render('LandingPage/ProductDetail', [
+        'product' => $payload,
+        'canRegister' => Features::enabled(Features::registration()),
+    ]);
+})->name('shop.product');
 
 Route::get('dashboard', function () {
     return Inertia::render('dashboard', ['section' => null]);
