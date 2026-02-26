@@ -1,13 +1,10 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Package, Pencil, Plus, Trash2 } from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import type { BreadcrumbItem } from '@/types';
+import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import { cn } from '@/lib/utils';
+import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: dashboard().url },
@@ -30,10 +27,9 @@ type Product = {
 
 export default function Products({
     products = [],
-    categories = [],
 }: {
     products: Product[];
-    categories: Category[];
+    categories?: Category[];
 }) {
     const handleDelete = (product: Product) => {
         if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;

@@ -23,6 +23,7 @@ class LandingPageSetting extends Model
         if ($row) {
             return self::mergeWithDefaults($row->content);
         }
+
         return self::defaultContent();
     }
 
@@ -111,7 +112,7 @@ class LandingPageSetting extends Model
                 'subtitle' => 'From browse to doorstep in 3 effortless steps. Fresh food has never been this easy.',
                 'steps' => [
                     ['step' => '01', 'title' => 'Choose Your Products', 'desc' => 'Browse our curated selection of over 500 fresh, organic food products sourced from certified local farms.'],
-                    ['step' => '02', 'title' => 'We Pack & Prepare', 'desc' => "Our team carefully handpicks, inspects, and packs your order in eco-friendly, temperature-controlled packaging."],
+                    ['step' => '02', 'title' => 'We Pack & Prepare', 'desc' => 'Our team carefully handpicks, inspects, and packs your order in eco-friendly, temperature-controlled packaging.'],
                     ['step' => '03', 'title' => 'Delivered Fresh to You', 'desc' => 'Receive your fresh order right at your doorstep within hours — guaranteed fresh or your money back.'],
                 ],
             ],
@@ -147,7 +148,7 @@ class LandingPageSetting extends Model
                 'email' => 'hello@lynsi.com',
                 'phone' => '+63 2 8123 4567',
                 'address' => 'Metro Manila, Philippines',
-                'footerNote' => "We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.",
+                'footerNote' => 'We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.',
             ],
             'partners' => [
                 'title' => 'Trusted by leading food brands & retailers',

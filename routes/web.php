@@ -3,7 +3,6 @@
 use App\Http\Controllers\Products\CategoryController;
 use App\Http\Controllers\Products\InventoryController;
 use App\Http\Controllers\Products\ProductController;
-use App\Models\LandingPageSetting;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -43,6 +42,7 @@ Route::get('/', function () {
         }
     } catch (\Throwable $e) {
     }
+
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'landingContent' => $landingContent,
@@ -80,6 +80,7 @@ Route::get('/shop', function () {
         }
     } catch (\Throwable $e) {
     }
+
     return Inertia::render('LandingPage/Shop', [
         'products' => $products,
         'categories' => $categories,
@@ -108,6 +109,7 @@ Route::get('/shop/product/{slug}', function (string $slug) {
             'stock_quantity' => $v->stock_quantity,
         ]),
     ];
+
     return Inertia::render('LandingPage/ProductDetail', [
         'product' => $payload,
         'canRegister' => Features::enabled(Features::registration()),

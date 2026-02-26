@@ -1,23 +1,13 @@
 import { Link } from '@inertiajs/react';
 import {
     BarChart3,
-    BookOpen,
-    Folder,
     LayoutGrid,
     Package,
     ShoppingCart,
     Users,
-    Tag,
-    FileText,
-    HelpCircle,
-    Settings,
-    CreditCard,
-    Truck,
-    Mail,
     Layers,
     RotateCcw,
     ClipboardList,
-    Image,
     TrendingUp,
 } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
@@ -32,9 +22,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { dashboard } from '@/routes';
 import type { NavGroup, NavItem } from '@/types';
 import AppLogo from './app-logo';
-import { dashboard } from '@/routes';
 
 const dashboardPath = '/dashboard';
 const productsPath = '/products';

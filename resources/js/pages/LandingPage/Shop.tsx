@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
 import { Search, Heart, ShoppingBag } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 
 const PALETTE = {
@@ -48,7 +48,10 @@ export default function Shop() {
         categories?: { id: number; name: string; slug: string }[];
         canRegister?: boolean;
     };
-    const products = Array.isArray(props.products) ? props.products : [];
+    const products = useMemo(
+        () => (Array.isArray(props.products) ? props.products : []),
+        [props.products],
+    );
     const categories = Array.isArray(props.categories) ? props.categories : [];
     const canRegister = props.canRegister !== false;
 

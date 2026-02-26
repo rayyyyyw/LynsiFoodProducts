@@ -28,6 +28,7 @@ class InventoryController extends Controller
             'stock_quantity' => 'required|integer|min:0',
         ]);
         $variant->update(['stock_quantity' => $validated['stock_quantity']]);
+
         return redirect()->route('products.inventory')->with('status', 'Stock updated.');
     }
 
@@ -38,6 +39,7 @@ class InventoryController extends Controller
         ]);
         $newStock = max(0, $variant->stock_quantity + $validated['adjustment']);
         $variant->update(['stock_quantity' => $newStock]);
+
         return redirect()->route('products.inventory')->with('status', 'Stock adjusted.');
     }
 }

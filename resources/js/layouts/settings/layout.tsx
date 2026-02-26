@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
-import type { PropsWithChildren } from 'react';
 import { Layout, Settings, User } from 'lucide-react';
+import type { PropsWithChildren } from 'react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
 import { edit } from '@/routes/profile';

@@ -40,6 +40,7 @@ class CategoryController extends Controller
         $validated['flavors'] = $validated['flavors'] ?? [];
         $validated['price_list'] = $validated['price_list'] ?? [];
         Category::create($validated);
+
         return redirect()->route('products.categories')->with('status', 'Category created.');
     }
 
@@ -47,7 +48,7 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:categories,slug,' . $category->id,
+            'slug' => 'nullable|string|max:255|unique:categories,slug,'.$category->id,
             'flavors' => 'nullable|array',
             'flavors.*' => 'string|max:100',
             'price_list' => 'nullable|array',
@@ -60,12 +61,14 @@ class CategoryController extends Controller
         $validated['flavors'] = $validated['flavors'] ?? [];
         $validated['price_list'] = $validated['price_list'] ?? [];
         $category->update($validated);
+
         return redirect()->route('products.categories')->with('status', 'Category updated.');
     }
 
     public function destroy(Category $category): RedirectResponse
     {
         $category->delete();
+
         return redirect()->route('products.categories')->with('status', 'Category deleted.');
     }
 }

@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
 import { Heart, Minus, Plus, ShoppingCart, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 
 const PALETTE = {

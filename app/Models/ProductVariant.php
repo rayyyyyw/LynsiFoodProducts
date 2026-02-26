@@ -28,6 +28,7 @@ class ProductVariant extends Model
     public function getDisplayNameAttribute(): string
     {
         $parts = array_filter([$this->flavor, $this->size]);
+
         return implode(' – ', $parts) ?: 'Default';
     }
 }

@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
 import { Home, ShoppingBag, MapPin, Info, Mail } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 // ─── Emerald E‑commerce Palette ───────────────────────────────────────────────
 const PALETTE = {
@@ -1096,7 +1096,7 @@ export default function Welcome({
                             </p>
                         </div>
                         <div className="steps-grid" style={{ display: 'grid', position: 'relative' }}>
-                            {(content.howItWorks.steps ?? []).map((s, i) => (
+                            {(content.howItWorks.steps ?? []).map((s) => (
                                 <div key={s.step} className="step-card">
                                     <div style={{
                                         width: '56px', height: '56px', borderRadius: '14px',

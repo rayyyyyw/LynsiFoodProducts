@@ -1,10 +1,10 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Package, ShoppingCart, Users, TrendingUp } from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { BreadcrumbItem } from '@/types';
-import { dashboard } from '@/routes';
+import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
+import { dashboard } from '@/routes';
+import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

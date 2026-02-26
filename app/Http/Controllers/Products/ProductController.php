@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +31,7 @@ class ProductController extends Controller
     public function create(): Response
     {
         $categories = Category::orderBy('sort_order')->orderBy('name')->get();
+
         return Inertia::render('Products/ProductForm', [
             'categories' => $categories,
             'product' => null,
@@ -56,7 +56,7 @@ class ProductController extends Controller
             'variants.*.stock_quantity' => 'nullable|integer|min:0',
         ]);
 
-        $product = new Product();
+        $product = new Product;
         $product->category_id = $validated['category_id'];
         $product->name = $validated['name'];
         $product->slug = $this->uniqueProductSlug($validated['slug'] ?? \Illuminate\Support\Str::slug($validated['name']));
@@ -87,6 +87,7 @@ class ProductController extends Controller
     {
         $product->load('variants');
         $categories = Category::orderBy('sort_order')->orderBy('name')->get();
+
         return Inertia::render('Products/ProductForm', [
             'categories' => $categories,
             'product' => $product,
@@ -135,7 +136,7 @@ class ProductController extends Controller
                 'sku' => $v['sku'] ?? null,
                 'stock_quantity' => (int) ($v['stock_quantity'] ?? 0),
             ];
-            if (!empty($v['id'])) {
+            if (! empty($v['id'])) {
                 $variant = $product->variants()->find($v['id']);
                 if ($variant) {
                     $variant->update($payload);
@@ -169,13 +170,14 @@ class ProductController extends Controller
             $query->where('id', '!=', $excludeId);
         }
         while ($query->exists()) {
-            $slug = $baseSlug . '-' . $count;
+            $slug = $baseSlug.'-'.$count;
             $count++;
             $query = Product::where('slug', $slug);
             if ($excludeId !== null) {
                 $query->where('id', '!=', $excludeId);
             }
         }
+
         return $slug;
     }
 
@@ -185,6 +187,7 @@ class ProductController extends Controller
             Storage::disk('public')->delete($product->image_path);
         }
         $product->delete();
+
         return redirect()->route('products.products')->with('status', 'Product deleted.');
     }
 }

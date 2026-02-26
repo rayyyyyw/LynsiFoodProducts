@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 import {
     Collapsible,
     CollapsibleContent,
@@ -16,9 +17,8 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import type { NavGroup, NavItem } from '@/types';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import type { NavGroup, NavItem } from '@/types';
 
 type NavMainProps =
     | { items: NavItem[]; groups?: never }
