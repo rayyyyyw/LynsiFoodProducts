@@ -399,13 +399,20 @@ export default function Welcome({
                     @media (min-width: 768px) { .lynsi-section { padding: 80px 24px; } }
                     @media (min-width: 1024px) { .lynsi-section { padding: 96px 24px; } }
 
-                    .lynsi-hero-section { padding: 28px 20px 36px; }
-                    @media (min-width: 768px) { .lynsi-hero-section { padding: 40px 24px 48px; } }
-                    @media (min-width: 1024px) { .lynsi-hero-section { padding: 48px 24px 56px; } }
-
+                    .lynsi-hero-section { padding: 40px 20px 56px; position: relative; }
+                    @media (min-width: 768px) { .lynsi-hero-section { padding: 56px 24px 72px; } }
+                    @media (min-width: 1024px) { .lynsi-hero-section { padding: 64px 48px 80px; } }
+                    .lynsi-hero-section .lynsi-section-title { margin-bottom: 20px; font-size: clamp(28px, 4.5vw, 48px); line-height: 1.2; }
+                    .lynsi-hero-section .lynsi-section-desc { margin-bottom: 32px; font-size: 17px; line-height: 1.65; }
+                    .lynsi-hero-section .lynsi-hero-social-proof { font-size: 15px; font-weight: 500; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+                    .lynsi-hero-section .lynsi-hero-social-dots { display: flex; align-items: center; }
+                    .lynsi-hero-section .lynsi-hero-social-dots span { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ecfdf5; margin-left: -10px; background: linear-gradient(135deg, #10b981, #059669); flex-shrink: 0; }
+                    .lynsi-hero-section .lynsi-hero-social-dots span:first-child { margin-left: 0; }
+                    .lynsi-hero-section .lynsi-hero-social-dots span:nth-child(2) { background: linear-gradient(135deg, #34d399, #10b981); }
+                    .lynsi-hero-section .lynsi-hero-social-dots span:nth-child(3) { background: linear-gradient(135deg, #6ee7b7, #34d399); }
                     .lynsi-hero-section .section-badge { margin-bottom: 12px; }
                     @media (max-width: 480px) {
-                        .lynsi-hero-section .section-badge { font-size: 11px; padding: 6px 12px; white-space: normal; text-align: center; }
+                        .lynsi-hero-section .section-badge { font-size: 11px; padding: 6px 12px; white-space: normal; text-align: left; }
                         .lynsi-hero-section .lynsi-section-title { font-size: 26px; }
                     }
 
@@ -542,22 +549,20 @@ export default function Welcome({
                     }
                     @media (min-width: 768px) { .step-card { padding: 36px 28px; } }
 
-                    .lynsi-hero-inner { flex-direction: column; gap: 32px; text-align: center; }
-                    .lynsi-hero-inner .lynsi-hero-text { text-align: center; }
-                    .lynsi-hero-inner .lynsi-hero-text p { margin-left: auto; margin-right: auto; }
-                    .lynsi-hero-stats { justify-content: center; }
-                    .lynsi-hero-visual { width: 100%; max-width: 320px; margin: 0 auto; height: 280px; }
-                    .lynsi-hero-visual .lynsi-hero-emoji { font-size: 64px; }
+                    .lynsi-hero-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; }
+                    .lynsi-hero-inner .lynsi-hero-text { text-align: left; flex: 1; min-width: 0; max-width: 560px; }
+                    .lynsi-hero-inner .lynsi-hero-text p { margin-left: 0; margin-right: 0; }
+                    .lynsi-hero-visual { width: 100%; min-height: 280px; flex: 1 1 auto; flex-shrink: 0; border-radius: 16px; overflow: hidden; display: flex; align-items: stretch; justify-content: stretch; }
+                    .lynsi-hero-visual-inner { flex: 1; width: 100%; min-height: 280px; display: flex; flex-direction: column; align-items: stretch; justify-content: stretch; }
+                    .lynsi-hero-visual-card { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; }
                     @media (min-width: 768px) {
-                        .lynsi-hero-inner { flex-direction: row; gap: 48px; text-align: left; }
-                        .lynsi-hero-inner .lynsi-hero-text { text-align: left; }
-                        .lynsi-hero-inner .lynsi-hero-text p { margin-left: 0; margin-right: 0; }
-                        .lynsi-hero-stats { justify-content: flex-start; }
-                        .lynsi-hero-visual { width: 380px; max-width: none; height: 380px; }
-                        .lynsi-hero-visual .lynsi-hero-emoji { font-size: 80px; }
+                        .lynsi-hero-inner { flex-direction: row; align-items: stretch; justify-content: space-between; gap: 48px; }
+                        .lynsi-hero-visual { width: 48%; min-width: 320px; min-height: 360px; flex: 0 1 auto; }
+                        .lynsi-hero-visual-inner { min-height: 360px; }
                     }
-                    @media (min-width: 1024px) { .lynsi-hero-inner { gap: 60px; } }
-
+                    @media (min-width: 1024px) { .lynsi-hero-inner { gap: 64px; } .lynsi-hero-section .lynsi-container { padding-left: max(64px, env(safe-area-inset-left)); } }
+                    .lynsi-hero-section .hero-buttons { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: flex-start; }
+                    .lynsi-hero-section .hero-buttons .lynsi-btn-primary, .lynsi-hero-section .hero-buttons .lynsi-btn-secondary { min-height: 48px; padding: 14px 28px; font-size: 16px; border-radius: 12px; }
                     .hero-buttons { flex-direction: column; align-items: stretch; gap: 12px; }
                     @media (min-width: 480px) { .hero-buttons { flex-direction: row; align-items: center; flex-wrap: wrap; } }
 
@@ -800,68 +805,97 @@ export default function Welcome({
 
                 <div className="lynsi-nav-spacer">
                 {/* ── HERO AREA ─────────────────────────────────────────────────────── */}
-                <section id="home" className="lynsi-hero-section" style={{
-                    background: PALETTE.bg,
-                    borderBottom: `1px solid ${PALETTE.border}`,
-                }}>
-                    <div className="lynsi-container" style={{ textAlign: 'center' }}>
-                        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                            <div className="section-badge">{content.hero.badge}</div>
-                            <h1 className="lynsi-section-title" style={{
-                                fontWeight: 800,
-                                color: PALETTE.primary,
-                                marginBottom: '12px',
-                                letterSpacing: '-0.02em',
-                                fontSize: 'clamp(28px, 4.5vw, 44px)',
-                                lineHeight: 1.25,
-                            }}>
-                                {content.hero.titleLine1}<br />
-                                <span className="gradient-text">{content.hero.titleLine2}</span>
-                            </h1>
-                            <p className="lynsi-section-desc" style={{
-                                color: PALETTE.muted,
-                                maxWidth: '100%',
-                                margin: '0 auto 28px',
-                                lineHeight: 1.7,
-                            }}>
-                                {content.hero.subtitle}
-                            </p>
-                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
-                                <a
-                                    href="#products"
-                                    className="lynsi-btn-primary"
-                                    onClick={(e) => { e.preventDefault(); scrollToSection('products'); }}
-                                >
-                                    {content.hero.ctaPrimary}
-                                </a>
-                                <a
-                                    href="#how-it-works"
-                                    className="lynsi-btn-secondary"
-                                    onClick={(e) => { e.preventDefault(); scrollToSection('how-it-works'); }}
-                                >
-                                    {content.hero.ctaSecondary}
-                                </a>
-                            </div>
-                            <div style={{
-                                display: 'flex',
-                                gap: '24px',
-                                flexWrap: 'wrap',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                paddingTop: '24px',
-                                borderTop: `1px solid ${PALETTE.border}`,
-                            }}>
-                                {[[content.hero.stat1Num, content.hero.stat1Label], [content.hero.stat2Num, content.hero.stat2Label], [content.hero.stat3Num, content.hero.stat3Label]].map(([num, label], i) => (
-                                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: i < 2 ? '24px' : 0 }}>
-                                        <div style={{ textAlign: 'center' }}>
-                                            <div style={{ fontSize: 'clamp(22px, 2.8vw, 28px)', fontWeight: 800, color: PALETTE.primary }}>{num}</div>
-                                            <div style={{ fontSize: '12px', color: PALETTE.muted, fontWeight: 500, marginTop: '2px' }}>{label}</div>
-                                        </div>
-                                        {i < 2 && (
-                                            <div style={{ width: '1px', height: '36px', background: PALETTE.border, flexShrink: 0 }} aria-hidden />
-                                        )}
+                <section id="home" className="lynsi-hero-section" style={{ background: PALETTE.bg, borderBottom: `1px solid ${PALETTE.border}` }}>
+                    <div className="lynsi-container">
+                        <div className="lynsi-hero-inner">
+                            <div className="lynsi-hero-text">
+                                <div className="lynsi-hero-social-proof" style={{ color: PALETTE.muted }}>
+                                    <div className="lynsi-hero-social-dots" aria-hidden>
+                                        <span />
+                                        <span />
+                                        <span />
                                     </div>
-                                ))}
+                                    <span>{content.hero.stat2Num} {content.hero.stat2Label}</span>
+                                </div>
+                                <div className="section-badge">{content.hero.badge}</div>
+                                <h1 className="lynsi-section-title" style={{ fontWeight: 800, letterSpacing: '-0.02em', color: PALETTE.primary }}>
+                                    {content.hero.titleLine1}<br />
+                                    <span className="gradient-text">{content.hero.titleLine2}</span>
+                                </h1>
+                                <p className="lynsi-section-desc" style={{ margin: 0, color: PALETTE.muted }}>
+                                    {content.hero.subtitle}
+                                </p>
+                                <div className="hero-buttons" style={{ marginTop: 8 }}>
+                                    <a
+                                        href="#products"
+                                        className="lynsi-btn-primary"
+                                        onClick={(e) => { e.preventDefault(); scrollToSection('products'); }}
+                                    >
+                                        {content.hero.ctaPrimary}
+                                    </a>
+                                    <a
+                                        href="#how-it-works"
+                                        className="lynsi-btn-secondary"
+                                        onClick={(e) => { e.preventDefault(); scrollToSection('how-it-works'); }}
+                                    >
+                                        {content.hero.ctaSecondary}
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="lynsi-hero-visual" style={{ background: PALETTE.white, border: `1px solid ${PALETTE.border}`, boxShadow: '0 20px 50px rgba(6,95,70,0.12)' }}>
+                                {(content.hero as { heroImageUrl?: string }).heroImageUrl?.trim() ? (
+                                    <img
+                                        src={(content.hero as { heroImageUrl?: string }).heroImageUrl!.trim()}
+                                        alt=""
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                ) : (
+                                    <div className="lynsi-hero-visual-inner" style={{
+                                        background: PALETTE.white,
+                                        borderRadius: 16,
+                                        padding: 12,
+                                        boxSizing: 'border-box',
+                                    }}>
+                                        <div
+                                            className="lynsi-hero-visual-card"
+                                            style={{
+                                                width: '100%',
+                                                background: PALETTE.bg,
+                                                borderRadius: 14,
+                                                border: `1px solid ${PALETTE.border}`,
+                                                padding: 'clamp(16px, 4vw, 28px) 20px',
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', gap: 8, alignSelf: 'flex-start' }}>
+                                                <div style={{ width: 10, height: 10, borderRadius: '50%', background: PALETTE.accent }} />
+                                                <div style={{ width: 10, height: 10, borderRadius: '50%', background: PALETTE.border }} />
+                                            </div>
+                                            <div style={{
+                                                width: 'min(120px, 22vw)',
+                                                height: 'min(120px, 22vw)',
+                                                maxWidth: 120,
+                                                maxHeight: 120,
+                                                borderRadius: '50%',
+                                                background: `linear-gradient(135deg, ${PALETTE.accent} 0%, ${PALETTE.secondary} 100%)`,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                flexShrink: 0,
+                                                boxShadow: '0 8px 24px rgba(16,185,129,0.35)',
+                                            }}>
+                                                <svg width="48%" height="48%" viewBox="0 0 24 24" fill="none" stroke={PALETTE.white} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M11 20A7 7 0 0 1 9 8a5 5 0 0 1 7-6.5 5.5 5.5 0 0 1 4 2.5 5 5 0 0 1 2 4 7 7 0 0 1-11 12.5z" />
+                                                </svg>
+                                            </div>
+                                            <div style={{ fontSize: 'clamp(16px, 2.5vw, 22px)', fontWeight: 700, color: PALETTE.primary, textAlign: 'center', lineHeight: 1.3 }}>
+                                                Fresh from the Farm
+                                            </div>
+                                            <div style={{ fontSize: 'clamp(12px, 1.8vw, 15px)', color: PALETTE.muted, textAlign: 'center', lineHeight: 1.4 }}>
+                                                500+ certified organic products, delivered daily
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
