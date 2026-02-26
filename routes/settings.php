@@ -14,6 +14,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/general', fn () => Inertia::render('settings/general'))->name('settings.general');
     Route::get('settings/landing', [LandingPageController::class, 'edit'])->name('settings.landing');
     Route::put('settings/landing', [LandingPageController::class, 'update'])->name('settings.landing.update');
+    Route::post('settings/landing/upload-location-image', [LandingPageController::class, 'uploadLocationImage'])->name('settings.landing.upload-location-image');
     Route::get('settings/appearance', fn () => redirect()->route('profile.edit'))->name('appearance.edit');
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');

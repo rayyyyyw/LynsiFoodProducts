@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
-import { CheckCircle2, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { CheckCircle2, ChevronDown, ChevronUp, ImagePlus, Loader2, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -34,7 +34,7 @@ type HeroContent = {
 type ProductItem = { name: string; price: string; unit: string; category: string; icon: string; badge: string; color: string };
 type BenefitItem = { icon: string; title: string; desc: string };
 type StepItem = { step: string; title: string; desc: string };
-type LocationItem = { name: string; address: string; city: string; phone: string; hours: string; tag: string };
+type LocationItem = { name: string; address: string; city: string; phone: string; hours: string; tag: string; image_url?: string };
 
 type LandingContent = {
     hero?: HeroContent;
@@ -101,6 +101,7 @@ const defaultLocationItem = (): LocationItem => ({
     phone: '',
     hours: '',
     tag: '',
+    image_url: '',
 });
 
 export default function Landing({ content, status }: { content: LandingContent; status?: string | null }) {
@@ -174,6 +175,41 @@ export default function Landing({ content, status }: { content: LandingContent; 
     const steps = (data.content?.howItWorks?.steps ?? []) as StepItem[];
     const locations = (data.content?.locations?.items ?? []) as LocationItem[];
     const partnerNames = (data.content?.partners?.items ?? []) as string[];
+    const [expandedLocationIndex, setExpandedLocationIndex] = useState<number | null>(null);
+    const [uploadingLocationIndex, setUploadingLocationIndex] = useState<number | null>(null);
+    const locationFileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+
+    function getCsrfToken(): string | null {
+        const match = typeof document !== 'undefined' && document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    async function uploadLocationImage(index: number, file: File) {
+        setUploadingLocationIndex(index);
+        const formData = new FormData();
+        formData.append('image', file);
+        const token = getCsrfToken();
+        try {
+            const res = await fetch('/settings/landing/upload-location-image', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    ...(token ? { 'X-XSRF-TOKEN': token } : {}),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error((err as { message?: string }).message || 'Upload failed');
+            }
+            const { url } = (await res.json()) as { url: string };
+            updateArray('locations', 'items', index, 'image_url', url);
+        } finally {
+            setUploadingLocationIndex(null);
+        }
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -416,59 +452,134 @@ export default function Landing({ content, status }: { content: LandingContent; 
                             </div>
                             <div>
                                 <Label className="mb-2 block">Location items</Label>
-                                {locations.map((loc, i) => (
-                                    <div key={i} className="mb-4 space-y-2 rounded-lg border p-3">
-                                        <div className="flex flex-wrap gap-2">
-                                            <Input
-                                                className="flex-1 min-w-[160px]"
-                                                placeholder="Location name"
-                                                value={loc.name}
-                                                onChange={(e) => updateArray('locations', 'items', i, 'name', e.target.value)}
-                                            />
-                                            <Input
-                                                placeholder="Tag"
-                                                value={loc.tag}
-                                                onChange={(e) => updateArray('locations', 'items', i, 'tag', e.target.value)}
-                                            />
-                                            <Button
+                                <div className="space-y-1">
+                                    {locations.map((loc, i) => (
+                                        <div key={i} className="rounded-lg border border-border">
+                                            <button
                                                 type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="shrink-0"
-                                                onClick={() => removeArrayItem('locations', 'items', i)}
+                                                className="flex w-full items-center gap-2 rounded-lg p-2 text-left hover:bg-muted/50"
+                                                onClick={() => setExpandedLocationIndex((prev) => (prev === i ? null : i))}
                                             >
-                                                <Trash2 className="size-4 text-destructive" />
-                                            </Button>
+                                                <div className="h-10 w-14 shrink-0 overflow-hidden rounded bg-muted">
+                                                    {(loc.image_url ?? '').trim() ? (
+                                                        <img
+                                                            src={(loc.image_url ?? '').trim()}
+                                                            alt=""
+                                                            className="h-full w-full object-cover"
+                                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                                        />
+                                                    ) : (
+                                                        <span className="flex h-full w-full items-center justify-center text-muted-foreground text-xs">📷</span>
+                                                    )}
+                                                </div>
+                                                <span className="min-w-0 flex-1 truncate font-medium">
+                                                    {loc.name || `Location ${i + 1}`}
+                                                </span>
+                                                {loc.tag && (
+                                                    <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs">{loc.tag}</span>
+                                                )}
+                                                {expandedLocationIndex === i ? (
+                                                    <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
+                                                ) : (
+                                                    <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+                                                )}
+                                            </button>
+                                            {expandedLocationIndex === i && (
+                                                <div className="border-t border-border p-3">
+                                                    <div className="grid gap-2 sm:grid-cols-2">
+                                                        <Input
+                                                            placeholder="Location name"
+                                                            value={loc.name}
+                                                            onChange={(e) => updateArray('locations', 'items', i, 'name', e.target.value)}
+                                                        />
+                                                        <Input
+                                                            placeholder="Tag"
+                                                            value={loc.tag}
+                                                            onChange={(e) => updateArray('locations', 'items', i, 'tag', e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div className="mt-2">
+                                                        <Label className="text-xs text-muted-foreground">Image (file)</Label>
+                                                        <div className="mt-1 flex items-center gap-2">
+                                                            <input
+                                                                ref={(el) => { locationFileInputRefs.current[i] = el; }}
+                                                                type="file"
+                                                                accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                                                                className="hidden"
+                                                                onChange={(e) => {
+                                                                    const f = e.target.files?.[0];
+                                                                    if (f) uploadLocationImage(i, f);
+                                                                    e.target.value = '';
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="sm"
+                                                                disabled={uploadingLocationIndex === i}
+                                                                onClick={() => locationFileInputRefs.current[i]?.click()}
+                                                            >
+                                                                {uploadingLocationIndex === i ? (
+                                                                    <Loader2 className="mr-1 size-4 animate-spin" />
+                                                                ) : (
+                                                                    <ImagePlus className="mr-1 size-4" />
+                                                                )}
+                                                                {uploadingLocationIndex === i ? 'Uploading...' : 'Choose image'}
+                                                            </Button>
+                                                            {(loc.image_url ?? '').trim() && (
+                                                                <div className="h-12 w-16 overflow-hidden rounded border bg-muted">
+                                                                    <img
+                                                                        src={(loc.image_url ?? '').trim()}
+                                                                        alt=""
+                                                                        className="h-full w-full object-cover"
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                                                        <Input
+                                                            placeholder="Address"
+                                                            value={loc.address}
+                                                            onChange={(e) => updateArray('locations', 'items', i, 'address', e.target.value)}
+                                                        />
+                                                        <Input
+                                                            placeholder="City"
+                                                            value={loc.city}
+                                                            onChange={(e) => updateArray('locations', 'items', i, 'city', e.target.value)}
+                                                        />
+                                                        <Input
+                                                            placeholder="Phone"
+                                                            value={loc.phone}
+                                                            onChange={(e) => updateArray('locations', 'items', i, 'phone', e.target.value)}
+                                                        />
+                                                        <Input
+                                                            placeholder="Hours"
+                                                            value={loc.hours}
+                                                            onChange={(e) => updateArray('locations', 'items', i, 'hours', e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div className="mt-2 flex justify-end">
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="text-destructive hover:text-destructive"
+                                                            onClick={() => { removeArrayItem('locations', 'items', i); setExpandedLocationIndex(null); }}
+                                                        >
+                                                            <Trash2 className="mr-1 size-4" /> Remove location
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-                                        <Input
-                                            placeholder="Address"
-                                            value={loc.address}
-                                            onChange={(e) => updateArray('locations', 'items', i, 'address', e.target.value)}
-                                        />
-                                        <div className="flex flex-wrap gap-2">
-                                            <Input
-                                                className="flex-1 min-w-[100px]"
-                                                placeholder="City"
-                                                value={loc.city}
-                                                onChange={(e) => updateArray('locations', 'items', i, 'city', e.target.value)}
-                                            />
-                                            <Input
-                                                placeholder="Phone"
-                                                value={loc.phone}
-                                                onChange={(e) => updateArray('locations', 'items', i, 'phone', e.target.value)}
-                                            />
-                                            <Input
-                                                placeholder="Hours"
-                                                value={loc.hours}
-                                                onChange={(e) => updateArray('locations', 'items', i, 'hours', e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
+                                    className="mt-2"
                                     onClick={() => addArrayItem('locations', 'items', defaultLocationItem)}
                                 >
                                     <Plus className="mr-1 size-4" /> Add location

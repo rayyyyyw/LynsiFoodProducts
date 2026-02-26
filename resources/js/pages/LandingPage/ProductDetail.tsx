@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { Home, ShoppingBag, MapPin, Info, Mail, Heart, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Heart, Minus, Plus, ShoppingCart, ShoppingBag } from 'lucide-react';
+import { LandingNav } from '@/components/LandingNav';
 
 const PALETTE = {
     primary: '#065f46',
@@ -27,14 +28,6 @@ type ProductData = {
     category: CategoryRef;
     variants: Variant[];
 };
-
-const NAV_ITEMS: { id: string; label: string; href: string; icon: typeof Home }[] = [
-    { id: 'home', label: 'Home', href: '/', icon: Home },
-    { id: 'products', label: 'Products', href: '/shop', icon: ShoppingBag },
-    { id: 'our-locations', label: 'Our Locations', href: '/#our-locations', icon: MapPin },
-    { id: 'about-us', label: 'About Us', href: '/#about-us', icon: Info },
-    { id: 'contact-us', label: 'Contact Us', href: '/#contact-us', icon: Mail },
-];
 
 function formatPrice(price: number): string {
     return `₱${Number(price).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -69,82 +62,7 @@ export default function ProductDetail() {
         <div className="flex min-h-screen flex-col bg-[#ecfdf5]">
             <Head title={`${product.name} – Lynsi Food Products`} />
 
-            <nav
-                className="sticky top-0 z-50 border-b bg-white"
-                style={{ borderColor: PALETTE.border, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
-            >
-                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-                    <Link href="/" className="flex items-center gap-2">
-                        <img src="/mylogo/logopng%20(1).png" alt="Lynsi" className="h-9 w-auto object-contain" />
-                        <span style={{ fontWeight: 800, fontSize: '18px', color: PALETTE.primary }}>
-                            Lynsi<span style={{ color: PALETTE.accent }}>FoodProducts</span>
-                        </span>
-                    </Link>
-                    <div className="hidden items-center gap-2 md:flex">
-                        {NAV_ITEMS.map(({ id, label, href, icon: Icon }) => (
-                            <Link
-                                key={id}
-                                href={href}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 8,
-                                    padding: href === '/shop' ? '8px 14px' : '8px 0',
-                                    borderRadius: 10,
-                                    color: href === '/shop' ? PALETTE.primary : PALETTE.muted,
-                                    fontWeight: href === '/shop' ? 600 : 500,
-                                    textDecoration: 'none',
-                                    background: href === '/shop' ? PALETTE.bg : 'transparent',
-                                    border: `1px solid ${href === '/shop' ? PALETTE.border : 'transparent'}`,
-                                }}
-                            >
-                                <Icon size={18} />
-                                <span>{label}</span>
-                            </Link>
-                        ))}
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {auth?.user ? (
-                            <Link
-                                href="/dashboard"
-                                style={{
-                                    padding: '8px 16px',
-                                    background: PALETTE.primary,
-                                    color: PALETTE.white,
-                                    borderRadius: 8,
-                                    fontWeight: 600,
-                                    textDecoration: 'none',
-                                    fontSize: 14,
-                                }}
-                            >
-                                Dashboard
-                            </Link>
-                        ) : (
-                            <>
-                                <Link href="/login" style={{ color: PALETTE.muted, fontWeight: 500, textDecoration: 'none', fontSize: 14 }}>
-                                    Log in
-                                </Link>
-                                {canRegister && (
-                                    <Link
-                                        href="/register"
-                                        style={{
-                                            padding: '8px 16px',
-                                            background: PALETTE.primary,
-                                            color: PALETTE.white,
-                                            borderRadius: 8,
-                                            fontWeight: 600,
-                                            textDecoration: 'none',
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        Get Started
-                                    </Link>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </nav>
+            <LandingNav activeId="products" auth={auth ?? { user: null }} canRegister={canRegister} />
 
             <main className="flex-1 px-4 py-8">
                 <div className="mx-auto max-w-6xl">

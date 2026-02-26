@@ -35,6 +35,7 @@ const LOCATIONS = [
         phone: '+63 2 8123 4567',
         hours: 'Mon–Sat 7AM–8PM',
         tag: 'Headquarters',
+        image_url: '',
     },
     {
         name: 'Lynsi Cebu Store',
@@ -43,6 +44,7 @@ const LOCATIONS = [
         phone: '+63 32 412 3456',
         hours: 'Mon–Sat 8AM–7PM',
         tag: 'Pick-up & Delivery',
+        image_url: '',
     },
     {
         name: 'Lynsi Davao Branch',
@@ -51,6 +53,7 @@ const LOCATIONS = [
         phone: '+63 82 221 5678',
         hours: 'Mon–Sat 7AM–7PM',
         tag: 'Full Service',
+        image_url: '',
     },
 ];
 
@@ -1090,8 +1093,8 @@ export default function Welcome({
                             </p>
                         </div>
                         <div className="locations-grid" style={{ display: 'grid' }}>
-                            {(content.locations.items ?? []).map((loc) => (
-                                <div key={loc.name} className="benefit-card" style={{ textAlign: 'left' }}>
+                            {(content.locations.items ?? []).map((loc, idx) => (
+                                <div key={loc.name || idx} className="benefit-card" style={{ textAlign: 'left' }}>
                                     {loc.tag && (
                                         <span style={{
                                             position: 'absolute', top: '16px', right: '16px',
@@ -1101,12 +1104,25 @@ export default function Welcome({
                                             {loc.tag}
                                         </span>
                                     )}
-                                    <div style={{
-                                        width: '48px', height: '48px', borderRadius: '12px',
-                                        background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: '22px', marginBottom: '16px',
-                                    }}>📍</div>
+                                    {loc.image_url?.trim() ? (
+                                        <div style={{
+                                            width: '100%', aspectRatio: '16/10', borderRadius: '12px',
+                                            overflow: 'hidden', marginBottom: '16px', background: PALETTE.light,
+                                        }}>
+                                            <img
+                                                src={loc.image_url.trim()}
+                                                alt={loc.name || 'Location'}
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div style={{
+                                            width: '48px', height: '48px', borderRadius: '12px',
+                                            background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontSize: '22px', marginBottom: '16px',
+                                        }}>📍</div>
+                                    )}
                                     <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '10px' }}>{loc.name}</h3>
                                     <p style={{ fontSize: '14px', color: PALETTE.primary, lineHeight: 1.6, marginBottom: '8px' }}>{loc.address}</p>
                                     <p style={{ fontSize: '13px', color: PALETTE.muted, fontWeight: 600, marginBottom: '12px' }}>{loc.city}</p>

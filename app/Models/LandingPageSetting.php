@@ -120,9 +120,9 @@ class LandingPageSetting extends Model
                 'title' => 'Our Locations',
                 'subtitle' => 'Find a Lynsi store near you. Walk in for fresh picks or order ahead for same-day pickup and delivery.',
                 'items' => [
-                    ['name' => 'Lynsi Manila Hub', 'address' => '123 Organic Way, Bonifacio Global City', 'city' => 'Metro Manila', 'phone' => '+63 2 8123 4567', 'hours' => 'Mon–Sat 7AM–8PM', 'tag' => 'Headquarters'],
-                    ['name' => 'Lynsi Cebu Store', 'address' => '456 Fresh Farm Road, Cebu Business Park', 'city' => 'Cebu City', 'phone' => '+63 32 412 3456', 'hours' => 'Mon–Sat 8AM–7PM', 'tag' => 'Pick-up & Delivery'],
-                    ['name' => 'Lynsi Davao Branch', 'address' => '789 Eco Street, Lanang', 'city' => 'Davao City', 'phone' => '+63 82 221 5678', 'hours' => 'Mon–Sat 7AM–7PM', 'tag' => 'Full Service'],
+                    ['name' => 'Lynsi Manila Hub', 'address' => '123 Organic Way, Bonifacio Global City', 'city' => 'Metro Manila', 'phone' => '+63 2 8123 4567', 'hours' => 'Mon–Sat 7AM–8PM', 'tag' => 'Headquarters', 'image_url' => ''],
+                    ['name' => 'Lynsi Cebu Store', 'address' => '456 Fresh Farm Road, Cebu Business Park', 'city' => 'Cebu City', 'phone' => '+63 32 412 3456', 'hours' => 'Mon–Sat 8AM–7PM', 'tag' => 'Pick-up & Delivery', 'image_url' => ''],
+                    ['name' => 'Lynsi Davao Branch', 'address' => '789 Eco Street, Lanang', 'city' => 'Davao City', 'phone' => '+63 82 221 5678', 'hours' => 'Mon–Sat 7AM–7PM', 'tag' => 'Full Service', 'image_url' => ''],
                 ],
             ],
             'aboutUs' => [

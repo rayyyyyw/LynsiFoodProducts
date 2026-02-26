@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import { Home, ShoppingBag, MapPin, Info, Mail, Search, Heart } from 'lucide-react';
+import { Search, Heart, ShoppingBag } from 'lucide-react';
+import { LandingNav } from '@/components/LandingNav';
 
 const PALETTE = {
     primary: '#065f46',
@@ -29,14 +30,6 @@ type ProductItem = {
 };
 
 type SortKey = 'popular' | 'latest' | 'top_sales' | 'price_asc' | 'price_desc';
-
-const NAV_ITEMS: { id: string; label: string; href: string; icon: typeof Home }[] = [
-    { id: 'home', label: 'Home', href: '/', icon: Home },
-    { id: 'products', label: 'Products', href: '/shop', icon: ShoppingBag },
-    { id: 'our-locations', label: 'Our Locations', href: '/#our-locations', icon: MapPin },
-    { id: 'about-us', label: 'About Us', href: '/#about-us', icon: Info },
-    { id: 'contact-us', label: 'Contact Us', href: '/#contact-us', icon: Mail },
-];
 
 function getDisplayPrice(product: ProductItem): number {
     if (!product.variants?.length) return 0;
@@ -116,105 +109,7 @@ export default function Shop() {
         <div className="flex min-h-screen flex-col bg-[#ecfdf5]">
             <Head title="Products – Lynsi Food Products" />
 
-            <nav
-                style={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 50,
-                    background: PALETTE.white,
-                    borderBottom: `1px solid ${PALETTE.border}`,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                }}
-            >
-                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-                    <Link href="/" className="flex items-center gap-2">
-                        <img
-                            src="/mylogo/logopng%20(1).png"
-                            alt="Lynsi"
-                            className="h-9 w-auto object-contain"
-                        />
-                        <span style={{ fontWeight: 800, fontSize: '18px', color: PALETTE.primary }}>
-                            Lynsi<span style={{ color: PALETTE.accent }}>FoodProducts</span>
-                        </span>
-                    </Link>
-
-                    <div className="hidden items-center gap-2 md:flex">
-                        {NAV_ITEMS.map(({ id, label, href, icon: Icon }) => {
-                            const isActive = href === '/shop';
-                            return (
-                                <Link
-                                    key={id}
-                                    href={href}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 8,
-                                        padding: isActive ? '8px 14px' : '8px 0',
-                                        borderRadius: 10,
-                                        color: isActive ? PALETTE.primary : PALETTE.muted,
-                                        fontWeight: isActive ? 600 : 500,
-                                        textDecoration: 'none',
-                                        background: isActive ? PALETTE.bg : 'transparent',
-                                        border: isActive ? `1px solid ${PALETTE.border}` : '1px solid transparent',
-                                    }}
-                                >
-                                    <Icon size={18} />
-                                    <span>{label}</span>
-                                </Link>
-                            );
-                        })}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        {auth?.user ? (
-                            <Link
-                                href="/dashboard"
-                                style={{
-                                    padding: '8px 16px',
-                                    background: PALETTE.primary,
-                                    color: PALETTE.white,
-                                    borderRadius: 8,
-                                    fontWeight: 600,
-                                    textDecoration: 'none',
-                                    fontSize: 14,
-                                }}
-                            >
-                                Dashboard
-                            </Link>
-                        ) : (
-                            <>
-                                <Link
-                                    href="/login"
-                                    style={{
-                                        color: PALETTE.muted,
-                                        fontWeight: 500,
-                                        textDecoration: 'none',
-                                        fontSize: 14,
-                                    }}
-                                >
-                                    Log in
-                                </Link>
-                                {canRegister && (
-                                    <Link
-                                        href="/register"
-                                        style={{
-                                            padding: '8px 16px',
-                                            background: PALETTE.primary,
-                                            color: PALETTE.white,
-                                            borderRadius: 8,
-                                            fontWeight: 600,
-                                            textDecoration: 'none',
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        Get Started
-                                    </Link>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </nav>
+            <LandingNav activeId="products" auth={auth ?? { user: null }} canRegister={canRegister} />
 
             <main className="min-h-0 flex-1 px-4 py-6">
                 <div className="mx-auto max-w-7xl">
@@ -373,7 +268,7 @@ export default function Shop() {
                                         <Link
                                             key={product.id}
                                             href={`/shop/product/${product.slug}`}
-                                            className="overflow-hidden rounded-xl border bg-white transition-shadow hover:shadow-md"
+                                            className="overflow-hidden rounded-xl border bg-white cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] hover:border-emerald-400"
                                             style={{ borderColor: PALETTE.border }}
                                         >
                                             <div className="relative flex justify-center bg-neutral-100 px-6 pt-6 pb-2">
