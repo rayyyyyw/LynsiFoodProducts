@@ -298,12 +298,24 @@ const NAV_HEIGHT_PX = 72; // match .lynsi-nav-spacer so "active line" is just be
 
 type LandingContent = ReturnType<typeof getDefaultLandingContent>;
 
+type FeaturedProduct = {
+    id: number;
+    name: string;
+    description: string | null;
+    expiry: string | null;
+    image_url: string | null;
+    category: string | null;
+    variants: { size: string | null; flavor: string | null; price: string; stock_quantity: number }[];
+};
+
 export default function Welcome({
     canRegister = true,
     landingContent,
+    featuredProducts = [],
 }: {
     canRegister?: boolean;
     landingContent?: LandingContent | null;
+    featuredProducts?: FeaturedProduct[];
 }) {
     const { auth } = usePage().props as { auth: { user: unknown } };
     const content = mergeWithDefaults(landingContent);
@@ -858,49 +870,109 @@ export default function Welcome({
                             </a>
                         </div>
                         <div className="products-grid" style={{ display: 'grid' }}>
-                            {(content.products.items ?? []).map(p => (
-                                <div key={p.name} className="product-card">
-                                    <div style={{
-                                        position: 'absolute', top: '12px', right: '12px', zIndex: 2,
-                                        background: PALETTE.white, color: PALETTE.secondary, fontSize: '11px', fontWeight: 700,
-                                        padding: '4px 10px', borderRadius: '50px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                                    }}>
-                                        {p.badge}
-                                    </div>
-                                    <div className="product-image-placeholder" style={{ background: p.color }}>
-                                        {p.icon}
-                                    </div>
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                                        <div style={{ fontSize: '12px', color: PALETTE.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
-                                            {p.category}
-                                        </div>
-                                        <h3 style={{ fontSize: '16px', fontWeight: 700, color: PALETTE.primary, marginBottom: '12px', lineHeight: 1.4 }}>
-                                            {p.name}
-                                        </h3>
-                                        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px' }}>
-                                            <div>
-                                                <span style={{ fontSize: '22px', fontWeight: 800, color: PALETTE.secondary }}>{p.price}</span>
-                                                <span style={{ fontSize: '13px', color: PALETTE.muted }}>{p.unit}</span>
+                            {featuredProducts && featuredProducts.length > 0
+                                ? featuredProducts.map((p) => {
+                                        const minPrice = p.variants?.length
+                                            ? Math.min(...p.variants.map((v) => Number(v.price)))
+                                            : null;
+                                        return (
+                                            <div key={p.id} className="product-card">
+                                                {p.image_url ? (
+                                                    <div className="product-image-placeholder" style={{ background: PALETTE.light, padding: 0, overflow: 'hidden' }}>
+                                                        <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                    </div>
+                                                ) : (
+                                                    <div className="product-image-placeholder" style={{ background: PALETTE.light }}>
+                                                        🛒
+                                                    </div>
+                                                )}
+                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                                    {p.category && (
+                                                        <div style={{ fontSize: '12px', color: PALETTE.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+                                                            {p.category}
+                                                        </div>
+                                                    )}
+                                                    <h3 style={{ fontSize: '16px', fontWeight: 700, color: PALETTE.primary, marginBottom: '8px', lineHeight: 1.4 }}>
+                                                        {p.name}
+                                                    </h3>
+                                                    {p.description && (
+                                                        <p style={{ fontSize: '13px', color: PALETTE.muted, lineHeight: 1.5, marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                            {p.description}
+                                                        </p>
+                                                    )}
+                                                    <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                                                        <div>
+                                                            {minPrice != null && (
+                                                                <>
+                                                                    <span style={{ fontSize: '14px', color: PALETTE.muted }}>From </span>
+                                                                    <span style={{ fontSize: '22px', fontWeight: 800, color: PALETTE.secondary }}>₱{minPrice.toFixed(2)}</span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            style={{
+                                                                width: '44px', height: '44px', minWidth: '44px', minHeight: '44px',
+                                                                borderRadius: '12px', border: 'none',
+                                                                background: PALETTE.light, color: PALETTE.primary, fontSize: '20px',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                                cursor: 'pointer', transition: 'all 0.2s',
+                                                            }}
+                                                            onMouseEnter={e => { e.currentTarget.style.background = PALETTE.primary; e.currentTarget.style.color = PALETTE.white; }}
+                                                            onMouseLeave={e => { e.currentTarget.style.background = PALETTE.light; e.currentTarget.style.color = PALETTE.primary; }}
+                                                            aria-label={`Add ${p.name} to cart`}
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <button
-                                                type="button"
-                                                style={{
-                                                    width: '44px', height: '44px', minWidth: '44px', minHeight: '44px',
-                                                    borderRadius: '12px', border: 'none',
-                                                    background: PALETTE.light, color: PALETTE.primary, fontSize: '20px',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    cursor: 'pointer', transition: 'all 0.2s',
-                                                }}
-                                                onMouseEnter={e => { e.currentTarget.style.background = PALETTE.primary; e.currentTarget.style.color = PALETTE.white; }}
-                                                onMouseLeave={e => { e.currentTarget.style.background = PALETTE.light; e.currentTarget.style.color = PALETTE.primary; }}
-                                                aria-label={`Add ${p.name} to cart`}
-                                            >
-                                                +
-                                            </button>
+                                        );
+                                  })
+                                : (content.products.items ?? []).map(p => (
+                                        <div key={p.name} className="product-card">
+                                            <div style={{
+                                                position: 'absolute', top: '12px', right: '12px', zIndex: 2,
+                                                background: PALETTE.white, color: PALETTE.secondary, fontSize: '11px', fontWeight: 700,
+                                                padding: '4px 10px', borderRadius: '50px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                            }}>
+                                                {p.badge}
+                                            </div>
+                                            <div className="product-image-placeholder" style={{ background: p.color }}>
+                                                {p.icon}
+                                            </div>
+                                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                                <div style={{ fontSize: '12px', color: PALETTE.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+                                                    {p.category}
+                                                </div>
+                                                <h3 style={{ fontSize: '16px', fontWeight: 700, color: PALETTE.primary, marginBottom: '12px', lineHeight: 1.4 }}>
+                                                    {p.name}
+                                                </h3>
+                                                <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px' }}>
+                                                    <div>
+                                                        <span style={{ fontSize: '22px', fontWeight: 800, color: PALETTE.secondary }}>{p.price}</span>
+                                                        <span style={{ fontSize: '13px', color: PALETTE.muted }}>{p.unit}</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        style={{
+                                                            width: '44px', height: '44px', minWidth: '44px', minHeight: '44px',
+                                                            borderRadius: '12px', border: 'none',
+                                                            background: PALETTE.light, color: PALETTE.primary, fontSize: '20px',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                            cursor: 'pointer', transition: 'all 0.2s',
+                                                        }}
+                                                        onMouseEnter={e => { e.currentTarget.style.background = PALETTE.primary; e.currentTarget.style.color = PALETTE.white; }}
+                                                        onMouseLeave={e => { e.currentTarget.style.background = PALETTE.light; e.currentTarget.style.color = PALETTE.primary; }}
+                                                        aria-label={`Add ${p.name} to cart`}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            ))}
+                                    ))
+                            }
                         </div>
                     </div>
                 </section>

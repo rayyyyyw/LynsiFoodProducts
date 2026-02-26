@@ -92,15 +92,6 @@ function SectionCard({
     );
 }
 
-const defaultProductItem = (): ProductItem => ({
-    name: '',
-    price: '',
-    unit: '',
-    category: '',
-    icon: '🛒',
-    badge: '',
-    color: '#dcfce7',
-});
 const defaultBenefitItem = (): BenefitItem => ({ icon: '🍃', title: '', desc: '' });
 const defaultStepItem = (): StepItem => ({ step: '01', title: '', desc: '' });
 const defaultLocationItem = (): LocationItem => ({
@@ -179,7 +170,6 @@ export default function Landing({ content, status }: { content: LandingContent; 
         put('/settings/landing', { preserveScroll: true });
     };
 
-    const products = (data.content?.products?.items ?? []) as ProductItem[];
     const benefits = (data.content?.benefits?.items ?? []) as BenefitItem[];
     const steps = (data.content?.howItWorks?.steps ?? []) as StepItem[];
     const locations = (data.content?.locations?.items ?? []) as LocationItem[];
@@ -204,105 +194,6 @@ export default function Landing({ content, status }: { content: LandingContent; 
                             {processing ? 'Saving...' : 'Save landing page content'}
                         </Button>
                     </div>
-
-                    {/* Products */}
-                    <SectionCard title="Products" description="Featured products section.">
-                        <div className="space-y-3">
-                            <div className="grid gap-2 sm:grid-cols-2">
-                                <div>
-                                    <Label>Section badge</Label>
-                                    <Input
-                                        value={(get('products.badge') as string) ?? ''}
-                                        onChange={(e) => update('products', { ...data.content?.products, badge: e.target.value })}
-                                        placeholder="🛒 Fresh Arrivals"
-                                    />
-                                </div>
-                                <div>
-                                    <Label>Section title</Label>
-                                    <Input
-                                        value={(get('products.title') as string) ?? ''}
-                                        onChange={(e) => update('products', { ...data.content?.products, title: e.target.value })}
-                                        placeholder="Featured Products"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <Label>Subtitle</Label>
-                                <Input
-                                    value={(get('products.subtitle') as string) ?? ''}
-                                    onChange={(e) => update('products', { ...data.content?.products, subtitle: e.target.value })}
-                                    placeholder="Hand-picked, certified organic..."
-                                />
-                            </div>
-                            <div>
-                                <Label>Catalogue button label</Label>
-                                <Input
-                                    value={(get('products.catalogueLabel') as string) ?? ''}
-                                    onChange={(e) => update('products', { ...data.content?.products, catalogueLabel: e.target.value })}
-                                    placeholder="View Full Catalogue →"
-                                />
-                            </div>
-                            <div>
-                                <Label className="mb-2 block">Product items</Label>
-                                {products.map((p, i) => (
-                                    <div key={i} className="mb-4 flex flex-wrap gap-2 rounded-lg border p-3">
-                                        <Input
-                                            className="flex-1 min-w-[120px]"
-                                            placeholder="Name"
-                                            value={p.name}
-                                            onChange={(e) => updateArray('products', 'items', i, 'name', e.target.value)}
-                                        />
-                                        <Input
-                                            className="w-24"
-                                            placeholder="Price"
-                                            value={p.price}
-                                            onChange={(e) => updateArray('products', 'items', i, 'price', e.target.value)}
-                                        />
-                                        <Input
-                                            className="w-20"
-                                            placeholder="Unit"
-                                            value={p.unit}
-                                            onChange={(e) => updateArray('products', 'items', i, 'unit', e.target.value)}
-                                        />
-                                        <Input
-                                            className="flex-1 min-w-[100px]"
-                                            placeholder="Category"
-                                            value={p.category}
-                                            onChange={(e) => updateArray('products', 'items', i, 'category', e.target.value)}
-                                        />
-                                        <Input
-                                            className="w-14"
-                                            placeholder="Icon"
-                                            value={p.icon}
-                                            onChange={(e) => updateArray('products', 'items', i, 'icon', e.target.value)}
-                                        />
-                                        <Input
-                                            placeholder="Badge"
-                                            value={p.badge}
-                                            onChange={(e) => updateArray('products', 'items', i, 'badge', e.target.value)}
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="shrink-0"
-                                            onClick={() => removeArrayItem('products', 'items', i)}
-                                        >
-                                            <Trash2 className="size-4 text-destructive" />
-                                        </Button>
-                                    </div>
-                                ))}
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => addArrayItem('products', 'items', defaultProductItem)}
-                                >
-                                    <Plus className="mr-1 size-4" /> Add product
-                                </Button>
-                            </div>
-                        </div>
-                    </SectionCard>
 
                     {/* Trusted By / Partners */}
                     <SectionCard title="Partnerships" description="Brand names shown in the trusted-by section.">

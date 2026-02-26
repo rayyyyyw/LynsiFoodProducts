@@ -11,6 +11,8 @@
 /resources/js/wayfinder
 /vendor
 .DS_Store
+# Windows reserved device name (avoids "invalid path 'nul'" in Git)
+nul
 .env
 .env.backup
 .env.production
