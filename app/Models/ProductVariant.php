@@ -27,7 +27,13 @@ class ProductVariant extends Model
 
     public function getDisplayNameAttribute(): string
     {
-        $parts = array_filter([$this->flavor, $this->size]);
+        // If size is a bare number (e.g. "100"), display it as "100g"
+        $size = $this->size;
+        if ($size !== null && preg_match('/^\d+(\.\d+)?$/', $size)) {
+            $size = $size . 'g';
+        }
+
+        $parts = array_filter([$this->flavor, $size]);
 
         return implode(' – ', $parts) ?: 'Default';
     }

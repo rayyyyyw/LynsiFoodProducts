@@ -1,6 +1,6 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Home, ShoppingBag, MapPin, Info, Mail } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // ─── Emerald E‑commerce Palette ───────────────────────────────────────────────
 const PALETTE = {
@@ -321,10 +321,12 @@ export default function Welcome({
     landingContent?: LandingContent | null;
     featuredProducts?: FeaturedProduct[];
 }) {
-    const { auth } = usePage().props as { auth: { user: unknown } };
+    const { auth, cartCount = 0 } = usePage().props as { auth: { user: { name: string; email: string; role?: string; profile_photo_url?: string | null } | null }; cartCount?: number };
     const content = mergeWithDefaults(landingContent);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('home');
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const userMenuRef = useRef<HTMLDivElement>(null);
 
     // Scroll-spy: which section is at the "active line" (just below fixed nav)
     useEffect(() => {
@@ -354,6 +356,16 @@ export default function Welcome({
             if (raf) cancelAnimationFrame(raf);
         };
     }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+                setUserMenuOpen(false);
+            }
+        };
+        if (userMenuOpen) document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [userMenuOpen]);
 
     const scrollToSection = (id: string) => {
         setActiveSection(id);
@@ -734,9 +746,160 @@ export default function Welcome({
                             )}
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {/* Cart icon */}
+                            {auth.user && (
+                                <a href="/cart" style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 10, textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
+                                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
+                                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                                    title="My Cart"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.94-1.51L23 6H6"/></svg>
+                                    {cartCount > 0 && (
+                                        <span style={{ position: 'absolute', top: 4, right: 4, minWidth: 16, height: 16, borderRadius: 50, background: '#ef4444', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', lineHeight: 1 }}>
+                                            {cartCount > 99 ? '99+' : cartCount}
+                                        </span>
+                                    )}
+                                </a>
+                            )}
                             {auth.user ? (
-                                <Link href="/dashboard" className="lynsi-btn-primary" style={{ padding: '10px 20px', fontSize: '14px' }}>Dashboard</Link>
+                                <div ref={userMenuRef} style={{ position: 'relative' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setUserMenuOpen(!userMenuOpen)}
+                                        style={{
+                                            display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                            padding: '8px 14px', minHeight: '44px',
+                                            background: userMenuOpen ? PALETTE.bg : 'transparent',
+                                            border: `1px solid ${userMenuOpen ? PALETTE.border : 'transparent'}`,
+                                            borderRadius: '12px', cursor: 'pointer',
+                                            transition: 'all 0.2s', fontFamily: "'Inter', sans-serif",
+                                        }}
+                                        onMouseEnter={e => { if (!userMenuOpen) { (e.currentTarget as HTMLButtonElement).style.background = PALETTE.bg; (e.currentTarget as HTMLButtonElement).style.borderColor = PALETTE.border; } }}
+                                        onMouseLeave={e => { if (!userMenuOpen) { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'transparent'; } }}
+                                        aria-haspopup="true"
+                                        aria-expanded={userMenuOpen}
+                                    >
+                                        {/* Avatar: wrapper clips the circle, photo overlays initials */}
+                                        <div style={{
+                                            position: 'relative', flexShrink: 0,
+                                            width: 34, height: 34, borderRadius: '50%',
+                                            overflow: 'hidden',
+                                            background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            boxShadow: `0 0 0 2px ${PALETTE.border}, 0 1px 6px rgba(6,95,70,0.2)`,
+                                        }}>
+                                            <span style={{ color: PALETTE.white, fontSize: '12px', fontWeight: 700, userSelect: 'none' }}>
+                                                {auth.user.name.charAt(0).toUpperCase()}
+                                            </span>
+                                            {auth.user.profile_photo_url && (
+                                                <img
+                                                    src={auth.user.profile_photo_url}
+                                                    alt=""
+                                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                                                    onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                                                />
+                                            )}
+                                        </div>
+                                        <span className="hidden md:inline" style={{ fontSize: '14px', fontWeight: 600, color: PALETTE.primary, maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>
+                                            {auth.user.name}
+                                        </span>
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ color: PALETTE.muted, flexShrink: 0, transition: 'transform 0.2s', transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                                            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    </button>
+
+                                    {userMenuOpen && (
+                                        <div style={{
+                                            position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+                                            minWidth: 200, background: PALETTE.white,
+                                            border: `1px solid ${PALETTE.border}`, borderRadius: '16px',
+                                            boxShadow: '0 8px 32px rgba(6,95,70,0.14)',
+                                            padding: '8px', zIndex: 1001,
+                                        }}>
+                                            {/* User info header */}
+                                            <div style={{ padding: '10px 12px 12px', borderBottom: `1px solid ${PALETTE.border}`, marginBottom: '4px' }}>
+                                                <div style={{ fontSize: '14px', fontWeight: 700, color: PALETTE.primary, wordBreak: 'break-word', lineHeight: 1.3 }}>{auth.user.name}</div>
+                                                <div style={{ fontSize: '12px', color: PALETTE.muted, marginTop: '2px', wordBreak: 'break-all' }}>{auth.user.email}</div>
+                                            </div>
+
+                                            {/* My Account */}
+                                            <Link
+                                                href={auth.user.role === 'admin' ? '/settings/profile' : '/account'}
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', gap: '10px',
+                                                    padding: '10px 12px', borderRadius: '10px',
+                                                    textDecoration: 'none', color: PALETTE.primary,
+                                                    fontSize: '14px', fontWeight: 500, transition: 'background 0.15s',
+                                                }}
+                                                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
+                                                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                                                onClick={() => setUserMenuOpen(false)}
+                                            >
+                                                <span style={{ width: 20, textAlign: 'center' }}>👤</span>
+                                                My Account
+                                            </Link>
+
+                                            {/* My Purchase */}
+                                            <Link
+                                                href="/my-purchases"
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', gap: '10px',
+                                                    padding: '10px 12px', borderRadius: '10px',
+                                                    textDecoration: 'none', color: PALETTE.primary,
+                                                    fontSize: '14px', fontWeight: 500, transition: 'background 0.15s',
+                                                }}
+                                                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
+                                                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                                                onClick={() => setUserMenuOpen(false)}
+                                            >
+                                                <span style={{ width: 20, textAlign: 'center' }}>🛒</span>
+                                                My Purchase
+                                            </Link>
+
+                                            {/* Admin Dashboard (admin role only) */}
+                                            {auth.user.role === 'admin' && (
+                                                <Link
+                                                    href="/dashboard"
+                                                    style={{
+                                                        display: 'flex', alignItems: 'center', gap: '10px',
+                                                        padding: '10px 12px', borderRadius: '10px',
+                                                        textDecoration: 'none', color: PALETTE.primary,
+                                                        fontSize: '14px', fontWeight: 500, transition: 'background 0.15s',
+                                                    }}
+                                                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
+                                                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                                                    onClick={() => setUserMenuOpen(false)}
+                                                >
+                                                    <span style={{ width: 20, textAlign: 'center' }}>⚙️</span>
+                                                    Dashboard
+                                                </Link>
+                                            )}
+
+                                            {/* Divider */}
+                                            <div style={{ height: 1, background: PALETTE.border, margin: '6px 0' }} />
+
+                                            {/* Logout */}
+                                            <button
+                                                type="button"
+                                                onClick={() => { setUserMenuOpen(false); router.post('/logout'); }}
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
+                                                    padding: '10px 12px', borderRadius: '10px',
+                                                    background: 'none', border: 'none', cursor: 'pointer',
+                                                    color: '#ef4444', fontSize: '14px', fontWeight: 500,
+                                                    textAlign: 'left', transition: 'background 0.15s',
+                                                    fontFamily: "'Inter', sans-serif",
+                                                }}
+                                                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fef2f2'; }}
+                                                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                                            >
+                                                <span style={{ width: 20, textAlign: 'center' }}>🚪</span>
+                                                Logout
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             ) : (
                                 <>
                                     <Link href="/login" className="nav-link nav-desktop">Log in</Link>
@@ -798,6 +961,52 @@ export default function Welcome({
                                         </a>
                                     ),
                                 )}
+
+                                {/* Mobile auth links */}
+                                <div style={{ borderTop: `1px solid ${PALETTE.border}`, marginTop: '8px', paddingTop: '8px' }}>
+                                    {auth.user ? (
+                                        <>
+                                            <div style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <div style={{ width: 32, height: 32, borderRadius: '50%', background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: PALETTE.white, fontSize: '13px', fontWeight: 700 }}>
+                                                    {auth.user.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div style={{ minWidth: 0, flex: 1 }}>
+                                                    <div style={{ fontSize: '14px', fontWeight: 700, color: PALETTE.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{auth.user.name}</div>
+                                                    <div style={{ fontSize: '12px', color: PALETTE.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{auth.user.email}</div>
+                                                </div>
+                                            </div>
+                                            <Link href={auth.user.role === 'admin' ? '/settings/profile' : '/account'} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
+                                                👤 My Account
+                                            </Link>
+                                            <Link href="/my-purchases" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
+                                                🛒 My Purchase
+                                            </Link>
+                                            {auth.user.role === 'admin' && (
+                                                <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
+                                                    ⚙️ Dashboard
+                                                </Link>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => { setMobileMenuOpen(false); router.post('/logout'); }}
+                                                style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', width: '100%', background: 'none', border: 'none', borderRadius: '10px', color: '#ef4444', fontSize: '14px', fontWeight: 500, cursor: 'pointer', textAlign: 'left', fontFamily: "'Inter', sans-serif" }}
+                                            >
+                                                🚪 Logout
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link href="/login" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
+                                                Sign in
+                                            </Link>
+                                            {canRegister && (
+                                                <Link href="/register" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', margin: '4px 0', padding: '12px 16px', background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`, color: PALETTE.white, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600 }} onClick={() => setMobileMenuOpen(false)}>
+                                                    Get Started Free
+                                                </Link>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}

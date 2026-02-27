@@ -50,7 +50,9 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return redirect()->route('profile.edit')->with('status', 'profile-updated');
+        $redirectRoute = $user->role === 'buyer' ? 'account.profile' : 'profile.edit';
+
+        return redirect()->route($redirectRoute)->with('status', 'profile-updated');
     }
 
     /**

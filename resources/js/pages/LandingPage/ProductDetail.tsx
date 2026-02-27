@@ -1,6 +1,6 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Heart, Minus, Plus, ShoppingCart, ShoppingBag } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 
 const PALETTE = {
@@ -40,7 +40,7 @@ function getVariantLabel(v: Variant): string {
 
 export default function ProductDetail() {
     const page = usePage();
-    const { auth } = page.props as { auth: { user: unknown } | null };
+    const { auth } = page.props as { auth: { user: { name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null } | null };
     const { product, canRegister = true } = page.props as {
         product: ProductData;
         canRegister?: boolean;
@@ -49,6 +49,26 @@ export default function ProductDetail() {
     const hasVariants = product.variants.length > 1;
     const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
     const [quantity, setQuantity] = useState(1);
+    const [cartAdding, setCartAdding] = useState(false);
+    const [cartAdded,  setCartAdded]  = useState(false);
+
+    /* Reset qty to 1 whenever the selected variant changes */
+    useEffect(() => { setQuantity(1); }, [selectedVariantIndex]);
+
+    function addToCart() {
+        if (!auth?.user) { router.visit('/login'); return; }
+        if (!variant) return;
+        setCartAdding(true);
+        router.post('/cart', { variant_id: variant.id, quantity: qty }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setCartAdding(false);
+                setCartAdded(true);
+                setTimeout(() => setCartAdded(false), 2000);
+            },
+            onError: () => setCartAdding(false),
+        });
+    }
 
     const variant = product.variants[selectedVariantIndex];
     const price = variant ? variant.price : 0;
@@ -171,7 +191,10 @@ export default function ProductDetail() {
                                             <Plus className="h-4 w-4" />
                                         </button>
                                     </div>
-                                    <span className="text-sm text-neutral-500">{stock} available</span>
+                                    {stock > 0
+                                        ? <span className="text-sm text-neutral-500">{stock} available</span>
+                                        : <span className="text-sm font-semibold" style={{ color: '#ef4444' }}>Out of stock</span>
+                                    }
                                 </div>
                             </div>
 
@@ -179,11 +202,25 @@ export default function ProductDetail() {
                             <div className="flex flex-wrap gap-3">
                                 <button
                                     type="button"
-                                    className="flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold text-white min-w-[140px]"
-                                    style={{ background: PALETTE.primary }}
+                                    onClick={addToCart}
+                                    disabled={cartAdding || stock === 0}
+                                    className="flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold min-w-[140px] transition-all"
+                                    style={{
+                                        background: cartAdded ? PALETTE.light : PALETTE.primary,
+                                        color: cartAdded ? PALETTE.primary : PALETTE.white,
+                                        opacity: (cartAdding || stock === 0) ? 0.7 : 1,
+                                        cursor: (cartAdding || stock === 0) ? 'not-allowed' : 'pointer',
+                                    }}
                                 >
-                                    <ShoppingCart className="h-5 w-5" />
-                                    Add to Cart
+                                    {cartAdded ? (
+                                        <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Added to Cart!</>
+                                    ) : cartAdding ? (
+                                        <><span style={{ width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} /> Adding…</>
+                                    ) : stock === 0 ? (
+                                        'Out of Stock'
+                                    ) : (
+                                        <><ShoppingCart className="h-5 w-5" /> Add to Cart</>
+                                    )}
                                 </button>
                                 <button
                                     type="button"
@@ -191,9 +228,19 @@ export default function ProductDetail() {
                                     style={{ borderColor: PALETTE.border, color: PALETTE.primary, background: PALETTE.white }}
                                 >
                                     <Heart className="h-5 w-5" />
-                                    Add to Wishlist
+                                    Wishlist
                                 </button>
                             </div>
+                            {cartAdded && (
+                                <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
+                                    <Link href="/cart" className="rounded-lg px-4 py-2 text-sm font-semibold text-white" style={{ background: PALETTE.primary, textDecoration: 'none' }}>
+                                        View Cart →
+                                    </Link>
+                                    <Link href="/shop" className="rounded-lg border px-4 py-2 text-sm font-semibold" style={{ borderColor: PALETTE.border, color: PALETTE.primary, textDecoration: 'none' }}>
+                                        Continue Shopping
+                                    </Link>
+                                </div>
+                            )}
 
                             {/* Optional: expiry */}
                             {product.expiry && (
@@ -206,6 +253,7 @@ export default function ProductDetail() {
                     </div>
                 </div>
             </main>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\Products\CategoryController;
 use App\Http\Controllers\Products\InventoryController;
 use App\Http\Controllers\Products\ProductController;
@@ -118,9 +119,25 @@ Route::get('/shop/product/{slug}', function (string $slug) {
 
 Route::get('dashboard', function () {
     return Inertia::render('dashboard', ['section' => null]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'admin'])->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->prefix('products')->name('products.')->group(function () {
+Route::get('/account', function (\Illuminate\Http\Request $request) {
+    return Inertia::render('Account/Profile', [
+        'mustVerifyEmail' => $request->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail,
+        'status' => $request->session()->get('status'),
+    ]);
+})->middleware(['auth'])->name('account.profile');
+
+/* ── Cart ── */
+Route::middleware(['auth'])->prefix('cart')->name('cart.')->group(function () {
+    Route::get('/',          [CartController::class, 'index'])->name('index');
+    Route::post('/',         [CartController::class, 'store'])->name('store');
+    Route::patch('/{cartItem}', [CartController::class, 'update'])->name('update');
+    Route::delete('/{cartItem}', [CartController::class, 'destroy'])->name('destroy');
+    Route::delete('/',       [CartController::class, 'clear'])->name('clear');
+});
+
+Route::middleware(['auth', 'verified', 'admin'])->prefix('products')->name('products.')->group(function () {
     Route::get('categories', [CategoryController::class, 'index'])->name('categories');
     Route::post('categories', [CategoryController::class, 'store']);
     Route::put('categories/{category}', [CategoryController::class, 'update']);
@@ -140,6 +157,6 @@ Route::middleware(['auth', 'verified'])->prefix('products')->name('products.')->
 
 Route::get('dashboard/{section}', function (string $section) {
     return Inertia::render('dashboard', ['section' => $section]);
-})->middleware(['auth', 'verified'])->where('section', 'orders|returns|customers|roles|discounts|coupons|banners|pages|blog|faq|sales|analytics|general|payments|shipping|email-templates')->name('dashboard.section');
+})->middleware(['auth', 'verified', 'admin'])->where('section', 'orders|returns|customers|roles|discounts|coupons|banners|pages|blog|faq|sales|analytics|general|payments|shipping|email-templates')->name('dashboard.section');
 
 require __DIR__.'/settings.php';
