@@ -81,9 +81,6 @@ export default function Shop() {
         return () => document.removeEventListener('mousedown', h);
     }, [picker]);
 
-    /* Reset qty to 1 when variant changes */
-    useEffect(() => { setPickerQty(1); }, [pickerVariantIdx]);
-
     function addToCart(variantId: number, productId: number, qty: number) {
         if (!auth.user) { router.visit('/login'); return; }
         setAddingId(variantId);
@@ -445,7 +442,7 @@ export default function Shop() {
                                     const label = [v.flavor, v.size].filter(Boolean).join(' – ') || 'Default';
                                     const selected = pickerVariantIdx === idx;
                                     return (
-                                        <button key={v.id} type="button" onClick={() => setPickerVariantIdx(idx)}
+                                        <button key={v.id} type="button" onClick={() => { setPickerVariantIdx(idx); setPickerQty(1); }}
                                             style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 13px', borderRadius: 10, border: `1.5px solid ${selected ? PALETTE.accent : '#e5e7eb'}`, background: selected ? '#ecfdf5' : '#fff', cursor: 'pointer', fontFamily: "'Inter', sans-serif", transition: 'all 0.15s' }}>
                                             <span style={{ fontSize: 14, fontWeight: selected ? 600 : 400, color: selected ? PALETTE.primary : '#374151' }}>{label}</span>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

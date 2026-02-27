@@ -18,22 +18,22 @@ class CartController extends Controller
             ->with(['variant.product.category'])
             ->get()
             ->map(fn ($item) => [
-                'id'        => $item->id,
-                'quantity'  => $item->quantity,
-                'variant'   => [
-                    'id'             => $item->variant->id,
-                    'size'           => $item->variant->size,
-                    'flavor'         => $item->variant->flavor,
-                    'price'          => (float) $item->variant->price,
+                'id' => $item->id,
+                'quantity' => $item->quantity,
+                'variant' => [
+                    'id' => $item->variant->id,
+                    'size' => $item->variant->size,
+                    'flavor' => $item->variant->flavor,
+                    'price' => (float) $item->variant->price,
                     'stock_quantity' => $item->variant->stock_quantity,
-                    'display_name'   => $item->variant->display_name,
+                    'display_name' => $item->variant->display_name,
                 ],
-                'product'   => [
-                    'id'        => $item->variant->product->id,
-                    'name'      => $item->variant->product->name,
-                    'slug'      => $item->variant->product->slug,
+                'product' => [
+                    'id' => $item->variant->product->id,
+                    'name' => $item->variant->product->name,
+                    'slug' => $item->variant->product->slug,
                     'image_url' => $item->variant->product->image_url,
-                    'category'  => $item->variant->product->category?->name,
+                    'category' => $item->variant->product->category?->name,
                 ],
             ]);
 
@@ -47,13 +47,13 @@ class CartController extends Controller
     {
         $data = $request->validate([
             'variant_id' => ['required', 'integer', 'exists:product_variants,id'],
-            'quantity'   => ['required', 'integer', 'min:1', 'max:99'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
         $variant = ProductVariant::findOrFail($data['variant_id']);
 
         $item = CartItem::firstOrNew([
-            'user_id'            => $request->user()->id,
+            'user_id' => $request->user()->id,
             'product_variant_id' => $variant->id,
         ]);
 

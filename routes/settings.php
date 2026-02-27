@@ -21,6 +21,7 @@ Route::middleware(['auth'])->group(function () {
         if ($request->user()?->role === 'buyer') {
             return redirect()->route('account.profile');
         }
+
         return (new ProfileController)->edit($request);
     })->name('profile.edit');
 

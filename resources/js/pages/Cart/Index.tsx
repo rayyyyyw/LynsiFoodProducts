@@ -1,5 +1,6 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { FormEvent, useRef, useState } from 'react';
+import type { FormEvent} from 'react';
+import { useRef, useState } from 'react';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
@@ -66,6 +67,73 @@ const PAYMENT_METHODS = [
 
 function formatPrice(n: number) {
     return `₱${Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+type CheckoutFormData = {
+    shipping_name: string;
+    shipping_phone: string;
+    shipping_address: string;
+    shipping_city: string;
+    shipping_province: string;
+    shipping_zip: string;
+    payment_method: string;
+    notes: string;
+};
+
+function CheckoutField({
+    data,
+    setData,
+    errors,
+    label,
+    name,
+    type = 'text',
+    placeholder,
+    required = false,
+    as: as_,
+}: {
+    data: CheckoutFormData;
+    setData: (k: keyof CheckoutFormData, v: string) => void;
+    errors: Record<string, string>;
+    label: string;
+    name: keyof CheckoutFormData;
+    type?: string;
+    placeholder?: string;
+    required?: boolean;
+    as?: 'textarea' | 'select';
+}) {
+    const error = errors[name];
+    const base: React.CSSProperties = {
+        width: '100%', padding: '10px 14px',
+        border: `1.5px solid ${error ? P.danger : P.borderGray}`,
+        borderRadius: 10, fontSize: 14, color: P.text, background: P.white,
+        outline: 'none', fontFamily: "'Inter', sans-serif",
+        transition: 'border-color 0.15s', boxSizing: 'border-box',
+    };
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            {label ? (
+                <label style={{ fontSize: 13, fontWeight: 600, color: P.text }}>
+                    {label} {required && <span style={{ color: P.danger }}>*</span>}
+                </label>
+            ) : null}
+            {as_ === 'textarea' ? (
+                <textarea value={data[name]} onChange={e => setData(name, e.target.value)}
+                    placeholder={placeholder} rows={3}
+                    style={{ ...base, resize: 'vertical', minHeight: 76 }} />
+            ) : as_ === 'select' ? (
+                <select value={data[name]} onChange={e => setData(name, e.target.value)}
+                    style={{ ...base, cursor: 'pointer' }}>
+                    <option value="">Select province…</option>
+                    {PH_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+            ) : (
+                <input type={type} value={data[name]}
+                    onChange={e => setData(name, e.target.value)}
+                    placeholder={placeholder} style={base} />
+            )}
+            {error ? <span style={{ fontSize: 12, color: P.danger }}>{error}</span> : null}
+        </div>
+    );
 }
 
 /* ── Qty stepper ── */
@@ -184,46 +252,6 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
         { n: 3, label: 'Confirmation' },
     ];
 
-    /* ── shared input helper ── */
-    function Field({ label, name, type = 'text', placeholder, required = false, as: as_ }: {
-        label: string; name: keyof typeof data; type?: string;
-        placeholder?: string; required?: boolean; as?: 'textarea' | 'select';
-    }) {
-        const error = errors[name];
-        const base: React.CSSProperties = {
-            width: '100%', padding: '10px 14px',
-            border: `1.5px solid ${error ? P.danger : P.borderGray}`,
-            borderRadius: 10, fontSize: 14, color: P.text, background: P.white,
-            outline: 'none', fontFamily: "'Inter', sans-serif",
-            transition: 'border-color 0.15s', boxSizing: 'border-box',
-        };
-        return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                {label && (
-                    <label style={{ fontSize: 13, fontWeight: 600, color: P.text }}>
-                        {label} {required && <span style={{ color: P.danger }}>*</span>}
-                    </label>
-                )}
-                {as_ === 'textarea' ? (
-                    <textarea value={data[name] as string} onChange={e => setData(name, e.target.value)}
-                        placeholder={placeholder} rows={3}
-                        style={{ ...base, resize: 'vertical', minHeight: 76 }} />
-                ) : as_ === 'select' ? (
-                    <select value={data[name] as string} onChange={e => setData(name, e.target.value)}
-                        style={{ ...base, cursor: 'pointer' }}>
-                        <option value="">Select province…</option>
-                        {PH_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
-                    </select>
-                ) : (
-                    <input type={type} value={data[name] as string}
-                        onChange={e => setData(name, e.target.value)}
-                        placeholder={placeholder} style={base} />
-                )}
-                {error && <span style={{ fontSize: 12, color: P.danger }}>{error}</span>}
-            </div>
-        );
-    }
-
     return (
         <>
             <Head title="Checkout – Lynsi Food Products" />
@@ -291,9 +319,8 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
                 <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
                     <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
                         {STEPS.map((s, i) => {
-                            const done    = step > s.n;
-                            const active  = step === s.n;
-                            const locked  = step < s.n;
+                            const done   = step > s.n;
+                            const active = step === s.n;
                             return (
                                 <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 0, flex: i < STEPS.length - 1 ? 1 : 'unset' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '13px 0', paddingRight: 8 }}>
@@ -449,14 +476,14 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
                                             </div>
                                             <div style={{ display: 'grid', gap: 14 }}>
                                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                                                    <Field label="Full Name"    name="shipping_name"  placeholder="Juan Dela Cruz" required />
-                                                    <Field label="Phone Number" name="shipping_phone" placeholder="09XXXXXXXXX" required />
+                                                    <CheckoutField data={data} setData={setData} errors={errors} label="Full Name"    name="shipping_name"  placeholder="Juan Dela Cruz" required />
+                                                    <CheckoutField data={data} setData={setData} errors={errors} label="Phone Number" name="shipping_phone" placeholder="09XXXXXXXXX" required />
                                                 </div>
-                                                <Field label="Street Address" name="shipping_address" placeholder="House/Unit no., Street, Barangay" required />
+                                                <CheckoutField data={data} setData={setData} errors={errors} label="Street Address" name="shipping_address" placeholder="House/Unit no., Street, Barangay" required />
                                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 110px', gap: 14 }}>
-                                                    <Field label="City / Municipality" name="shipping_city"     placeholder="City or municipality" required />
-                                                    <Field label="Province"            name="shipping_province" as="select" required />
-                                                    <Field label="ZIP Code"            name="shipping_zip"      placeholder="4000" />
+                                                    <CheckoutField data={data} setData={setData} errors={errors} label="City / Municipality" name="shipping_city"     placeholder="City or municipality" required />
+                                                    <CheckoutField data={data} setData={setData} errors={errors} label="Province"            name="shipping_province" as="select" required />
+                                                    <CheckoutField data={data} setData={setData} errors={errors} label="ZIP Code"            name="shipping_zip"      placeholder="4000" />
                                                 </div>
                                             </div>
                                         </section>
@@ -500,7 +527,7 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
                                                 Order Notes
                                                 <span style={{ fontSize: 12, fontWeight: 400, color: P.textLight }}>(optional)</span>
                                             </h2>
-                                            <Field label="" name="notes" as="textarea" placeholder="Special instructions, landmark, or delivery notes…" />
+                                            <CheckoutField data={data} setData={setData} errors={errors} label="" name="notes" as="textarea" placeholder="Special instructions, landmark, or delivery notes…" />
                                         </section>
 
                                         {/* Footer nav */}

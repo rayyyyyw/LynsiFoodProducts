@@ -1,5 +1,5 @@
 import { Form, Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { useRef, useState, useEffect, Fragment } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';

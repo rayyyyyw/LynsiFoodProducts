@@ -23,7 +23,8 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(LoginResponse::class, function () {
-            return new class implements LoginResponse {
+            return new class implements LoginResponse
+            {
                 public function toResponse($request)
                 {
                     $user = $request->user();
@@ -37,7 +38,8 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(RegisterResponse::class, function () {
-            return new class implements RegisterResponse {
+            return new class implements RegisterResponse
+            {
                 public function toResponse($request)
                 {
                     return $request->wantsJson()

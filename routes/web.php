@@ -131,18 +131,18 @@ Route::get('/account', function (\Illuminate\Http\Request $request) {
 
 /* ── Checkout ── */
 Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
-    Route::get('/',                              [CheckoutController::class, 'index'])->name('index');
-    Route::post('/',                             [CheckoutController::class, 'store'])->name('store');
-    Route::get('/confirmation/{orderNumber}',    [CheckoutController::class, 'confirmation'])->name('confirmation');
+    Route::get('/', [CheckoutController::class, 'index'])->name('index');
+    Route::post('/', [CheckoutController::class, 'store'])->name('store');
+    Route::get('/confirmation/{orderNumber}', [CheckoutController::class, 'confirmation'])->name('confirmation');
 });
 
 /* ── Cart ── */
 Route::middleware(['auth'])->prefix('cart')->name('cart.')->group(function () {
-    Route::get('/',          [CartController::class, 'index'])->name('index');
-    Route::post('/',         [CartController::class, 'store'])->name('store');
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('/', [CartController::class, 'store'])->name('store');
     Route::patch('/{cartItem}', [CartController::class, 'update'])->name('update');
     Route::delete('/{cartItem}', [CartController::class, 'destroy'])->name('destroy');
-    Route::delete('/',       [CartController::class, 'clear'])->name('clear');
+    Route::delete('/', [CartController::class, 'clear'])->name('clear');
 });
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('products')->name('products.')->group(function () {

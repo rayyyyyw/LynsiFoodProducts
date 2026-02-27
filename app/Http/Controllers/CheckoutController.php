@@ -23,14 +23,14 @@ class CheckoutController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'shipping_name'     => ['required', 'string', 'max:100'],
-            'shipping_phone'    => ['required', 'string', 'max:30'],
-            'shipping_address'  => ['required', 'string', 'max:255'],
-            'shipping_city'     => ['required', 'string', 'max:100'],
+            'shipping_name' => ['required', 'string', 'max:100'],
+            'shipping_phone' => ['required', 'string', 'max:30'],
+            'shipping_address' => ['required', 'string', 'max:255'],
+            'shipping_city' => ['required', 'string', 'max:100'],
             'shipping_province' => ['required', 'string', 'max:100'],
-            'shipping_zip'      => ['nullable', 'string', 'max:10'],
-            'payment_method'    => ['required', 'in:cod,gcash,bank_transfer'],
-            'notes'             => ['nullable', 'string', 'max:500'],
+            'shipping_zip' => ['nullable', 'string', 'max:10'],
+            'payment_method' => ['required', 'in:cod,gcash,bank_transfer'],
+            'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         $userId = $request->user()->id;
@@ -48,33 +48,33 @@ class CheckoutController extends Controller
 
         $order = DB::transaction(function () use ($data, $userId, $cartItems, $subtotal, $shippingFee, $total) {
             $order = Order::create([
-                'user_id'           => $userId,
-                'order_number'      => Order::generateOrderNumber(),
-                'status'            => 'pending',
-                'payment_method'    => $data['payment_method'],
-                'payment_status'    => 'unpaid',
-                'shipping_name'     => $data['shipping_name'],
-                'shipping_phone'    => $data['shipping_phone'],
-                'shipping_address'  => $data['shipping_address'],
-                'shipping_city'     => $data['shipping_city'],
+                'user_id' => $userId,
+                'order_number' => Order::generateOrderNumber(),
+                'status' => 'pending',
+                'payment_method' => $data['payment_method'],
+                'payment_status' => 'unpaid',
+                'shipping_name' => $data['shipping_name'],
+                'shipping_phone' => $data['shipping_phone'],
+                'shipping_address' => $data['shipping_address'],
+                'shipping_city' => $data['shipping_city'],
                 'shipping_province' => $data['shipping_province'],
-                'shipping_zip'      => $data['shipping_zip'] ?? null,
-                'subtotal'          => $subtotal,
-                'shipping_fee'      => $shippingFee,
-                'total'             => $total,
-                'notes'             => $data['notes'] ?? null,
+                'shipping_zip' => $data['shipping_zip'] ?? null,
+                'subtotal' => $subtotal,
+                'shipping_fee' => $shippingFee,
+                'total' => $total,
+                'notes' => $data['notes'] ?? null,
             ]);
 
             foreach ($cartItems as $item) {
                 OrderItem::create([
-                    'order_id'             => $order->id,
-                    'product_variant_id'   => $item->product_variant_id,
-                    'product_name'         => $item->variant->product->name,
+                    'order_id' => $order->id,
+                    'product_variant_id' => $item->product_variant_id,
+                    'product_name' => $item->variant->product->name,
                     'variant_display_name' => $item->variant->display_name !== 'Default' ? $item->variant->display_name : null,
-                    'product_image_url'    => $item->variant->product->image_url,
-                    'quantity'             => $item->quantity,
-                    'unit_price'           => (float) $item->variant->price,
-                    'line_total'           => (float) $item->variant->price * $item->quantity,
+                    'product_image_url' => $item->variant->product->image_url,
+                    'quantity' => $item->quantity,
+                    'unit_price' => (float) $item->variant->price,
+                    'line_total' => (float) $item->variant->price * $item->quantity,
                 ]);
             }
 
@@ -96,28 +96,28 @@ class CheckoutController extends Controller
 
         return Inertia::render('Checkout/Confirmation', [
             'order' => [
-                'order_number'      => $order->order_number,
-                'status'            => $order->status,
-                'payment_method'    => $order->payment_method,
-                'payment_status'    => $order->payment_status,
-                'shipping_name'     => $order->shipping_name,
-                'shipping_phone'    => $order->shipping_phone,
-                'shipping_address'  => $order->shipping_address,
-                'shipping_city'     => $order->shipping_city,
+                'order_number' => $order->order_number,
+                'status' => $order->status,
+                'payment_method' => $order->payment_method,
+                'payment_status' => $order->payment_status,
+                'shipping_name' => $order->shipping_name,
+                'shipping_phone' => $order->shipping_phone,
+                'shipping_address' => $order->shipping_address,
+                'shipping_city' => $order->shipping_city,
                 'shipping_province' => $order->shipping_province,
-                'shipping_zip'      => $order->shipping_zip,
-                'subtotal'          => $order->subtotal,
-                'shipping_fee'      => $order->shipping_fee,
-                'total'             => $order->total,
-                'notes'             => $order->notes,
-                'created_at'        => $order->created_at->toDateTimeString(),
-                'items'             => $order->items->map(fn ($item) => [
-                    'product_name'         => $item->product_name,
+                'shipping_zip' => $order->shipping_zip,
+                'subtotal' => $order->subtotal,
+                'shipping_fee' => $order->shipping_fee,
+                'total' => $order->total,
+                'notes' => $order->notes,
+                'created_at' => $order->created_at->toDateTimeString(),
+                'items' => $order->items->map(fn ($item) => [
+                    'product_name' => $item->product_name,
                     'variant_display_name' => $item->variant_display_name,
-                    'product_image_url'    => $item->product_image_url,
-                    'quantity'             => $item->quantity,
-                    'unit_price'           => $item->unit_price,
-                    'line_total'           => $item->line_total,
+                    'product_image_url' => $item->product_image_url,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'line_total' => $item->line_total,
                 ]),
             ],
         ]);

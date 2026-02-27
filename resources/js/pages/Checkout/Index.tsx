@@ -1,5 +1,5 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import type { FormEvent } from 'react';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
@@ -73,6 +73,73 @@ const PH_PROVINCES = [
     'Zambales','Zamboanga del Norte','Zamboanga del Sur','Zamboanga Sibugay',
 ];
 
+type CheckoutFormData = {
+    shipping_name: string;
+    shipping_phone: string;
+    shipping_address: string;
+    shipping_city: string;
+    shipping_province: string;
+    shipping_zip: string;
+    payment_method: string;
+    notes: string;
+};
+
+function CheckoutField({
+    data,
+    setData,
+    errors,
+    label,
+    name,
+    type = 'text',
+    placeholder,
+    required = false,
+    as,
+}: {
+    data: CheckoutFormData;
+    setData: (k: keyof CheckoutFormData, v: string) => void;
+    errors: Record<string, string>;
+    label: string;
+    name: keyof CheckoutFormData;
+    type?: string;
+    placeholder?: string;
+    required?: boolean;
+    as?: 'textarea' | 'select';
+}) {
+    const error = errors[name];
+    const baseStyle: React.CSSProperties = {
+        width: '100%', padding: '10px 14px',
+        border: `1.5px solid ${error ? P.danger : P.borderGray}`,
+        borderRadius: 10, fontSize: 14, color: P.text, background: P.white,
+        outline: 'none', fontFamily: "'Inter', sans-serif",
+        transition: 'border-color 0.15s', boxSizing: 'border-box',
+    };
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            {label ? (
+                <label style={{ fontSize: 13, fontWeight: 600, color: P.text }}>
+                    {label} {required ? <span style={{ color: P.danger }}>*</span> : null}
+                </label>
+            ) : null}
+            {as === 'textarea' ? (
+                <textarea value={data[name]} onChange={e => setData(name, e.target.value)}
+                    placeholder={placeholder} rows={3}
+                    style={{ ...baseStyle, resize: 'vertical', minHeight: 80 }} />
+            ) : as === 'select' ? (
+                <select value={data[name]} onChange={e => setData(name, e.target.value)}
+                    style={{ ...baseStyle, cursor: 'pointer' }}>
+                    <option value="">Select province…</option>
+                    {PH_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+            ) : (
+                <input type={type} value={data[name]}
+                    onChange={e => setData(name, e.target.value)}
+                    placeholder={placeholder} style={baseStyle} />
+            )}
+            {error ? <span style={{ fontSize: 12, color: P.danger }}>{error}</span> : null}
+        </div>
+    );
+}
+
 export default function CheckoutIndex({ items, user }: Props) {
     const { auth } = usePage().props as { auth: { user: { name: string; profile_photo_url?: string | null } | null } };
     const authUser = auth?.user;
@@ -82,11 +149,8 @@ export default function CheckoutIndex({ items, user }: Props) {
     const total       = subtotal + shippingFee;
     const totalQty    = items.reduce((s, i) => s + i.quantity, 0);
 
-    const [firstName, ...rest] = (user.name || '').split(' ');
-    const defaultName = user.name;
-
     const { data, setData, post, processing, errors } = useForm({
-        shipping_name:     defaultName,
+        shipping_name:     user.name ?? '',
         shipping_phone:    '',
         shipping_address:  '',
         shipping_city:     '',
@@ -99,67 +163,6 @@ export default function CheckoutIndex({ items, user }: Props) {
     function submit(e: FormEvent) {
         e.preventDefault();
         post('/checkout');
-    }
-
-    function Field({ label, name, type = 'text', placeholder, required = false, as }: {
-        label: string;
-        name: keyof typeof data;
-        type?: string;
-        placeholder?: string;
-        required?: boolean;
-        as?: 'textarea' | 'select';
-    }) {
-        const error = errors[name];
-        const baseStyle: React.CSSProperties = {
-            width: '100%',
-            padding: '10px 14px',
-            border: `1.5px solid ${error ? P.danger : P.borderGray}`,
-            borderRadius: 10,
-            fontSize: 14,
-            color: P.text,
-            background: P.white,
-            outline: 'none',
-            fontFamily: "'Inter', sans-serif",
-            transition: 'border-color 0.15s',
-            boxSizing: 'border-box',
-        };
-
-        return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <label style={{ fontSize: 13, fontWeight: 600, color: P.text }}>
-                    {label} {required && <span style={{ color: P.danger }}>*</span>}
-                </label>
-                {as === 'textarea' ? (
-                    <textarea
-                        value={data[name] as string}
-                        onChange={e => setData(name, e.target.value)}
-                        placeholder={placeholder}
-                        rows={3}
-                        style={{ ...baseStyle, resize: 'vertical', minHeight: 80 }}
-                    />
-                ) : as === 'select' ? (
-                    <select
-                        value={data[name] as string}
-                        onChange={e => setData(name, e.target.value)}
-                        style={{ ...baseStyle, cursor: 'pointer' }}
-                    >
-                        <option value="">Select province…</option>
-                        {PH_PROVINCES.map(p => (
-                            <option key={p} value={p}>{p}</option>
-                        ))}
-                    </select>
-                ) : (
-                    <input
-                        type={type}
-                        value={data[name] as string}
-                        onChange={e => setData(name, e.target.value)}
-                        placeholder={placeholder}
-                        style={baseStyle}
-                    />
-                )}
-                {error && <span style={{ fontSize: 12, color: P.danger }}>{error}</span>}
-            </div>
-        );
     }
 
     return (
@@ -242,14 +245,14 @@ export default function CheckoutIndex({ items, user }: Props) {
 
                                 <div style={{ display: 'grid', gap: 16 }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                                        <Field label="Full Name"   name="shipping_name"  placeholder="Juan Dela Cruz" required />
-                                        <Field label="Phone Number" name="shipping_phone" placeholder="09XXXXXXXXX" required />
+                                        <CheckoutField data={data} setData={setData} errors={errors} label="Full Name"   name="shipping_name"  placeholder="Juan Dela Cruz" required />
+                                        <CheckoutField data={data} setData={setData} errors={errors} label="Phone Number" name="shipping_phone" placeholder="09XXXXXXXXX" required />
                                     </div>
-                                    <Field label="Street Address" name="shipping_address" placeholder="House/Unit no., Street, Barangay" required />
+                                    <CheckoutField data={data} setData={setData} errors={errors} label="Street Address" name="shipping_address" placeholder="House/Unit no., Street, Barangay" required />
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: 14 }}>
-                                        <Field label="City / Municipality" name="shipping_city"  placeholder="City or municipality" required />
-                                        <Field label="Province"            name="shipping_province" as="select" required />
-                                        <Field label="ZIP Code"            name="shipping_zip"  placeholder="4000" />
+                                        <CheckoutField data={data} setData={setData} errors={errors} label="City / Municipality" name="shipping_city"  placeholder="City or municipality" required />
+                                        <CheckoutField data={data} setData={setData} errors={errors} label="Province"            name="shipping_province" as="select" required />
+                                        <CheckoutField data={data} setData={setData} errors={errors} label="ZIP Code"            name="shipping_zip"  placeholder="4000" />
                                     </div>
                                 </div>
                             </section>

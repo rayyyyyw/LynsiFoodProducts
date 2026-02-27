@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Heart, Minus, Plus, ShoppingCart, ShoppingBag } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 
 const PALETTE = {
@@ -56,9 +56,6 @@ export default function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
     const [cartAdding, setCartAdding] = useState(false);
     const [cartAdded,  setCartAdded]  = useState(false);
-
-    /* Reset qty to 1 whenever the selected variant changes */
-    useEffect(() => { setQuantity(1); }, [selectedVariantIndex]);
 
     function addToCart() {
         if (!auth?.user) { router.visit('/login'); return; }

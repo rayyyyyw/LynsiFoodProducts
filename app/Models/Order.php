@@ -27,9 +27,9 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'subtotal'     => 'float',
+        'subtotal' => 'float',
         'shipping_fee' => 'float',
-        'total'        => 'float',
+        'total' => 'float',
     ];
 
     public function user(): BelongsTo
@@ -44,6 +44,6 @@ class Order extends Model
 
     public static function generateOrderNumber(): string
     {
-        return 'LFP-' . strtoupper(substr(uniqid(), -6)) . '-' . now()->format('ymd');
+        return 'LFP-'.strtoupper(substr(uniqid(), -6)).'-'.now()->format('ymd');
     }
 }
