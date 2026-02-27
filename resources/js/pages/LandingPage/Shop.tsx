@@ -318,6 +318,12 @@ export default function Shop() {
                                     const categoryName = product.category?.name ?? 'Uncategorized';
                                     const isAdded = addedId === product.id;
                                     const isAdding = product.variants.some(v => addingId === v.id);
+
+                                    const primaryVariant = product.variants[0];
+                                    const flavorLabel = primaryVariant?.flavor ?? null;
+                                    const rawSize = primaryVariant?.size ?? null;
+                                    const sizeLabel = rawSize && /^[0-9]+(\.[0-9]+)?$/.test(rawSize) ? `${rawSize}g` : rawSize;
+
                                     return (
                                         <div
                                             key={product.id}
@@ -342,14 +348,24 @@ export default function Shop() {
                                                     </button>
                                                 </div>
                                                 <div className="px-3 pt-3 pb-1">
-                                                    <span className="mb-1 inline-block text-xs font-medium uppercase tracking-wide" style={{ color: PALETTE.accent }}>
+                                                    <span className="mb-1 inline-block text-xs font-medium uppercase tracking-wide text-slate-500">
                                                         {categoryName.length > 12 ? `${categoryName.slice(0, 12)}…` : categoryName}
                                                     </span>
-                                                    <h3 className="mb-1 line-clamp-2 font-medium text-neutral-900">{product.name}</h3>
+                                                    <h3 className="mb-1 line-clamp-2 font-semibold text-slate-800">{product.name}</h3>
+                                                    {(flavorLabel || sizeLabel) && (
+                                                        <div className="mb-1.5 text-xs leading-snug space-y-0.5">
+                                                            {flavorLabel && (
+                                                                <div className="text-slate-600">{flavorLabel}</div>
+                                                            )}
+                                                            {sizeLabel && (
+                                                                <div className="font-medium text-slate-500">{sizeLabel}</div>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                     <div className="flex items-baseline gap-2">
-                                                        <span className="text-lg font-semibold" style={{ color: PALETTE.primary }}>{formatPrice(price)}</span>
+                                                        <span className="text-lg font-semibold text-emerald-700">{formatPrice(price)}</span>
                                                         {product.variants.length > 1 && (
-                                                            <span className="text-xs text-neutral-500">from {product.variants.length} variants</span>
+                                                            <span className="text-xs text-slate-400">from {product.variants.length} variants</span>
                                                         )}
                                                     </div>
                                                 </div>

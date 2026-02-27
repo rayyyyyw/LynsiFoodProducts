@@ -1,5 +1,5 @@
 import { Form, Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, Fragment } from 'react';
 import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
@@ -28,12 +28,33 @@ const P = {
     headerTo:     '#065f46',
 } as const;
 
+const PH_PROVINCES = [
+    'Abra','Agusan del Norte','Agusan del Sur','Aklan','Albay','Antique','Apayao','Aurora',
+    'Basilan','Bataan','Batanes','Batangas','Benguet','Biliran','Bohol','Bukidnon',
+    'Bulacan','Cagayan','Camarines Norte','Camarines Sur','Camiguin','Capiz','Catanduanes',
+    'Cavite','Cebu','Compostela Valley','Cotabato','Davao del Norte','Davao del Sur',
+    'Davao Occidental','Davao Oriental','Dinagat Islands','Eastern Samar','Guimaras',
+    'Ifugao','Ilocos Norte','Ilocos Sur','Iloilo','Isabela','Kalinga','La Union','Laguna',
+    'Lanao del Norte','Lanao del Sur','Leyte','Maguindanao','Marinduque','Masbate',
+    'Metro Manila','Misamis Occidental','Misamis Oriental','Mountain Province','Negros Occidental',
+    'Negros Oriental','Northern Samar','Nueva Ecija','Nueva Vizcaya','Occidental Mindoro',
+    'Oriental Mindoro','Palawan','Pampanga','Pangasinan','Quezon','Quirino','Rizal',
+    'Romblon','Samar','Sarangani','Siquijor','Sorsogon','South Cotabato','Southern Leyte',
+    'Sultan Kudarat','Sulu','Surigao del Norte','Surigao del Sur','Tarlac','Tawi-Tawi',
+    'Zambales','Zamboanga del Norte','Zamboanga del Sur','Zamboanga Sibugay',
+];
+
 type AuthUser = {
     name: string;
     email: string;
     profile_photo_url?: string | null;
     email_verified_at?: string | null;
     role?: string;
+    phone?: string | null;
+    address?: string | null;
+    city?: string | null;
+    province?: string | null;
+    zip?: string | null;
 };
 
 type Tab = 'profile' | 'password' | 'delete';
@@ -126,8 +147,16 @@ export default function BuyerProfile({ mustVerifyEmail, status }: { mustVerifyEm
     const [photoUploading, setPhotoUploading] = useState(false);
     const [photoError,    setPhotoError]    = useState<string | null>(null);
 
-    /* Profile form (name/email) */
-    const profileForm = useForm({ name: user.name, email: user.email });
+    /* Profile form (name/email + delivery info) */
+    const profileForm = useForm({
+        name:     user.name,
+        email:    user.email,
+        phone:    user.phone    ?? '',
+        address:  user.address  ?? '',
+        city:     user.city     ?? '',
+        province: user.province ?? '',
+        zip:      user.zip      ?? '',
+    });
 
     /* Auto-upload photo immediately on file select, show instant local preview */
     function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -282,6 +311,26 @@ export default function BuyerProfile({ mustVerifyEmail, status }: { mustVerifyEm
                 .acc-input:disabled {
                     background: #f9fafb; color: ${P.textMuted};
                     cursor: not-allowed; border-color: ${P.borderGray} !important;
+                }
+                .acc-select {
+                    display: block; width: 100%;
+                    padding: 11px 14px; font-size: 14px; line-height: 1.5;
+                    border: 1.5px solid ${P.borderInput}; border-radius: 10px;
+                    background: ${P.white}; color: ${P.text};
+                    transition: border-color 0.18s, box-shadow 0.18s;
+                    font-family: 'Inter', sans-serif; cursor: pointer;
+                    -webkit-appearance: none; appearance: none;
+                }
+                .acc-select:focus {
+                    outline: none;
+                    border-color: ${P.accent} !important;
+                    box-shadow: 0 0 0 3.5px rgba(16,185,129,0.14);
+                }
+                .acc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                .acc-grid-3 { display: grid; grid-template-columns: 1fr 1fr 110px; gap: 16px; }
+                @media (max-width: 600px) {
+                    .acc-grid-2 { grid-template-columns: 1fr; }
+                    .acc-grid-3 { grid-template-columns: 1fr; }
                 }
                 .acc-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); }
                 .acc-btn:active:not(:disabled) { transform: none; filter: brightness(0.96); }
@@ -463,6 +512,98 @@ export default function BuyerProfile({ mustVerifyEmail, status }: { mustVerifyEm
                                                             <a href="/email/verification-notification" style={{ color: P.accent, textDecoration: 'underline', fontWeight: 600 }}>Resend link</a>
                                                         </p>
                                                     )}
+                                                </div>
+
+                                                {/* ── Delivery Information ── */}
+                                                <div style={{ borderTop: `1px solid ${P.borderGray}`, paddingTop: 22, marginTop: 4 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={P.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                                        <span style={{ fontSize: 12, fontWeight: 700, color: P.textMuted, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Delivery Information</span>
+                                                        <span style={{ fontSize: 11, color: P.textLight, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— used to pre-fill checkout</span>
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                                        {/* Phone */}
+                                                        <div>
+                                                            <label htmlFor="phone" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: P.textMuted, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6 }}>Phone Number</label>
+                                                            <input
+                                                                id="phone" type="tel" placeholder="09XXXXXXXXX"
+                                                                className="acc-input"
+                                                                style={{ borderColor: profileForm.errors.phone ? '#fca5a5' : P.borderInput }}
+                                                                value={profileForm.data.phone}
+                                                                onChange={e => profileForm.setData('phone', e.target.value)}
+                                                            />
+                                                            {profileForm.errors.phone && <p style={{ fontSize: 12, color: P.danger, marginTop: 5 }}>⚠ {profileForm.errors.phone}</p>}
+                                                        </div>
+
+                                                        {/* Street address */}
+                                                        <div>
+                                                            <label htmlFor="address" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: P.textMuted, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6 }}>Street Address</label>
+                                                            <input
+                                                                id="address" type="text" placeholder="House/Unit no., Street, Barangay"
+                                                                className="acc-input"
+                                                                style={{ borderColor: profileForm.errors.address ? '#fca5a5' : P.borderInput }}
+                                                                value={profileForm.data.address}
+                                                                onChange={e => profileForm.setData('address', e.target.value)}
+                                                            />
+                                                            {profileForm.errors.address && <p style={{ fontSize: 12, color: P.danger, marginTop: 5 }}>⚠ {profileForm.errors.address}</p>}
+                                                        </div>
+
+                                                        {/* City + Province + ZIP */}
+                                                        <div className="acc-grid-3">
+                                                            <div>
+                                                                <label htmlFor="city" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: P.textMuted, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6 }}>City / Municipality</label>
+                                                                <input
+                                                                    id="city" type="text" placeholder="City or municipality"
+                                                                    className="acc-input"
+                                                                    style={{ borderColor: profileForm.errors.city ? '#fca5a5' : P.borderInput }}
+                                                                    value={profileForm.data.city}
+                                                                    onChange={e => profileForm.setData('city', e.target.value)}
+                                                                />
+                                                                {profileForm.errors.city && <p style={{ fontSize: 12, color: P.danger, marginTop: 5 }}>⚠ {profileForm.errors.city}</p>}
+                                                            </div>
+
+                                                            <div>
+                                                                <label htmlFor="province" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: P.textMuted, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6 }}>Province</label>
+                                                                <div style={{ position: 'relative' }}>
+                                                                    <select
+                                                                        id="province"
+                                                                        className="acc-select"
+                                                                        style={{ borderColor: profileForm.errors.province ? '#fca5a5' : P.borderInput, paddingRight: 36 }}
+                                                                        value={profileForm.data.province}
+                                                                        onChange={e => profileForm.setData('province', e.target.value)}
+                                                                    >
+                                                                        <option value="">Select…</option>
+                                                                        {PH_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                                                                    </select>
+                                                                    <svg style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: P.textLight }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                                                </div>
+                                                                {profileForm.errors.province && <p style={{ fontSize: 12, color: P.danger, marginTop: 5 }}>⚠ {profileForm.errors.province}</p>}
+                                                            </div>
+
+                                                            <div>
+                                                                <label htmlFor="zip" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: P.textMuted, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6 }}>ZIP Code</label>
+                                                                <input
+                                                                    id="zip" type="text" placeholder="4000"
+                                                                    className="acc-input"
+                                                                    style={{ borderColor: profileForm.errors.zip ? '#fca5a5' : P.borderInput }}
+                                                                    value={profileForm.data.zip}
+                                                                    onChange={e => profileForm.setData('zip', e.target.value)}
+                                                                />
+                                                                {profileForm.errors.zip && <p style={{ fontSize: 12, color: P.danger, marginTop: 5 }}>⚠ {profileForm.errors.zip}</p>}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Completeness hint */}
+                                                        {(!profileForm.data.phone || !profileForm.data.address || !profileForm.data.city || !profileForm.data.province) && (
+                                                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 14px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10 }}>
+                                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                                                <p style={{ fontSize: 12, color: '#92400e', lineHeight: 1.5 }}>
+                                                                    Fill in your delivery details to speed up checkout — they'll be pre-filled automatically.
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 <div style={{ paddingTop: 4, display: 'flex', alignItems: 'center', gap: 12 }}>

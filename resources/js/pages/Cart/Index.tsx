@@ -1,23 +1,23 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { FormEvent, useRef, useState } from 'react';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
 const P = {
-    primary:   '#065f46',
-    secondary: '#047857',
-    accent:    '#10b981',
-    bg:        '#f0fdf4',
-    card:      '#ffffff',
-    border:    '#d1fae5',
-    borderGray:'#e5e7eb',
-    accentBg:  '#ecfdf5',
-    text:      '#111827',
-    textMuted: '#6b7280',
-    textLight: '#9ca3af',
-    danger:    '#ef4444',
-    dangerBg:  '#fef2f2',
-    white:     '#ffffff',
+    primary:    '#065f46',
+    secondary:  '#047857',
+    accent:     '#10b981',
+    bg:         '#f0fdf4',
+    card:       '#ffffff',
+    border:     '#d1fae5',
+    borderGray: '#e5e7eb',
+    accentBg:   '#ecfdf5',
+    text:       '#111827',
+    textMuted:  '#6b7280',
+    textLight:  '#9ca3af',
+    danger:     '#ef4444',
+    dangerBg:   '#fef2f2',
+    white:      '#ffffff',
 } as const;
 
 type Variant = {
@@ -42,15 +42,36 @@ type CartItemData = {
     };
 };
 
+const PH_PROVINCES = [
+    'Abra','Agusan del Norte','Agusan del Sur','Aklan','Albay','Antique','Apayao','Aurora',
+    'Basilan','Bataan','Batanes','Batangas','Benguet','Biliran','Bohol','Bukidnon',
+    'Bulacan','Cagayan','Camarines Norte','Camarines Sur','Camiguin','Capiz','Catanduanes',
+    'Cavite','Cebu','Compostela Valley','Cotabato','Davao del Norte','Davao del Sur',
+    'Davao Occidental','Davao Oriental','Dinagat Islands','Eastern Samar','Guimaras',
+    'Ifugao','Ilocos Norte','Ilocos Sur','Iloilo','Isabela','Kalinga','La Union','Laguna',
+    'Lanao del Norte','Lanao del Sur','Leyte','Maguindanao','Marinduque','Masbate',
+    'Metro Manila','Misamis Occidental','Misamis Oriental','Mountain Province','Negros Occidental',
+    'Negros Oriental','Northern Samar','Nueva Ecija','Nueva Vizcaya','Occidental Mindoro',
+    'Oriental Mindoro','Palawan','Pampanga','Pangasinan','Quezon','Quirino','Rizal',
+    'Romblon','Samar','Sarangani','Siquijor','Sorsogon','South Cotabato','Southern Leyte',
+    'Sultan Kudarat','Sulu','Surigao del Norte','Surigao del Sur','Tarlac','Tawi-Tawi',
+    'Zambales','Zamboanga del Norte','Zamboanga del Sur','Zamboanga Sibugay',
+];
+
+const PAYMENT_METHODS = [
+    { id: 'cod',           label: 'Cash on Delivery', icon: '💵', desc: 'Pay when your order arrives.' },
+    { id: 'gcash',         label: 'GCash',            icon: '📱', desc: 'Pay via GCash mobile wallet.' },
+    { id: 'bank_transfer', label: 'Bank Transfer',    icon: '🏦', desc: 'Direct bank deposit or online transfer.' },
+];
+
 function formatPrice(n: number) {
     return `₱${Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+/* ── Qty stepper ── */
 function Qty({ item }: { item: CartItemData }) {
     const max = item.variant.stock_quantity || 99;
     const [draft, setDraft] = useState(String(item.quantity));
-
-    /* Keep draft in sync if the server updates item.quantity from outside */
     const serverQty = String(item.quantity);
     if (draft !== serverQty && document.activeElement?.id !== `qty-${item.id}`) {
         setDraft(serverQty);
@@ -74,38 +95,19 @@ function Qty({ item }: { item: CartItemData }) {
 
     return (
         <div style={{ display: 'inline-flex', alignItems: 'center', border: `1.5px solid ${P.borderGray}`, borderRadius: 10, overflow: 'hidden', background: P.white }}>
-            <button
-                type="button"
-                disabled={item.quantity <= 1}
-                onClick={() => patch(item.quantity - 1)}
-                style={{ width: 34, height: 34, background: 'none', border: 'none', cursor: item.quantity <= 1 ? 'not-allowed' : 'pointer', fontSize: 18, color: item.quantity <= 1 ? P.textLight : P.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+            <button type="button" disabled={item.quantity <= 1} onClick={() => patch(item.quantity - 1)}
+                style={{ width: 34, height: 34, background: 'none', border: 'none', cursor: item.quantity <= 1 ? 'not-allowed' : 'pointer', fontSize: 18, color: item.quantity <= 1 ? P.textLight : P.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 onMouseEnter={e => { if (item.quantity > 1) (e.currentTarget as HTMLButtonElement).style.background = P.accentBg; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
             >−</button>
-
-            <input
-                id={`qty-${item.id}`}
-                type="number"
-                min={1}
-                max={max}
-                value={draft}
+            <input id={`qty-${item.id}`} type="number" min={1} max={max} value={draft}
                 onChange={e => setDraft(e.target.value)}
                 onBlur={e => commit(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { (e.currentTarget as HTMLInputElement).blur(); } }}
-                style={{
-                    width: 44, height: 34, border: 'none', textAlign: 'center',
-                    fontWeight: 700, fontSize: 14, color: P.text,
-                    background: 'transparent', outline: 'none',
-                    fontFamily: "'Inter', sans-serif",
-                    MozAppearance: 'textfield',
-                }}
+                onKeyDown={e => { if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur(); }}
+                style={{ width: 44, height: 34, border: 'none', textAlign: 'center', fontWeight: 700, fontSize: 14, color: P.text, background: 'transparent', outline: 'none', fontFamily: "'Inter', sans-serif", MozAppearance: 'textfield' }}
             />
-
-            <button
-                type="button"
-                disabled={item.quantity >= max}
-                onClick={() => patch(item.quantity + 1)}
-                style={{ width: 34, height: 34, background: 'none', border: 'none', cursor: item.quantity >= max ? 'not-allowed' : 'pointer', fontSize: 18, color: item.quantity >= max ? P.textLight : P.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+            <button type="button" disabled={item.quantity >= max} onClick={() => patch(item.quantity + 1)}
+                style={{ width: 34, height: 34, background: 'none', border: 'none', cursor: item.quantity >= max ? 'not-allowed' : 'pointer', fontSize: 18, color: item.quantity >= max ? P.textLight : P.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 onMouseEnter={e => { if (item.quantity < max) (e.currentTarget as HTMLButtonElement).style.background = P.accentBg; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
             >+</button>
@@ -113,12 +115,53 @@ function Qty({ item }: { item: CartItemData }) {
     );
 }
 
+type AuthUser = {
+    name: string;
+    email: string;
+    profile_photo_url?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    city?: string | null;
+    province?: string | null;
+    zip?: string | null;
+};
+
+/* ── Main wizard ── */
 export default function CartIndex({ items }: { items: CartItemData[] }) {
-    const { auth } = usePage().props as { auth: { user: { name: string; profile_photo_url?: string | null } | null } };
+    const { auth } = usePage().props as { auth: { user: AuthUser | null } };
     const user = auth?.user;
 
-    const subtotal = items.reduce((s, i) => s + i.variant.price * i.quantity, 0);
-    const totalQty = items.reduce((s, i) => s + i.quantity, 0);
+    const [step, setStep] = useState<1 | 2>(1);
+    const [animDir, setAnimDir] = useState<'forward' | 'back'>('forward');
+    const [animating, setAnimating] = useState(false);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    const subtotal  = items.reduce((s, i) => s + i.variant.price * i.quantity, 0);
+    const totalQty  = items.reduce((s, i) => s + i.quantity, 0);
+    const shippingFee = 0;
+    const total     = subtotal + shippingFee;
+
+    const { data, setData, post, processing, errors } = useForm({
+        shipping_name:     user?.name     ?? '',
+        shipping_phone:    user?.phone    ?? '',
+        shipping_address:  user?.address  ?? '',
+        shipping_city:     user?.city     ?? '',
+        shipping_province: user?.province ?? '',
+        shipping_zip:      user?.zip      ?? '',
+        payment_method:    'cod',
+        notes:             '',
+    });
+
+    function goStep(next: 1 | 2) {
+        if (animating) return;
+        setAnimDir(next > step ? 'forward' : 'back');
+        setAnimating(true);
+        setTimeout(() => {
+            setStep(next);
+            setAnimating(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 220);
+    }
 
     function removeItem(id: number) {
         router.delete(`/cart/${id}`, { preserveScroll: true });
@@ -130,18 +173,81 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
         }
     }
 
+    function submitOrder(e: FormEvent) {
+        e.preventDefault();
+        post('/checkout');
+    }
+
+    const STEPS = [
+        { n: 1, label: 'Review Cart' },
+        { n: 2, label: 'Delivery & Payment' },
+        { n: 3, label: 'Confirmation' },
+    ];
+
+    /* ── shared input helper ── */
+    function Field({ label, name, type = 'text', placeholder, required = false, as: as_ }: {
+        label: string; name: keyof typeof data; type?: string;
+        placeholder?: string; required?: boolean; as?: 'textarea' | 'select';
+    }) {
+        const error = errors[name];
+        const base: React.CSSProperties = {
+            width: '100%', padding: '10px 14px',
+            border: `1.5px solid ${error ? P.danger : P.borderGray}`,
+            borderRadius: 10, fontSize: 14, color: P.text, background: P.white,
+            outline: 'none', fontFamily: "'Inter', sans-serif",
+            transition: 'border-color 0.15s', boxSizing: 'border-box',
+        };
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                {label && (
+                    <label style={{ fontSize: 13, fontWeight: 600, color: P.text }}>
+                        {label} {required && <span style={{ color: P.danger }}>*</span>}
+                    </label>
+                )}
+                {as_ === 'textarea' ? (
+                    <textarea value={data[name] as string} onChange={e => setData(name, e.target.value)}
+                        placeholder={placeholder} rows={3}
+                        style={{ ...base, resize: 'vertical', minHeight: 76 }} />
+                ) : as_ === 'select' ? (
+                    <select value={data[name] as string} onChange={e => setData(name, e.target.value)}
+                        style={{ ...base, cursor: 'pointer' }}>
+                        <option value="">Select province…</option>
+                        {PH_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                ) : (
+                    <input type={type} value={data[name] as string}
+                        onChange={e => setData(name, e.target.value)}
+                        placeholder={placeholder} style={base} />
+                )}
+                {error && <span style={{ fontSize: 12, color: P.danger }}>{error}</span>}
+            </div>
+        );
+    }
+
     return (
         <>
-            <Head title="My Cart – Lynsi Food Products" />
+            <Head title="Checkout – Lynsi Food Products" />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
                 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
                 body { font-family: 'Inter', sans-serif; background: ${P.bg}; }
-                @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-                .cart-row { animation: fade-in 0.2s ease; }
+                input:focus, textarea:focus, select:focus {
+                    border-color: ${P.accent} !important;
+                    box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+                }
                 input[type=number]::-webkit-inner-spin-button,
                 input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
                 input[type=number] { -moz-appearance: textfield; }
+
+                @keyframes slide-in-right  { from { opacity: 0; transform: translateX(32px);  } to { opacity: 1; transform: none; } }
+                @keyframes slide-in-left   { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: none; } }
+                @keyframes slide-out-left  { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(-32px); } }
+                @keyframes slide-out-right { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(32px);  } }
+
+                .step-enter-forward { animation: slide-in-right 0.24s ease both; }
+                .step-enter-back    { animation: slide-in-left  0.24s ease both; }
+                .step-exit-forward  { animation: slide-out-left  0.22s ease both; }
+                .step-exit-back     { animation: slide-out-right 0.22s ease both; }
             `}</style>
 
             {/* ── HEADER ── */}
@@ -154,10 +260,18 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
                         </span>
                     </Link>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Link href="/shop" style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', textDecoration: 'none', padding: '7px 14px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, transition: 'background 0.15s' }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.1)'; }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
-                        >← Continue Shopping</Link>
+                        {step === 1 ? (
+                            <Link href="/shop" style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', textDecoration: 'none', padding: '7px 14px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+                                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.1)'; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                            >← Continue Shopping</Link>
+                        ) : (
+                            <button type="button" onClick={() => goStep(1)}
+                                style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}
+                                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)'; }}
+                                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                            >← Back to Cart</button>
+                        )}
                         {user && (
                             <Link href="/account" style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '5px 10px', background: 'rgba(255,255,255,0.1)', borderRadius: 50, textDecoration: 'none' }}>
                                 <div style={{ width: 26, height: 26, borderRadius: '50%', background: P.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: P.white, overflow: 'hidden' }}>
@@ -172,136 +286,328 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
                 </div>
             </header>
 
+            {/* ── STEP INDICATOR ── */}
+            <div style={{ background: P.white, borderBottom: `1px solid ${P.border}`, position: 'sticky', top: 58, zIndex: 90 }}>
+                <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+                        {STEPS.map((s, i) => {
+                            const done    = step > s.n;
+                            const active  = step === s.n;
+                            const locked  = step < s.n;
+                            return (
+                                <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 0, flex: i < STEPS.length - 1 ? 1 : 'unset' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '13px 0', paddingRight: 8 }}>
+                                        <div style={{
+                                            width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontSize: 12, fontWeight: 800,
+                                            background: done ? P.accent : active ? P.primary : P.borderGray,
+                                            color: done || active ? P.white : P.textLight,
+                                            transition: 'all 0.3s',
+                                        }}>
+                                            {done ? '✓' : s.n}
+                                        </div>
+                                        <span style={{
+                                            fontSize: 13, fontWeight: active ? 700 : done ? 600 : 400,
+                                            color: active ? P.primary : done ? P.accent : P.textLight,
+                                            whiteSpace: 'nowrap',
+                                            transition: 'all 0.3s',
+                                        }}>{s.label}</span>
+                                    </div>
+                                    {i < STEPS.length - 1 && (
+                                        <div style={{ flex: 1, height: 2, borderRadius: 2, margin: '0 8px', background: done ? P.accent : P.borderGray, transition: 'background 0.4s' }} />
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
             {/* ── BODY ── */}
             <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px 80px' }}>
-                {/* Page title */}
-                <div style={{ marginBottom: 24 }}>
-                    <h1 style={{ fontSize: 26, fontWeight: 800, color: P.primary, letterSpacing: '-0.5px' }}>
-                        🛒 My Cart
-                        {totalQty > 0 && <span style={{ fontSize: 14, fontWeight: 600, color: P.textMuted, marginLeft: 10 }}>({totalQty} {totalQty === 1 ? 'item' : 'items'})</span>}
-                    </h1>
-                </div>
 
+                {/* Empty cart */}
                 {items.length === 0 ? (
-                    /* Empty state */
                     <div style={{ textAlign: 'center', padding: '80px 20px', background: P.card, borderRadius: 18, border: `1px solid ${P.border}` }}>
                         <div style={{ fontSize: 64, marginBottom: 16 }}>🛒</div>
                         <h2 style={{ fontSize: 20, fontWeight: 700, color: P.text, marginBottom: 8 }}>Your cart is empty</h2>
                         <p style={{ fontSize: 14, color: P.textMuted, marginBottom: 28 }}>Discover fresh products and add them to your cart.</p>
-                        <Link href="/shop" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, boxShadow: '0 2px 8px rgba(6,95,70,0.25)' }}>
+                        <Link href="/shop" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14 }}>
                             Browse Products
                         </Link>
                     </div>
                 ) : (
-                    <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
-                        {/* ── Item list ── */}
-                        <div style={{ flex: '1 1 500px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                            {items.map(item => (
-                                <div key={item.id} className="cart-row" style={{ display: 'flex', gap: 16, background: P.card, borderRadius: 16, border: `1px solid ${P.border}`, padding: 16, alignItems: 'center' }}>
-                                    {/* Product image */}
-                                    <Link href={`/shop/product/${item.product.slug}`} style={{ flexShrink: 0 }}>
-                                        {item.product.image_url ? (
-                                            <img src={item.product.image_url} alt={item.product.name} style={{ width: 76, height: 76, borderRadius: 12, objectFit: 'cover', border: `1px solid ${P.border}` }} />
-                                        ) : (
-                                            <div style={{ width: 76, height: 76, borderRadius: 12, background: P.accentBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🥬</div>
-                                        )}
-                                    </Link>
+                        {/* ── MAIN CONTENT (steps) ── */}
+                        <div style={{ flex: '1 1 500px', minWidth: 0, overflow: 'hidden' }}>
+                            <div
+                                ref={contentRef}
+                                className={
+                                    animating
+                                        ? (animDir === 'forward' ? 'step-exit-forward' : 'step-exit-back')
+                                        : (animDir === 'forward' ? 'step-enter-forward' : 'step-enter-back')
+                                }
+                            >
 
-                                    {/* Info */}
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                        {item.product.category && (
-                                            <div style={{ fontSize: 11, fontWeight: 700, color: P.accent, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{item.product.category}</div>
-                                        )}
-                                        <Link href={`/shop/product/${item.product.slug}`} style={{ fontSize: 15, fontWeight: 700, color: P.text, textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {item.product.name}
-                                        </Link>
-                                        {item.variant.display_name !== 'Default' && (
-                                            <div style={{ fontSize: 12, color: P.textMuted, marginTop: 2 }}>{item.variant.display_name}</div>
-                                        )}
-                                        <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                                            <Qty item={item} />
-                                            <span style={{ fontSize: 13, color: P.textLight }}>× {formatPrice(item.variant.price)}</span>
-                                            {/* Stock limit pill */}
-                                            <span style={{
-                                                display: 'inline-flex', alignItems: 'center', gap: 4,
-                                                fontSize: 11, fontWeight: 600,
-                                                padding: '2px 8px', borderRadius: 50,
-                                                background: item.variant.stock_quantity <= item.quantity
-                                                    ? '#fef3c7'
-                                                    : P.accentBg,
-                                                color: item.variant.stock_quantity <= item.quantity
-                                                    ? '#b45309'
-                                                    : P.primary,
-                                                border: `1px solid ${item.variant.stock_quantity <= item.quantity ? '#fde68a' : P.border}`,
-                                            }}>
-                                                {item.variant.stock_quantity <= item.quantity && <>⚠ </>}
-                                                {item.variant.stock_quantity} left
-                                            </span>
+                                {/* ════ STEP 1: Review Cart ════ */}
+                                {step === 1 && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                        <h1 style={{ fontSize: 22, fontWeight: 800, color: P.primary, letterSpacing: '-0.4px', marginBottom: 4 }}>
+                                            🛒 Review Your Cart
+                                            <span style={{ fontSize: 13, fontWeight: 500, color: P.textMuted, marginLeft: 10 }}>({totalQty} {totalQty === 1 ? 'item' : 'items'})</span>
+                                        </h1>
+
+                                        {items.map(item => (
+                                            <div key={item.id} style={{ display: 'flex', gap: 16, background: P.card, borderRadius: 16, border: `1px solid ${P.border}`, padding: 16, alignItems: 'center' }}>
+                                                <Link href={`/shop/product/${item.product.slug}`} style={{ flexShrink: 0 }}>
+                                                    {item.product.image_url ? (
+                                                        <img src={item.product.image_url} alt={item.product.name} style={{ width: 76, height: 76, borderRadius: 12, objectFit: 'cover', border: `1px solid ${P.border}` }} />
+                                                    ) : (
+                                                        <div style={{ width: 76, height: 76, borderRadius: 12, background: P.accentBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🥬</div>
+                                                    )}
+                                                </Link>
+
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    {item.product.category && (
+                                                        <div style={{ fontSize: 11, fontWeight: 700, color: P.accent, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{item.product.category}</div>
+                                                    )}
+                                                    <Link href={`/shop/product/${item.product.slug}`} style={{ fontSize: 15, fontWeight: 700, color: P.text, textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        {item.product.name}
+                                                    </Link>
+                                                    {item.variant.display_name !== 'Default' && (
+                                                        <div style={{ fontSize: 12, color: P.textMuted, marginTop: 2 }}>{item.variant.display_name}</div>
+                                                    )}
+                                                    <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                                        <Qty item={item} />
+                                                        <span style={{ fontSize: 13, color: P.textLight }}>× {formatPrice(item.variant.price)}</span>
+                                                        <span style={{
+                                                            display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600,
+                                                            padding: '2px 8px', borderRadius: 50,
+                                                            background: item.variant.stock_quantity <= item.quantity ? '#fef3c7' : P.accentBg,
+                                                            color:      item.variant.stock_quantity <= item.quantity ? '#b45309' : P.primary,
+                                                            border: `1px solid ${item.variant.stock_quantity <= item.quantity ? '#fde68a' : P.border}`,
+                                                        }}>
+                                                            {item.variant.stock_quantity <= item.quantity && <>⚠ </>}
+                                                            {item.variant.stock_quantity} left
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, flexShrink: 0 }}>
+                                                    <span style={{ fontSize: 16, fontWeight: 800, color: P.primary }}>{formatPrice(item.variant.price * item.quantity)}</span>
+                                                    <button type="button" onClick={() => removeItem(item.id)} title="Remove"
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.textLight, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4, borderRadius: 8, transition: 'all 0.15s' }}
+                                                        onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.color = P.danger; b.style.background = P.dangerBg; }}
+                                                        onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.color = P.textLight; b.style.background = 'none'; }}
+                                                    >
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                                            <button type="button" onClick={clearCart}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: P.danger, fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', gap: 5, padding: '6px 4px' }}>
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                                                Clear cart
+                                            </button>
+
+                                            <button type="button" onClick={() => goStep(2)}
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: "'Inter', sans-serif", boxShadow: '0 2px 8px rgba(6,95,70,0.25)', transition: 'all 0.2s' }}
+                                                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; }}
+                                                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'none'; b.style.boxShadow = '0 2px 8px rgba(6,95,70,0.25)'; }}
+                                            >
+                                                Proceed to Checkout →
+                                            </button>
                                         </div>
                                     </div>
+                                )}
 
-                                    {/* Line total + remove */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, flexShrink: 0 }}>
-                                        <span style={{ fontSize: 16, fontWeight: 800, color: P.primary }}>{formatPrice(item.variant.price * item.quantity)}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeItem(item.id)}
-                                            title="Remove item"
-                                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.textLight, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4, borderRadius: 8, transition: 'all 0.15s' }}
-                                            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.color = P.danger; b.style.background = P.dangerBg; }}
-                                            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.color = P.textLight; b.style.background = 'none'; }}
-                                        >
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
+                                {/* ════ STEP 2: Delivery & Payment ════ */}
+                                {step === 2 && (
+                                    <form onSubmit={submitOrder} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                                        <h1 style={{ fontSize: 22, fontWeight: 800, color: P.primary, letterSpacing: '-0.4px', marginBottom: 4 }}>
+                                            Delivery & Payment
+                                        </h1>
 
-                            <button type="button" onClick={clearCart}
-                                style={{ alignSelf: 'flex-start', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: P.danger, fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', gap: 5, padding: '6px 4px' }}>
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-                                Clear cart
-                            </button>
+                                        {/* Delivery details */}
+                                        <section style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 18 }}>
+                                                <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
+                                                    <span style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>1</span>
+                                                    Delivery Details
+                                                </h2>
+                                                {(user?.address || user?.phone) && (
+                                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, color: P.primary, background: P.accentBg, border: `1px solid ${P.border}`, borderRadius: 50, padding: '3px 10px' }}>
+                                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                                        Pre-filled from your profile
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div style={{ display: 'grid', gap: 14 }}>
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                                                    <Field label="Full Name"    name="shipping_name"  placeholder="Juan Dela Cruz" required />
+                                                    <Field label="Phone Number" name="shipping_phone" placeholder="09XXXXXXXXX" required />
+                                                </div>
+                                                <Field label="Street Address" name="shipping_address" placeholder="House/Unit no., Street, Barangay" required />
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 110px', gap: 14 }}>
+                                                    <Field label="City / Municipality" name="shipping_city"     placeholder="City or municipality" required />
+                                                    <Field label="Province"            name="shipping_province" as="select" required />
+                                                    <Field label="ZIP Code"            name="shipping_zip"      placeholder="4000" />
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* Payment method */}
+                                        <section style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                                            <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <span style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>2</span>
+                                                Payment Method
+                                            </h2>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                                {PAYMENT_METHODS.map(pm => {
+                                                    const selected = data.payment_method === pm.id;
+                                                    return (
+                                                        <label key={pm.id} style={{
+                                                            display: 'flex', alignItems: 'center', gap: 14,
+                                                            padding: '13px 16px', borderRadius: 12, cursor: 'pointer',
+                                                            border: `2px solid ${selected ? P.accent : P.borderGray}`,
+                                                            background: selected ? P.accentBg : P.white,
+                                                            transition: 'all 0.15s',
+                                                        }}>
+                                                            <input type="radio" name="payment_method" value={pm.id}
+                                                                checked={selected}
+                                                                onChange={() => setData('payment_method', pm.id)}
+                                                                style={{ accentColor: P.accent, width: 17, height: 17 }} />
+                                                            <span style={{ fontSize: 20 }}>{pm.icon}</span>
+                                                            <div>
+                                                                <div style={{ fontSize: 14, fontWeight: 700, color: P.text }}>{pm.label}</div>
+                                                                <div style={{ fontSize: 12, color: P.textMuted, marginTop: 1 }}>{pm.desc}</div>
+                                                            </div>
+                                                        </label>
+                                                    );
+                                                })}
+                                            </div>
+                                        </section>
+
+                                        {/* Order notes */}
+                                        <section style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                                            <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <span style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>3</span>
+                                                Order Notes
+                                                <span style={{ fontSize: 12, fontWeight: 400, color: P.textLight }}>(optional)</span>
+                                            </h2>
+                                            <Field label="" name="notes" as="textarea" placeholder="Special instructions, landmark, or delivery notes…" />
+                                        </section>
+
+                                        {/* Footer nav */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, paddingTop: 4 }}>
+                                            <button type="button" onClick={() => goStep(1)}
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '11px 22px', background: P.white, color: P.textMuted, border: `2px solid ${P.borderGray}`, borderRadius: 12, fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: "'Inter', sans-serif", transition: 'all 0.15s' }}
+                                                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = P.accent; b.style.color = P.primary; }}
+                                                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = P.borderGray; b.style.color = P.textMuted; }}
+                                            >
+                                                ← Back
+                                            </button>
+
+                                            <button type="submit" disabled={processing}
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 32px', background: processing ? P.textLight : `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: processing ? 'not-allowed' : 'pointer', fontFamily: "'Inter', sans-serif", boxShadow: processing ? 'none' : '0 2px 8px rgba(6,95,70,0.28)', transition: 'all 0.2s' }}
+                                                onMouseEnter={e => { if (!processing) { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; } }}
+                                                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'none'; b.style.boxShadow = processing ? 'none' : '0 2px 8px rgba(6,95,70,0.28)'; }}
+                                            >
+                                                {processing ? 'Placing Order…' : 'Place Order ✓'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
+                            </div>
                         </div>
 
-                        {/* ── Order summary ── */}
-                        <div style={{ width: 300, flexShrink: 0, position: 'sticky', top: 76 }}>
+                        {/* ── ORDER SUMMARY SIDEBAR ── */}
+                        <div style={{ width: 300, flexShrink: 0, position: 'sticky', top: 112 }}>
                             <div style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 2px 12px rgba(6,95,70,0.07)' }}>
-                                <h2 style={{ fontSize: 16, fontWeight: 800, color: P.text, marginBottom: 18 }}>Order Summary</h2>
+                                <h2 style={{ fontSize: 15, fontWeight: 800, color: P.text, marginBottom: 16 }}>
+                                    Order Summary
+                                    <span style={{ fontSize: 12, fontWeight: 500, color: P.textMuted, marginLeft: 8 }}>({totalQty} {totalQty === 1 ? 'item' : 'items'})</span>
+                                </h2>
 
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: P.textMuted }}>
-                                        <span>Subtotal ({totalQty} {totalQty === 1 ? 'item' : 'items'})</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+                                    {items.map(item => (
+                                        <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {item.product.image_url ? (
+                                                    <img src={item.product.image_url} alt={item.product.name}
+                                                        style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', border: `1px solid ${P.border}` }} />
+                                                ) : (
+                                                    <div style={{ width: 44, height: 44, borderRadius: 8, background: P.accentBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🥬</div>
+                                                )}
+                                                <span style={{
+                                                    position: 'absolute', top: -5, right: -5,
+                                                    background: P.primary, color: P.white, borderRadius: '50%',
+                                                    width: 17, height: 17, fontSize: 9, fontWeight: 800,
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                }}>{item.quantity}</span>
+                                            </div>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontSize: 13, fontWeight: 600, color: P.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.name}</div>
+                                                {item.variant.display_name !== 'Default' && (
+                                                    <div style={{ fontSize: 11, color: P.textMuted }}>{item.variant.display_name}</div>
+                                                )}
+                                            </div>
+                                            <span style={{ fontSize: 13, fontWeight: 700, color: P.primary, flexShrink: 0 }}>
+                                                {formatPrice(item.variant.price * item.quantity)}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div style={{ height: 1, background: P.borderGray, marginBottom: 12 }} />
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: P.textMuted }}>
+                                        <span>Subtotal</span>
                                         <span style={{ fontWeight: 600, color: P.text }}>{formatPrice(subtotal)}</span>
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: P.textMuted }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: P.textMuted }}>
                                         <span>Shipping</span>
-                                        <span style={{ fontWeight: 500, color: P.accent }}>Calculated at checkout</span>
+                                        <span style={{ fontWeight: 500, color: P.accent }}>
+                                            {step === 1 ? 'Calculated next step' : shippingFee === 0 ? 'Free' : formatPrice(shippingFee)}
+                                        </span>
                                     </div>
                                 </div>
 
-                                <div style={{ height: 1, background: P.borderGray, marginBottom: 16 }} />
+                                <div style={{ height: 1, background: P.borderGray, marginBottom: 14 }} />
 
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 800, color: P.text, marginBottom: 20 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 800, color: P.text, marginBottom: step === 2 ? 0 : 18 }}>
                                     <span>Total</span>
-                                    <span style={{ color: P.primary }}>{formatPrice(subtotal)}</span>
+                                    <span style={{ color: P.primary }}>{formatPrice(total)}</span>
                                 </div>
 
-                                <button type="button"
-                                    style={{ width: '100%', padding: '13px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: "'Inter', sans-serif", boxShadow: '0 2px 8px rgba(6,95,70,0.28)', transition: 'all 0.2s' }}
-                                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; }}
-                                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'none'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px rgba(6,95,70,0.28)'; }}
-                                >
-                                    Proceed to Checkout
-                                </button>
+                                {step === 1 && (
+                                    <>
+                                        <button type="button" onClick={() => goStep(2)}
+                                            style={{ width: '100%', marginTop: 18, padding: '13px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: "'Inter', sans-serif", boxShadow: '0 2px 8px rgba(6,95,70,0.28)', transition: 'all 0.2s' }}
+                                            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; }}
+                                            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'none'; b.style.boxShadow = '0 2px 8px rgba(6,95,70,0.28)'; }}
+                                        >
+                                            Proceed to Checkout
+                                        </button>
+                                        <Link href="/shop" style={{ display: 'block', textAlign: 'center', marginTop: 10, fontSize: 13, color: P.textMuted, textDecoration: 'none' }}
+                                            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = P.primary; }}
+                                            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = P.textMuted; }}
+                                        >← Continue Shopping</Link>
+                                    </>
+                                )}
 
-                                <Link href="/shop" style={{ display: 'block', textAlign: 'center', marginTop: 12, fontSize: 13, color: P.textMuted, textDecoration: 'none' }}
-                                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = P.primary; }}
-                                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = P.textMuted; }}
-                                >
-                                    ← Continue Shopping
-                                </Link>
+                                {step === 2 && (
+                                    <p style={{ textAlign: 'center', fontSize: 11, color: P.textLight, marginTop: 14 }}>
+                                        🔒 Your order is safe and secure
+                                    </p>
+                                )}
                             </div>
                         </div>
 

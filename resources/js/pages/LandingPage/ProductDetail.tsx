@@ -38,6 +38,11 @@ function getVariantLabel(v: Variant): string {
     return parts.length ? parts.join(' – ') : 'Default';
 }
 
+function getSizeLabel(size: string | null): string | null {
+    if (!size) return null;
+    return /^[0-9]+(\.[0-9]+)?$/.test(size) ? `${size}g` : size;
+}
+
 export default function ProductDetail() {
     const page = usePage();
     const { auth } = page.props as { auth: { user: { name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null } | null };
@@ -125,7 +130,18 @@ export default function ProductDetail() {
                                 {categoryName}
                             </span>
                             <h1 className="mb-2 text-2xl font-bold text-neutral-900 md:text-3xl">{product.name}</h1>
-                            <p className="mb-4 text-sm text-neutral-500">by Lynsi Food Products</p>
+                            <p className="mb-3 text-sm text-neutral-500">by Lynsi Food Products</p>
+
+                            {variant && (variant.flavor || variant.size) && (
+                                <div className="mb-4 flex flex-col gap-1">
+                                    {variant.flavor && (
+                                        <div className="text-slate-600 font-medium">{variant.flavor}</div>
+                                    )}
+                                    {getSizeLabel(variant.size) && (
+                                        <div className="text-slate-500 text-sm">{getSizeLabel(variant.size)}</div>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="mb-6">
                                 <span className="text-3xl font-bold" style={{ color: PALETTE.primary }}>

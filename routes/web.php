@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Products\CategoryController;
 use App\Http\Controllers\Products\InventoryController;
 use App\Http\Controllers\Products\ProductController;
@@ -127,6 +128,13 @@ Route::get('/account', function (\Illuminate\Http\Request $request) {
         'status' => $request->session()->get('status'),
     ]);
 })->middleware(['auth'])->name('account.profile');
+
+/* ── Checkout ── */
+Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('/',                              [CheckoutController::class, 'index'])->name('index');
+    Route::post('/',                             [CheckoutController::class, 'store'])->name('store');
+    Route::get('/confirmation/{orderNumber}',    [CheckoutController::class, 'confirmation'])->name('confirmation');
+});
 
 /* ── Cart ── */
 Route::middleware(['auth'])->prefix('cart')->name('cart.')->group(function () {
