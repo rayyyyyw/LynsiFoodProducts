@@ -81,6 +81,15 @@ export default function Shop() {
         return () => document.removeEventListener('mousedown', h);
     }, [picker]);
 
+    /* Reload fresh products/categories when user returns to this tab (e.g. after editing in admin). */
+    useEffect(() => {
+        const onVisible = () => {
+            if (document.visibilityState === 'visible') router.reload({ only: ['products', 'categories'] });
+        };
+        document.addEventListener('visibilitychange', onVisible);
+        return () => document.removeEventListener('visibilitychange', onVisible);
+    }, []);
+
     function addToCart(variantId: number, productId: number, qty: number) {
         if (!auth.user) { router.visit('/login'); return; }
         setAddingId(variantId);

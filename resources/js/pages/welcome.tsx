@@ -367,6 +367,15 @@ export default function Welcome({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [userMenuOpen]);
 
+    /* Reload landing content and products when user returns to this tab (e.g. after editing in admin). */
+    useEffect(() => {
+        const onVisible = () => {
+            if (document.visibilityState === 'visible') router.reload({ only: ['landingContent', 'featuredProducts'] });
+        };
+        document.addEventListener('visibilitychange', onVisible);
+        return () => document.removeEventListener('visibilitychange', onVisible);
+    }, []);
+
     const scrollToSection = (id: string) => {
         setActiveSection(id);
         const el = document.getElementById(id);

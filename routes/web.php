@@ -49,6 +49,8 @@ Route::get('/', function () {
         'canRegister' => Features::enabled(Features::registration()),
         'landingContent' => $landingContent,
         'featuredProducts' => $featuredProducts,
+    ])->toResponse(request())->withHeaders([
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('home');
 
@@ -87,6 +89,8 @@ Route::get('/shop', function () {
         'products' => $products,
         'categories' => $categories,
         'canRegister' => Features::enabled(Features::registration()),
+    ])->toResponse(request())->withHeaders([
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('shop');
 
@@ -115,6 +119,8 @@ Route::get('/shop/product/{slug}', function (string $slug) {
     return Inertia::render('LandingPage/ProductDetail', [
         'product' => $payload,
         'canRegister' => Features::enabled(Features::registration()),
+    ])->toResponse(request())->withHeaders([
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('shop.product');
 
