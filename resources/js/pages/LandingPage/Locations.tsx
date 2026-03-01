@@ -56,9 +56,9 @@ export default function Locations() {
                 <Head title="Our Locations – Lynsi Food Products" />
                 <LandingNav activeId="our-locations" auth={auth ?? { user: null }} canRegister={canRegister} />
 
-                <main className="min-h-0 flex-1 px-4 py-10">
+                <main className="min-h-0 flex-1 px-3 py-6 sm:px-4 sm:py-8 md:py-10">
                     <div className="mx-auto max-w-6xl">
-                        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                        <div className="text-center mb-8 sm:mb-10 md:mb-12">
                             {locations.badge && (
                                 <div style={{
                                     display: 'inline-block',
@@ -75,7 +75,7 @@ export default function Locations() {
                                 </div>
                             )}
                             <h1 style={{
-                                fontSize: 'clamp(28px, 4vw, 36px)',
+                                fontSize: 'clamp(24px, 5vw, 36px)',
                                 fontWeight: 800,
                                 color: PALETTE.primary,
                                 marginBottom: '12px',
@@ -88,25 +88,22 @@ export default function Locations() {
                                 maxWidth: '560px',
                                 margin: '0 auto',
                                 lineHeight: 1.7,
-                                fontSize: '15px',
+                                fontSize: 'clamp(14px, 2vw, 15px)',
                             }}>
                                 {locations.subtitle ?? 'Find a Lynsi store near you.'}
                             </p>
                         </div>
 
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                            gap: '24px',
+                        <div className="grid gap-4 sm:gap-6 md:gap-6" style={{
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
                         }}>
                             {items.map((loc, idx) => (
                                 <div
                                     key={loc.name || idx}
+                                    className="p-4 sm:p-5 md:p-6 rounded-2xl"
                                     style={{
                                         background: PALETTE.white,
                                         border: `1px solid ${PALETTE.border}`,
-                                        borderRadius: '16px',
-                                        padding: '24px',
                                         position: 'relative',
                                         boxShadow: '0 4px 20px rgba(6,95,70,0.08)',
                                         transition: 'box-shadow 0.2s',
@@ -206,20 +203,14 @@ export default function Locations() {
                             </div>
                         )}
 
-                        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                        <div className="text-center mt-8 sm:mt-10">
                             <Link
                                 href="/"
+                                className="inline-flex items-center justify-center gap-2 py-3 px-5 sm:py-3 sm:px-6 rounded-xl font-semibold text-sm sm:text-base min-h-[44px] touch-manipulation"
                                 style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    padding: '12px 24px',
                                     background: PALETTE.primary,
                                     color: PALETTE.white,
-                                    borderRadius: '10px',
-                                    fontWeight: 600,
                                     textDecoration: 'none',
-                                    fontSize: '14px',
                                 }}
                             >
                                 ← Back to Home

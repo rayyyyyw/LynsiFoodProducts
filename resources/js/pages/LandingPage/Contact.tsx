@@ -64,6 +64,10 @@ export default function Contact() {
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+        if (!auth?.user) {
+            router.visit('/login');
+            return;
+        }
         setSending(true);
         router.post('/contact', { name, email, subject, message }, {
             preserveScroll: true,
@@ -76,6 +80,8 @@ export default function Contact() {
             },
         });
     }
+
+    const canSubmit = !!auth?.user;
 
     const cardStyle = {
         display: 'flex' as const,
@@ -97,9 +103,9 @@ export default function Contact() {
                 <Head title="Contact Us – Lynsi Food Products" />
                 <LandingNav activeId="contact-us" auth={auth ?? { user: null }} canRegister={canRegister} />
 
-                <main className="min-h-0 flex-1 px-4 py-10">
-                    <div className="mx-auto" style={{ maxWidth: '1100px' }}>
-                        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                <main className="min-h-0 flex-1 px-3 py-6 sm:px-4 sm:py-8 md:py-10">
+                    <div className="mx-auto max-w-[1100px]">
+                        <div className="text-center mb-6 sm:mb-8 md:mb-12">
                             {contactUs.badge && (
                                 <div style={{
                                     display: 'inline-block',
@@ -116,7 +122,7 @@ export default function Contact() {
                                 </div>
                             )}
                             <h1 style={{
-                                fontSize: 'clamp(28px, 4vw, 36px)',
+                                fontSize: 'clamp(24px, 5vw, 36px)',
                                 fontWeight: 800,
                                 color: PALETTE.primary,
                                 marginBottom: '12px',
@@ -150,9 +156,9 @@ export default function Contact() {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+                        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-5">
                             {/* Contact info cards */}
-                            <div className="lg:col-span-2 space-y-4">
+                            <div className="lg:col-span-2 space-y-3 sm:space-y-4">
                                 <h2 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '16px' }}>
                                     Get in touch
                                 </h2>
@@ -200,25 +206,32 @@ export default function Contact() {
                                 )}
                             </div>
 
-                            {/* Query form (requires login) */}
+                            {/* Query form (submit requires login) */}
                             <div className="lg:col-span-3">
-                                <div style={{
+                                <div className="rounded-2xl p-4 sm:p-5 md:p-[28px_24px] lg:p-[32px_28px]" style={{
                                     background: PALETTE.white,
                                     border: `1px solid ${PALETTE.border}`,
-                                    borderRadius: '20px',
-                                    padding: '32px 28px',
                                     boxShadow: '0 4px 24px rgba(6,95,70,0.08)',
                                 }}>
-                                    {auth?.user ? (
-                                        <>
-                                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <Send size={20} /> Send us a message
-                                            </h2>
-                                            <p style={{ fontSize: '14px', color: PALETTE.muted, marginBottom: '24px', lineHeight: 1.6 }}>
-                                                Have a question, feedback, or need help? Fill out the form below and we’ll get back to you within 24 hours.
-                                            </p>
-                                            <form onSubmit={handleSubmit} className="space-y-4">
-                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Send size={20} /> Send us a message
+                                    </h2>
+                                    <p style={{ fontSize: '14px', color: PALETTE.muted, marginBottom: '24px', lineHeight: 1.6 }}>
+                                        Have a question, feedback, or need help? Fill out the form below and we’ll get back to you within 24 hours.
+                                    </p>
+                                    {!canSubmit && (
+                                        <div style={{
+                                            marginBottom: '20px', padding: '14px 18px', background: PALETTE.light,
+                                            border: `1px solid ${PALETTE.border}`, borderRadius: '12px',
+                                            fontSize: '14px', color: PALETTE.primary,
+                                        }}>
+                                            You must be signed in to send a message.{' '}
+                                            <Link href="/login" style={{ fontWeight: 600, color: PALETTE.accent, textDecoration: 'underline' }}>Sign in</Link>
+                                            {canRegister && <> or <Link href="/register" style={{ fontWeight: 600, color: PALETTE.accent, textDecoration: 'underline' }}>create an account</Link></>}.
+                                        </div>
+                                    )}
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
                                             <div>
                                                 <label htmlFor="contact-name" style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: PALETTE.primary, marginBottom: '6px' }}>
                                                     Name *
@@ -285,67 +298,33 @@ export default function Contact() {
                                         </div>
                                         <button
                                             type="submit"
-                                            disabled={sending}
+                                            disabled={sending || !canSubmit}
                                             style={{
                                                 width: '100%',
                                                 padding: '14px 24px',
-                                                background: sending ? PALETTE.muted : `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`,
+                                                background: !canSubmit ? PALETTE.border : sending ? PALETTE.muted : `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`,
                                                 color: PALETTE.white,
                                                 border: 'none',
                                                 borderRadius: '12px',
                                                 fontWeight: 700,
                                                 fontSize: '15px',
-                                                cursor: sending ? 'wait' : 'pointer',
+                                                cursor: canSubmit && !sending ? 'pointer' : 'not-allowed',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
                                                 gap: '8px',
+                                                opacity: canSubmit ? 1 : 0.8,
                                             }}
                                         >
                                             {sending ? (
                                                 <><span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> Sending…</>
+                                            ) : !canSubmit ? (
+                                                <>Sign in to send message</>
                                             ) : (
                                                 <><Send size={18} /> Send message</>
                                             )}
                                         </button>
                                     </form>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <Send size={20} /> Send us a message
-                                            </h2>
-                                            <p style={{ fontSize: '14px', color: PALETTE.muted, marginBottom: '20px', lineHeight: 1.6 }}>
-                                                You need to be signed in to send a message. Log in to your account or create one to get in touch with us.
-                                            </p>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                                <Link
-                                                    href="/login"
-                                                    style={{
-                                                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                                        padding: '14px 24px', background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`,
-                                                        color: PALETTE.white, borderRadius: '12px', fontWeight: 700, fontSize: '15px',
-                                                        textDecoration: 'none',
-                                                    }}
-                                                >
-                                                    Sign in to your account
-                                                </Link>
-                                                {canRegister && (
-                                                    <Link
-                                                        href="/register"
-                                                        style={{
-                                                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                                            padding: '14px 24px', background: PALETTE.white, color: PALETTE.primary,
-                                                            border: `2px solid ${PALETTE.border}`, borderRadius: '12px', fontWeight: 600, fontSize: '15px',
-                                                            textDecoration: 'none',
-                                                        }}
-                                                    >
-                                                        Create an account
-                                                    </Link>
-                                                )}
-                                            </div>
-                                        </>
-                                    )}
                                 </div>
                             </div>
                         </div>
@@ -356,20 +335,14 @@ export default function Contact() {
                             </p>
                         )}
 
-                        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                        <div className="text-center mt-8 sm:mt-10">
                             <Link
                                 href="/"
+                                className="inline-flex items-center justify-center gap-2 py-3 px-5 sm:py-3 sm:px-6 rounded-xl font-semibold text-sm sm:text-base min-h-[44px] touch-manipulation"
                                 style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    padding: '12px 24px',
                                     background: PALETTE.primary,
                                     color: PALETTE.white,
-                                    borderRadius: '10px',
-                                    fontWeight: 600,
                                     textDecoration: 'none',
-                                    fontSize: '14px',
                                 }}
                             >
                                 ← Back to Home

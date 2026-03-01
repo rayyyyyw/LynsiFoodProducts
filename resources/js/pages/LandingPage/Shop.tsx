@@ -169,10 +169,10 @@ export default function Shop() {
 
             <LandingNav activeId="products" auth={auth ?? { user: null }} canRegister={canRegister} />
 
-            <main className="min-h-0 flex-1 px-4 py-6">
+            <main className="min-h-0 flex-1 px-3 py-4 sm:px-4 sm:py-6">
                 <div className="mx-auto max-w-7xl">
                 {/* Search */}
-                <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:gap-4">
                     <div className="relative flex-1">
                         <Search
                             className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-500"
@@ -195,23 +195,23 @@ export default function Shop() {
                     </button>
                 </div>
 
-                <div className="flex flex-col gap-6 lg:flex-row">
-                    {/* Filters sidebar */}
+                <div className="flex flex-col gap-3 lg:gap-6 lg:flex-row">
+                    {/* Filters sidebar – compact on mobile */}
                     <aside
-                        className="w-full shrink-0 rounded-xl border p-4 lg:w-64"
+                        className="w-full shrink-0 rounded-xl border p-2.5 sm:p-4 lg:w-64"
                         style={{ borderColor: PALETTE.border, background: PALETTE.white }}
                     >
-                        <h3 className="mb-3 text-sm font-semibold text-neutral-900">Filters</h3>
+                        <h3 className="mb-2 text-xs sm:text-sm font-semibold text-neutral-900">Filters</h3>
 
-                        <div className="mb-4">
-                            <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                        <div className="mb-3 sm:mb-4">
+                            <h4 className="mb-1.5 text-[11px] sm:text-xs font-medium uppercase tracking-wide text-neutral-500">
                                 CATEGORY
                             </h4>
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-0.5 sm:gap-1">
                                 <button
                                     type="button"
                                     onClick={() => setCategoryId('all')}
-                                    className="rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors"
+                                    className="rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-left text-xs sm:text-sm font-medium transition-colors min-h-[40px] sm:min-h-0 touch-manipulation"
                                     style={{
                                         background: categoryId === 'all' ? PALETTE.bg : 'transparent',
                                         color: categoryId === 'all' ? PALETTE.primary : PALETTE.muted,
@@ -225,7 +225,7 @@ export default function Shop() {
                                         key={cat.id}
                                         type="button"
                                         onClick={() => setCategoryId(cat.id)}
-                                        className="rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-neutral-100"
+                                        className="rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-left text-xs sm:text-sm transition-colors hover:bg-neutral-100 min-h-[40px] sm:min-h-0 touch-manipulation"
                                         style={{
                                             background: categoryId === cat.id ? PALETTE.bg : 'transparent',
                                             color: categoryId === cat.id ? PALETTE.primary : PALETTE.muted,
@@ -239,12 +239,12 @@ export default function Shop() {
                         </div>
 
                         <div>
-                            <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
+                            <h4 className="mb-1.5 text-[11px] sm:text-xs font-medium uppercase tracking-wide text-neutral-500">
                                 PRICE RANGE
                             </h4>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-1.5 sm:gap-2">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm text-neutral-600">₱</span>
+                                    <span className="text-xs sm:text-sm text-neutral-600">₱</span>
                                     <input
                                         type="number"
                                         min={0}
@@ -252,11 +252,11 @@ export default function Shop() {
                                         placeholder="Min"
                                         value={priceMin}
                                         onChange={(e) => setPriceMin(e.target.value)}
-                                        className="w-full rounded border border-neutral-300 px-2 py-1.5 text-sm focus:border-emerald-500 focus:outline-none"
+                                        className="w-full rounded border border-neutral-300 px-2 py-1.5 text-xs sm:text-sm focus:border-emerald-500 focus:outline-none min-h-[36px]"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm text-neutral-600">₱</span>
+                                    <span className="text-xs sm:text-sm text-neutral-600">₱</span>
                                     <input
                                         type="number"
                                         min={0}
@@ -264,7 +264,7 @@ export default function Shop() {
                                         placeholder="Max"
                                         value={priceMax}
                                         onChange={(e) => setPriceMax(e.target.value)}
-                                        className="w-full rounded border border-neutral-300 px-2 py-1.5 text-sm focus:border-emerald-500 focus:outline-none"
+                                        className="w-full rounded border border-neutral-300 px-2 py-1.5 text-xs sm:text-sm focus:border-emerald-500 focus:outline-none min-h-[36px]"
                                     />
                                 </div>
                                 <button
@@ -272,7 +272,7 @@ export default function Shop() {
                                     onClick={() => {
                                         setPriceRangeApplied(true);
                                     }}
-                                    className="rounded-lg px-3 py-2 text-sm font-medium text-white"
+                                    className="rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white min-h-[38px] sm:min-h-0 touch-manipulation w-full"
                                     style={{ background: PALETTE.accent }}
                                 >
                                     Apply Price Range
@@ -283,8 +283,8 @@ export default function Shop() {
 
                     {/* Main content: sort + grid */}
                     <div className="min-w-0 flex-1">
-                        <div className="mb-4 flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-medium text-neutral-700">Sort by</span>
+                        <div className="mb-3 flex items-center gap-2 overflow-x-auto pb-1 sm:mb-4 sm:flex-wrap sm:overflow-visible sm:pb-0">
+                            <span className="text-sm font-medium text-neutral-700 shrink-0">Sort by</span>
                             {(
                                 [
                                     { key: 'popular' as const, label: 'Popular' },
@@ -298,7 +298,7 @@ export default function Shop() {
                                     key={key}
                                     type="button"
                                     onClick={() => setSortBy(key)}
-                                    className="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
+                                    className="shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-colors touch-manipulation"
                                     style={{
                                         background: sortBy === key ? PALETTE.dark : PALETTE.white,
                                         color: sortBy === key ? PALETTE.white : PALETTE.muted,
@@ -318,7 +318,7 @@ export default function Shop() {
                                 No products match your filters. Try adjusting search or category.
                             </div>
                         ) : (
-                            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
                                 {filteredAndSorted.map((product) => {
                                     const price = getDisplayPrice(product);
                                     const categoryName = product.category?.name ?? 'Uncategorized';
@@ -338,8 +338,8 @@ export default function Shop() {
                                         >
                                             {/* Clickable image area */}
                                             <Link href={`/shop/product/${product.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-                                                <div className="relative flex justify-center bg-neutral-100 px-6 pt-6 pb-2">
-                                                    <div className="relative h-40 w-40 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-md" style={{ borderColor: PALETTE.border }}>
+                                                <div className="relative flex justify-center bg-neutral-100 px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
+                                                    <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-md sm:h-40 sm:w-40" style={{ borderColor: PALETTE.border }}>
                                                         {product.image_url ? (
                                                             <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
                                                         ) : (
@@ -353,7 +353,7 @@ export default function Shop() {
                                                         <Heart className="h-4 w-4 text-neutral-600" />
                                                     </button>
                                                 </div>
-                                                <div className="px-3 pt-3 pb-1">
+                                                <div className="px-2.5 pt-2.5 pb-1 sm:px-3 sm:pt-3">
                                                     <span className="mb-1 inline-block text-xs font-medium uppercase tracking-wide text-slate-500">
                                                         {categoryName.length > 12 ? `${categoryName.slice(0, 12)}…` : categoryName}
                                                     </span>
@@ -378,7 +378,7 @@ export default function Shop() {
                                             </Link>
 
                                             {/* Add to Cart button */}
-                                            <div style={{ padding: '8px 12px 12px', marginTop: 'auto' }}>
+                                            <div className="px-2.5 pb-3 pt-1 sm:px-3 sm:pb-3 sm:pt-2" style={{ marginTop: 'auto' }}>
                                                 <button
                                                     type="button"
                                                     onClick={(e) => handleCardCartClick(e, product)}
@@ -417,8 +417,8 @@ export default function Shop() {
 
         {/* ── Add-to-Cart picker modal ── */}
         {picker && (
-            <div style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, backdropFilter: 'blur(2px)' }}>
-                <div ref={pickerRef} style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 400, padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', fontFamily: "'Inter', sans-serif" }}>
+            <div className="flex items-center justify-center p-3 sm:p-5" style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}>
+                <div ref={pickerRef} className="w-full max-w-[400px] rounded-2xl p-4 sm:p-6" style={{ background: '#fff', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', fontFamily: "'Inter', sans-serif", maxHeight: 'min(90vh, 520px)', overflowY: 'auto' }}>
 
                     {/* Header */}
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>

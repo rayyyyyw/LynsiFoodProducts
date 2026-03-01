@@ -54,9 +54,9 @@ export default function About() {
                 <Head title="About Us – Lynsi Food Products" />
                 <LandingNav activeId="about-us" auth={auth ?? { user: null }} canRegister={canRegister} />
 
-                <main className="min-h-0 flex-1 px-4 py-10">
-                    <div className="mx-auto" style={{ maxWidth: '1100px' }}>
-                        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+                <main className="min-h-0 flex-1 px-3 py-6 sm:px-4 sm:py-8 md:py-10">
+                    <div className="mx-auto max-w-[1100px]">
+                        <div className="text-center mb-8 sm:mb-10 md:mb-12">
                             {aboutUs.badge && (
                                 <div style={{
                                     display: 'inline-block',
@@ -73,7 +73,7 @@ export default function About() {
                                 </div>
                             )}
                             <h1 style={{
-                                fontSize: 'clamp(28px, 4vw, 36px)',
+                                fontSize: 'clamp(24px, 5vw, 36px)',
                                 fontWeight: 800,
                                 color: PALETTE.primary,
                                 marginBottom: '12px',
@@ -92,8 +92,8 @@ export default function About() {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-7 lg:grid-cols-2 lg:items-center">
-                            <div>
+                        <div className="grid grid-cols-1 gap-6 sm:gap-7 lg:grid-cols-2 lg:items-center">
+                            <div className="min-w-0">
                                 {aboutUs.paragraph1 && (
                                     <p style={{ color: PALETTE.primary, lineHeight: 1.8, marginBottom: '16px', fontSize: '15px' }}>
                                         {aboutUs.paragraph1}
@@ -117,11 +117,8 @@ export default function About() {
                                     ))}
                                 </div>
                             </div>
-                            <div style={{
-                                borderRadius: '20px',
+                            <div className="p-6 sm:p-8 md:p-10 rounded-2xl text-center" style={{
                                 background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
-                                padding: '40px 24px',
-                                textAlign: 'center',
                                 border: `1px solid ${PALETTE.border}`,
                             }}>
                                 <div style={{ fontSize: '64px', marginBottom: '12px' }}>🌱</div>
@@ -134,20 +131,14 @@ export default function About() {
                             </div>
                         </div>
 
-                        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                        <div className="text-center mt-8 sm:mt-10">
                             <Link
                                 href="/"
+                                className="inline-flex items-center justify-center gap-2 py-3 px-5 sm:py-3 sm:px-6 rounded-xl font-semibold text-sm sm:text-base min-h-[44px] touch-manipulation"
                                 style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    padding: '12px 24px',
                                     background: PALETTE.primary,
                                     color: PALETTE.white,
-                                    borderRadius: '10px',
-                                    fontWeight: 600,
                                     textDecoration: 'none',
-                                    fontSize: '14px',
                                 }}
                             >
                                 ← Back to Home

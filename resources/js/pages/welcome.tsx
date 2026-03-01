@@ -415,27 +415,35 @@ export default function Welcome({
                         right: 0;
                         z-index: 1000;
                     }
-                    .lynsi-nav-spacer { padding-top: 64px; }
-                    @media (min-width: 768px) {
-                        .lynsi-nav-spacer { padding-top: 68px; }
-                    }
-                    section[id] { scroll-margin-top: 72px; }
+                    .lynsi-nav-spacer { padding-top: 52px; }
+                    @media (min-width: 640px) { .lynsi-nav-spacer { padding-top: 56px; } }
+                    @media (min-width: 768px) { .lynsi-nav-spacer { padding-top: 68px; } }
+                    section[id] { scroll-margin-top: 60px; }
+                    @media (min-width: 640px) { section[id] { scroll-margin-top: 72px; } }
 
-                    .lynsi-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; }
+                    .lynsi-container { max-width: 1200px; margin: 0 auto; padding: 0 16px; width: 100%; }
+                    @media (min-width: 480px) { .lynsi-container { padding: 0 20px; } }
                     @media (min-width: 768px) { .lynsi-container { padding: 0 24px; } }
                     @supports (padding: max(0px)) {
-                        .lynsi-container { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
+                        .lynsi-container { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+                        @media (min-width: 480px) { .lynsi-container { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); } }
                     }
 
-                    .lynsi-section { padding: 48px 20px; }
+                    .lynsi-section { padding: 36px 16px; }
+                    @media (min-width: 480px) { .lynsi-section { padding: 48px 20px; } }
                     @media (min-width: 768px) { .lynsi-section { padding: 80px 24px; } }
                     @media (min-width: 1024px) { .lynsi-section { padding: 96px 24px; } }
 
-                    .lynsi-hero-section { padding: 40px 20px 56px; position: relative; }
+                    .lynsi-hero-section { padding: 28px 16px 44px; position: relative; }
+                    @media (min-width: 480px) { .lynsi-hero-section { padding: 40px 20px 56px; } }
                     @media (min-width: 768px) { .lynsi-hero-section { padding: 56px 24px 72px; } }
                     @media (min-width: 1024px) { .lynsi-hero-section { padding: 64px 48px 80px; } }
-                    .lynsi-hero-section .lynsi-section-title { margin-bottom: 20px; font-size: clamp(28px, 4.5vw, 48px); line-height: 1.2; }
-                    .lynsi-hero-section .lynsi-section-desc { margin-bottom: 32px; font-size: 17px; line-height: 1.65; }
+                    .lynsi-hero-section .lynsi-section-title { margin-bottom: 16px; font-size: clamp(22px, 4.5vw, 48px); line-height: 1.25; }
+                    .lynsi-hero-section .lynsi-section-desc { margin-bottom: 24px; font-size: 15px; line-height: 1.6; }
+                    @media (min-width: 480px) {
+                        .lynsi-hero-section .lynsi-section-title { margin-bottom: 20px; font-size: clamp(26px, 4.5vw, 48px); }
+                        .lynsi-hero-section .lynsi-section-desc { margin-bottom: 32px; font-size: 17px; }
+                    }
                     .lynsi-hero-section .lynsi-hero-social-proof { font-size: 15px; font-weight: 500; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
                     .lynsi-hero-section .lynsi-hero-social-dots { display: flex; align-items: center; }
                     .lynsi-hero-section .lynsi-hero-social-dots span { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #ecfdf5; margin-left: -10px; background: linear-gradient(135deg, #10b981, #059669); flex-shrink: 0; }
@@ -444,8 +452,9 @@ export default function Welcome({
                     .lynsi-hero-section .lynsi-hero-social-dots span:nth-child(3) { background: linear-gradient(135deg, #6ee7b7, #34d399); }
                     .lynsi-hero-section .section-badge { margin-bottom: 12px; }
                     @media (max-width: 480px) {
-                        .lynsi-hero-section .section-badge { font-size: 11px; padding: 6px 12px; white-space: normal; text-align: left; }
-                        .lynsi-hero-section .lynsi-section-title { font-size: 26px; }
+                        .lynsi-hero-section .section-badge { font-size: 10px; padding: 5px 10px; white-space: normal; text-align: left; }
+                        .lynsi-hero-section .lynsi-section-title { font-size: 22px; line-height: 1.3; }
+                        .lynsi-hero-section .lynsi-section-desc { font-size: 14px; margin-bottom: 20px; }
                     }
 
                     .lynsi-btn-primary {
@@ -472,7 +481,7 @@ export default function Welcome({
                         box-shadow: 0 8px 24px rgba(6,95,70,0.4);
                         background: linear-gradient(135deg, #059669 0%, #047857 100%);
                     }
-                    @media (max-width: 480px) { .lynsi-btn-primary { padding: 12px 20px; font-size: 14px; width: 100%; justify-content: center; } }
+                    @media (max-width: 480px) { .lynsi-btn-primary { padding: 10px 18px; font-size: 13px; min-height: 42px; width: 100%; justify-content: center; } }
 
                     .lynsi-btn-secondary {
                         display: inline-flex;
@@ -495,7 +504,7 @@ export default function Welcome({
                         background: #ecfdf5;
                         transform: translateY(-2px);
                     }
-                    @media (max-width: 480px) { .lynsi-btn-secondary { padding: 12px 20px; font-size: 14px; } }
+                    @media (max-width: 480px) { .lynsi-btn-secondary { padding: 10px 18px; font-size: 13px; min-height: 42px; } }
 
                     .benefit-card {
                         background: #fff;
@@ -584,8 +593,12 @@ export default function Welcome({
                     .lynsi-hero-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; }
                     .lynsi-hero-inner .lynsi-hero-text { text-align: left; flex: 1; min-width: 0; max-width: 560px; }
                     .lynsi-hero-inner .lynsi-hero-text p { margin-left: 0; margin-right: 0; }
-                    .lynsi-hero-visual { width: 100%; min-height: 280px; flex: 1 1 auto; flex-shrink: 0; border-radius: 16px; overflow: hidden; display: flex; align-items: stretch; justify-content: stretch; }
-                    .lynsi-hero-visual-inner { flex: 1; width: 100%; min-height: 280px; display: flex; flex-direction: column; align-items: stretch; justify-content: stretch; }
+                    .lynsi-hero-visual { width: 100%; min-height: 240px; flex: 1 1 auto; flex-shrink: 0; border-radius: 12px; overflow: hidden; display: flex; align-items: stretch; justify-content: stretch; }
+                    .lynsi-hero-visual-inner { flex: 1; width: 100%; min-height: 240px; display: flex; flex-direction: column; align-items: stretch; justify-content: stretch; }
+                    @media (min-width: 480px) {
+                        .lynsi-hero-visual { min-height: 280px; border-radius: 16px; }
+                        .lynsi-hero-visual-inner { min-height: 280px; }
+                    }
                     .lynsi-hero-visual-card { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; }
                     @media (min-width: 768px) {
                         .lynsi-hero-inner { flex-direction: row; align-items: stretch; justify-content: space-between; gap: 48px; }
@@ -642,18 +655,36 @@ export default function Welcome({
                     .nav-mobile-btn { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
                     @media (min-width: 768px) { .nav-mobile-btn { display: none; } }
 
+                    .lynsi-nav-brand-text { font-size: 14px; }
+                    .lynsi-nav-brand-text span { font-size: inherit; font-weight: inherit; }
+                    @media (min-width: 768px) { .lynsi-nav-brand-text { font-size: 18px; } }
                     @media (max-width: 767px) {
-                        .lynsi-nav-bar .lynsi-nav-brand { min-width: 0; }
-                        .lynsi-nav-bar .lynsi-nav-brand img { max-width: 100px; height: 36px; }
-                        .lynsi-nav-bar .lynsi-nav-brand span { font-size: 15px; }
+                        .lynsi-nav-bar { min-height: 52px; padding: 0 10px; gap: 6px; }
+                        .lynsi-nav-bar .lynsi-nav-brand { min-width: 0; gap: 4px; flex: 1; min-width: 0; }
+                        .lynsi-nav-bar .lynsi-nav-brand img { max-width: 64px; height: 28px; }
+                        .lynsi-nav-brand-text { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
                         .lynsi-nav-bar .lynsi-nav-cta {
-                            padding: 6px 12px !important;
-                            font-size: 12px !important;
+                            padding: 6px 10px !important;
+                            font-size: 11px !important;
                             font-weight: 600 !important;
                             min-height: 36px !important;
                             white-space: nowrap;
-                            border-radius: 10px;
+                            border-radius: 8px;
+                            flex-shrink: 0;
                         }
+                        .lynsi-nav-bar .nav-mobile-btn { min-width: 40px; min-height: 40px; flex-shrink: 0; }
+                    }
+                    @media (min-width: 768px) {
+                        .lynsi-nav-bar .lynsi-nav-cta {
+                            padding: 10px 20px !important;
+                            font-size: 14px !important;
+                            min-height: 44px !important;
+                            border-radius: 12px;
+                        }
+                    }
+                    @media (max-width: 380px) {
+                        .lynsi-nav-brand-text { font-size: 11px; }
+                        .lynsi-nav-bar .lynsi-nav-brand img { max-width: 52px; height: 24px; }
                     }
 
                     .partner-badge {
@@ -730,13 +761,14 @@ export default function Welcome({
                     boxShadow: '0 2px 20px rgba(6,95,70,0.08)',
                 }}>
                     <div className="lynsi-container lynsi-nav-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '64px', gap: '12px' }}>
-                        <Link href="/" className="lynsi-nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit', minWidth: 0 }} aria-label="Lynsi Food Products - Home">
+                        <Link href="/" className="lynsi-nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit', minWidth: 0, overflow: 'hidden' }} aria-label="Lynsi Food Products - Home">
                             <img
                                 src={LOGO_URL}
                                 alt=""
-                                style={{ height: '40px', width: 'auto', maxWidth: '140px', objectFit: 'contain', display: 'block', flexShrink: 1 }}
+                                className="shrink"
+                                style={{ height: '40px', width: 'auto', maxWidth: '140px', objectFit: 'contain', display: 'block' }}
                             />
-                            <span style={{ fontWeight: 800, fontSize: '18px', color: PALETTE.primary, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
+                            <span className="lynsi-nav-brand-text" style={{ fontWeight: 800, letterSpacing: '-0.5px', whiteSpace: 'nowrap', color: PALETTE.primary }}>
                                 Lynsi<span style={{ color: PALETTE.accent }}>FoodProducts</span>
                             </span>
                         </Link>
@@ -767,7 +799,7 @@ export default function Welcome({
                             })}
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="flex items-center gap-1 sm:gap-2 shrink-0" style={{ minWidth: 0 }}>
                             {/* Cart icon */}
                             {auth.user && (
                                 <a href="/cart" style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 10, textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
@@ -925,8 +957,12 @@ export default function Welcome({
                                 <>
                                     <Link href="/login" className="nav-link nav-desktop">Log in</Link>
                                     {canRegister && (
-                                        <Link href="/register" className="lynsi-btn-primary lynsi-nav-cta" style={{ padding: '10px 20px', fontSize: '14px', whiteSpace: 'nowrap' }}>
-                                            Get Started Free
+                                        <Link
+                                            href="/register"
+                                            className="lynsi-nav-cta shrink-0 inline-flex items-center justify-center min-h-[36px] sm:min-h-[40px] md:min-h-[44px] py-1.5 px-2.5 sm:py-2 sm:px-3 md:py-2.5 md:px-5 rounded-lg md:rounded-xl font-semibold text-xs sm:text-sm md:text-base whitespace-nowrap"
+                                            style={{ background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`, color: PALETTE.white, textDecoration: 'none' }}
+                                        >
+                                            Get Started
                                         </Link>
                                     )}
                                 </>
@@ -934,12 +970,16 @@ export default function Welcome({
                             <button
                                 type="button"
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="nav-mobile-btn"
-                                style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: PALETTE.primary }}
+                                className="nav-mobile-btn shrink-0 flex items-center justify-center w-10 h-10 rounded-lg md:hidden"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: PALETTE.primary, flexShrink: 0 }}
                                 id="mobile-menu-toggle"
                                 aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
                             >
-                                {mobileMenuOpen ? '✕' : '☰'}
+                                {mobileMenuOpen ? (
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                ) : (
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -1016,11 +1056,11 @@ export default function Welcome({
                                             <Link href="/login" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
                                                 Sign in
                                             </Link>
-                                            {canRegister && (
-                                                <Link href="/register" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', margin: '4px 0', padding: '12px 16px', background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`, color: PALETTE.white, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600 }} onClick={() => setMobileMenuOpen(false)}>
-                                                    Get Started Free
-                                                </Link>
-                                            )}
+                                    {canRegister && (
+                                        <Link href="/register" className="flex items-center justify-center min-h-[44px] py-2.5 px-4 rounded-xl font-semibold text-sm" style={{ background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`, color: PALETTE.white, textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>
+                                            Get Started
+                                        </Link>
+                                    )}
                                         </>
                                     )}
                                 </div>
@@ -1600,7 +1640,7 @@ export default function Welcome({
                                         background: PALETTE.white, color: PALETTE.primary, padding: '14px 32px',
                                         boxShadow: '0 6px 24px rgba(0,0,0,0.2)',
                                     }} id="cta-get-started">
-                                        🛒 Get Started Free
+                                        🛒 Get Started
                                     </a>
                                     <a href="#how-it-works" className="lynsi-btn-secondary" style={{
                                         background: 'rgba(255,255,255,0.12)', color: PALETTE.white, borderColor: 'rgba(255,255,255,0.4)',
