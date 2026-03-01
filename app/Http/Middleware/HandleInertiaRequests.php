@@ -48,6 +48,9 @@ class HandleInertiaRequests extends Middleware
                 ? CartItem::where('user_id', $user->id)->count()
                 : 0,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'status' => $request->session()->get('status'),
+            ],
         ];
     }
 }

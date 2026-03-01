@@ -299,6 +299,17 @@ function Stars({ count }: { count: number }) {
 const SECTION_IDS = ['home', 'products', 'our-locations', 'about-us', 'contact-us'];
 const NAV_HEIGHT_PX = 72; // match .lynsi-nav-spacer so "active line" is just below fixed nav
 
+/** Nav items that have their own page; others scroll to section on home. */
+const NAV_PAGE_HREF: Record<string, string> = {
+    'products': '/shop',
+    'our-locations': '/locations',
+    'about-us': '/about',
+    'contact-us': '/contact',
+};
+function getNavHref(id: string): string | null {
+    return NAV_PAGE_HREF[id] ?? null;
+}
+
 type LandingContent = ReturnType<typeof getDefaultLandingContent>;
 
 type FeaturedProduct = {
@@ -731,11 +742,12 @@ export default function Welcome({
                         </Link>
 
                         <div className="nav-desktop" style={{ alignItems: 'center', gap: '12px' }}>
-                            {NAV_ITEMS.map(({ id, label, icon: Icon }) =>
-                                id === 'products' ? (
+                            {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
+                                const pageHref = getNavHref(id);
+                                return pageHref ? (
                                     <Link
                                         key={id}
-                                        href="/shop"
+                                        href={pageHref}
                                         className={`nav-link ${activeSection === id ? 'nav-link-active' : ''}`}
                                     >
                                         <Icon size={18} className="nav-link-icon" style={{ flexShrink: 0 }} />
@@ -751,8 +763,8 @@ export default function Welcome({
                                         <Icon size={18} className="nav-link-icon" style={{ flexShrink: 0 }} />
                                         <span>{label}</span>
                                     </a>
-                                ),
-                            )}
+                                );
+                            })}
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -935,18 +947,20 @@ export default function Welcome({
                     {mobileMenuOpen && (
                         <div style={{ background: PALETTE.white, borderTop: `1px solid ${PALETTE.border}`, padding: '12px 16px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                {NAV_ITEMS.map(({ id, label, icon: Icon }) =>
-                                    id === 'products' ? (
+                                {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
+                                    const pageHref = getNavHref(id);
+                                    const linkStyle = {
+                                        display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
+                                        color: activeSection === id ? PALETTE.primary : PALETTE.muted,
+                                        fontWeight: 500, textDecoration: 'none', borderRadius: '10px',
+                                        background: activeSection === id ? PALETTE.bg : 'transparent',
+                                        minHeight: 44,
+                                    };
+                                    return pageHref ? (
                                         <Link
                                             key={id}
-                                            href="/shop"
-                                            style={{
-                                                display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
-                                                color: activeSection === id ? PALETTE.primary : PALETTE.muted,
-                                                fontWeight: 500, textDecoration: 'none', borderRadius: '10px',
-                                                background: activeSection === id ? PALETTE.bg : 'transparent',
-                                                minHeight: 44,
-                                            }}
+                                            href={pageHref}
+                                            style={linkStyle}
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             <Icon size={20} />
@@ -956,20 +970,14 @@ export default function Welcome({
                                         <a
                                             key={id}
                                             href={`#${id}`}
-                                            style={{
-                                                display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
-                                                color: activeSection === id ? PALETTE.primary : PALETTE.muted,
-                                                fontWeight: 500, textDecoration: 'none', borderRadius: '10px',
-                                                background: activeSection === id ? PALETTE.bg : 'transparent',
-                                                minHeight: 44,
-                                            }}
+                                            style={linkStyle}
                                             onClick={(e) => { e.preventDefault(); scrollToSection(id); setMobileMenuOpen(false); }}
                                         >
                                             <Icon size={20} />
                                             <span>{label}</span>
                                         </a>
-                                    ),
-                                )}
+                                    );
+                                })}
 
                                 {/* Mobile auth links */}
                                 <div style={{ borderTop: `1px solid ${PALETTE.border}`, marginTop: '8px', paddingTop: '8px' }}>
@@ -1475,19 +1483,22 @@ export default function Welcome({
                     </div>
                 </section>
 
-                {/* ── CONTACT US ────────────────────────────────────────────────────── */}
+                {/* ── CONTACT US / REACH US OUT ─────────────────────────────────────── */}
                 <section id="contact-us" className="lynsi-section" style={{ background: PALETTE.bg }}>
                     <div className="lynsi-container" style={{ maxWidth: '900px' }}>
                         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                             <div className="section-badge">{content.contactUs.badge}</div>
                             <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
-                                Contact <span className="gradient-text">Us</span>
+                                Reach <span className="gradient-text">Us</span> Out
                             </h2>
-                            <p className="lynsi-section-desc" style={{ color: PALETTE.muted, lineHeight: 1.7 }}>
+                            <p className="lynsi-section-desc" style={{ color: PALETTE.muted, lineHeight: 1.7, marginBottom: '8px' }}>
                                 {content.contactUs.subtitle}
                             </p>
+                            <p className="lynsi-section-desc" style={{ color: PALETTE.primary, fontSize: '14px', fontWeight: 500 }}>
+                                Send us your questions, feedback, or support requests — we’ll get back to you within 24 hours.
+                            </p>
                         </div>
-                        <div className="contact-grid" style={{ display: 'grid', marginBottom: '32px' }}>
+                        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '28px' }}>
                             <a href={`mailto:${content.contactUs.email}`} style={{
                                 display: 'flex', alignItems: 'center', gap: '16px', padding: '24px 20px',
                                 background: PALETTE.white, border: `1px solid ${PALETTE.border}`, borderRadius: '16px',
@@ -1533,6 +1544,20 @@ export default function Welcome({
                                     <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{content.contactUs.address}</div>
                                 </div>
                             </div>
+                        </div>
+                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <Link
+                                href="/contact"
+                                style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                    padding: '14px 28px', background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`,
+                                    color: PALETTE.white, borderRadius: '12px', fontWeight: 700, fontSize: '15px',
+                                    textDecoration: 'none', boxShadow: '0 4px 20px rgba(6,95,70,0.25)',
+                                }}
+                                className="benefit-card"
+                            >
+                                ✉️ Send a message or query
+                            </Link>
                         </div>
                         <p className="lynsi-section-desc" style={{ textAlign: 'center', color: PALETTE.muted, lineHeight: 1.7 }}>
                             {content.contactUs.footerNote}

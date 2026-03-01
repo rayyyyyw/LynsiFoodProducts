@@ -17,9 +17,9 @@ const PALETTE = {
 const NAV_ITEMS: { id: string; label: string; href: string; icon: typeof Home }[] = [
     { id: 'home', label: 'Home', href: '/', icon: Home },
     { id: 'products', label: 'Products', href: '/shop', icon: ShoppingBag },
-    { id: 'our-locations', label: 'Our Locations', href: '/#our-locations', icon: MapPin },
-    { id: 'about-us', label: 'About Us', href: '/#about-us', icon: Info },
-    { id: 'contact-us', label: 'Contact Us', href: '/#contact-us', icon: Mail },
+    { id: 'our-locations', label: 'Our Locations', href: '/locations', icon: MapPin },
+    { id: 'about-us', label: 'About Us', href: '/about', icon: Info },
+    { id: 'contact-us', label: 'Contact Us', href: '/contact', icon: Mail },
 ];
 
 type AuthUser = { name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null;

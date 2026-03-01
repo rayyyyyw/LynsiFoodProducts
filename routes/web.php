@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Products\CategoryController;
 use App\Http\Controllers\Products\InventoryController;
 use App\Http\Controllers\Products\ProductController;
+use App\Models\LandingPageSetting;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -123,6 +125,65 @@ Route::get('/shop/product/{slug}', function (string $slug) {
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('shop.product');
+
+Route::get('/locations', function () {
+    $locations = null;
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('landing_page_settings')) {
+            $content = LandingPageSetting::getContent();
+            $locations = $content['locations'] ?? null;
+        }
+    } catch (\Throwable $e) {
+    }
+    $locations = $locations ?? LandingPageSetting::defaultContent()['locations'];
+
+    return Inertia::render('LandingPage/Locations', [
+        'locations' => $locations,
+        'canRegister' => Features::enabled(Features::registration()),
+    ])->toResponse(request())->withHeaders([
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+    ]);
+})->name('locations');
+
+Route::get('/about', function () {
+    $aboutUs = null;
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('landing_page_settings')) {
+            $content = LandingPageSetting::getContent();
+            $aboutUs = $content['aboutUs'] ?? null;
+        }
+    } catch (\Throwable $e) {
+    }
+    $aboutUs = $aboutUs ?? LandingPageSetting::defaultContent()['aboutUs'];
+
+    return Inertia::render('LandingPage/About', [
+        'aboutUs' => $aboutUs,
+        'canRegister' => Features::enabled(Features::registration()),
+    ])->toResponse(request())->withHeaders([
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+    ]);
+})->name('about');
+
+Route::get('/contact', function () {
+    $contactUs = null;
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('landing_page_settings')) {
+            $content = LandingPageSetting::getContent();
+            $contactUs = $content['contactUs'] ?? null;
+        }
+    } catch (\Throwable $e) {
+    }
+    $contactUs = $contactUs ?? LandingPageSetting::defaultContent()['contactUs'];
+
+    return Inertia::render('LandingPage/Contact', [
+        'contactUs' => $contactUs,
+        'canRegister' => Features::enabled(Features::registration()),
+    ])->toResponse(request())->withHeaders([
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+    ]);
+})->name('contact');
+
+Route::post('/contact', [ContactController::class, 'store'])->middleware('auth')->name('contact.store');
 
 Route::get('dashboard', function () {
     return Inertia::render('dashboard', ['section' => null]);
