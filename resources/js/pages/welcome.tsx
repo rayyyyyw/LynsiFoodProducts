@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Home, ShoppingBag, MapPin, Info, Mail } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { LandingNav } from '@/components/LandingNav';
 
 // ─── Emerald E‑commerce Palette ───────────────────────────────────────────────
 const PALETTE = {
@@ -296,20 +297,6 @@ function Stars({ count }: { count: number }) {
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-const SECTION_IDS = ['home', 'products', 'our-locations', 'about-us', 'contact-us'];
-const NAV_HEIGHT_PX = 72; // match .lynsi-nav-spacer so "active line" is just below fixed nav
-
-/** Nav items that have their own page; others scroll to section on home. */
-const NAV_PAGE_HREF: Record<string, string> = {
-    'products': '/shop',
-    'our-locations': '/locations',
-    'about-us': '/about',
-    'contact-us': '/contact',
-};
-function getNavHref(id: string): string | null {
-    return NAV_PAGE_HREF[id] ?? null;
-}
-
 type LandingContent = ReturnType<typeof getDefaultLandingContent>;
 
 type FeaturedProduct = {
@@ -332,51 +319,8 @@ export default function Welcome({
     landingContent?: LandingContent | null;
     featuredProducts?: FeaturedProduct[];
 }) {
-    const { auth, cartCount = 0 } = usePage().props as { auth: { user: { name: string; email: string; role?: string; profile_photo_url?: string | null } | null }; cartCount?: number };
+    const { auth } = usePage().props as { auth: { user: { name: string; email: string; role?: string; profile_photo_url?: string | null } | null } };
     const content = mergeWithDefaults(landingContent);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [activeSection, setActiveSection] = useState('home');
-    const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const userMenuRef = useRef<HTMLDivElement>(null);
-
-    // Scroll-spy: which section is at the "active line" (just below fixed nav)
-    useEffect(() => {
-        let raf = 0;
-        const onScroll = () => {
-            if (raf) cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(() => {
-                raf = 0;
-                let best: { id: string; top: number } | null = null;
-                for (const id of SECTION_IDS) {
-                    const el = document.getElementById(id);
-                    if (!el) continue;
-                    const top = el.getBoundingClientRect().top;
-                    // Section is "current" if its top is at or above the active line; pick the one closest below the line
-                    if (top <= NAV_HEIGHT_PX + 24) {
-                        if (!best || top >= best.top) best = { id, top };
-                    }
-                }
-                if (best) setActiveSection(best.id);
-                else if (SECTION_IDS.length) setActiveSection(SECTION_IDS[0]);
-            });
-        };
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll();
-        return () => {
-            window.removeEventListener('scroll', onScroll);
-            if (raf) cancelAnimationFrame(raf);
-        };
-    }, []);
-
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-                setUserMenuOpen(false);
-            }
-        };
-        if (userMenuOpen) document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [userMenuOpen]);
 
     /* Reload landing content and products when user returns to this tab (e.g. after editing in admin). */
     useEffect(() => {
@@ -388,7 +332,6 @@ export default function Welcome({
     }, []);
 
     const scrollToSection = (id: string) => {
-        setActiveSection(id);
         const el = document.getElementById(id);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
@@ -404,20 +347,7 @@ export default function Welcome({
                     rel="stylesheet"
                 />
                 <style>{`
-                    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-                    html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-                    body { font-family: 'Inter', sans-serif; font-size: 16px; overflow-x: hidden; }
-
-                    .lynsi-nav-sticky {
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        z-index: 1000;
-                    }
-                    .lynsi-nav-spacer { padding-top: 52px; }
-                    @media (min-width: 640px) { .lynsi-nav-spacer { padding-top: 56px; } }
-                    @media (min-width: 768px) { .lynsi-nav-spacer { padding-top: 68px; } }
+                    html { scroll-behavior: smooth; }
                     section[id] { scroll-margin-top: 60px; }
                     @media (min-width: 640px) { section[id] { scroll-margin-top: 72px; } }
 
@@ -628,65 +558,6 @@ export default function Welcome({
                     }
                     @media (min-width: 768px) { .section-badge { font-size: 13px; padding: 6px 16px; margin-bottom: 16px; } }
 
-                    .nav-link {
-                        color: #64748b;
-                        font-weight: 500;
-                        font-size: 14px;
-                        text-decoration: none;
-                        padding: 10px 14px;
-                        min-height: 44px;
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 8px;
-                        border-radius: 10px;
-                        border-bottom: 2px solid transparent;
-                        transition: all 0.2s;
-                    }
-                    .nav-link:hover { color: #065f46; background: rgba(6,95,70,0.06); }
-                    .nav-link.nav-link-active {
-                        color: #065f46;
-                        background: #ecfdf5;
-                        border-bottom-color: #10b981;
-                    }
-                    .nav-link.nav-link-active .nav-link-icon { color: #065f46; }
-
-                    .nav-desktop { display: none; }
-                    @media (min-width: 768px) { .nav-desktop { display: flex; } }
-                    .nav-mobile-btn { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
-                    @media (min-width: 768px) { .nav-mobile-btn { display: none; } }
-
-                    .lynsi-nav-brand-text { font-size: 14px; }
-                    .lynsi-nav-brand-text span { font-size: inherit; font-weight: inherit; }
-                    @media (min-width: 768px) { .lynsi-nav-brand-text { font-size: 18px; } }
-                    @media (max-width: 767px) {
-                        .lynsi-nav-bar { min-height: 52px; padding: 0 10px; gap: 6px; }
-                        .lynsi-nav-bar .lynsi-nav-brand { min-width: 0; gap: 4px; flex: 1; min-width: 0; }
-                        .lynsi-nav-bar .lynsi-nav-brand img { max-width: 64px; height: 28px; }
-                        .lynsi-nav-brand-text { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-                        .lynsi-nav-bar .lynsi-nav-cta {
-                            padding: 6px 10px !important;
-                            font-size: 11px !important;
-                            font-weight: 600 !important;
-                            min-height: 36px !important;
-                            white-space: nowrap;
-                            border-radius: 8px;
-                            flex-shrink: 0;
-                        }
-                        .lynsi-nav-bar .nav-mobile-btn { min-width: 40px; min-height: 40px; flex-shrink: 0; }
-                    }
-                    @media (min-width: 768px) {
-                        .lynsi-nav-bar .lynsi-nav-cta {
-                            padding: 10px 20px !important;
-                            font-size: 14px !important;
-                            min-height: 44px !important;
-                            border-radius: 12px;
-                        }
-                    }
-                    @media (max-width: 380px) {
-                        .lynsi-nav-brand-text { font-size: 11px; }
-                        .lynsi-nav-bar .lynsi-nav-brand img { max-width: 52px; height: 24px; }
-                    }
-
                     .partner-badge {
                         display: inline-flex;
                         align-items: center;
@@ -750,326 +621,10 @@ export default function Welcome({
                 `}</style>
             </Head>
 
-            <div style={{ background: PALETTE.bg, minHeight: '100vh', fontFamily: "'Inter', sans-serif", color: PALETTE.primary }}>
+            <div className="flex min-h-screen flex-col" style={{ background: PALETTE.bg, fontFamily: "'Inter', sans-serif", color: PALETTE.primary }}>
 
-                {/* ── STICKY NAVBAR ─────────────────────────────────────────────────── */}
-                <nav className="lynsi-nav-sticky" style={{
-                    background: 'rgba(255,255,255,0.96)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    borderBottom: `1px solid ${PALETTE.border}`,
-                    boxShadow: '0 2px 20px rgba(6,95,70,0.08)',
-                }}>
-                    <div className="lynsi-container lynsi-nav-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '64px', gap: '12px' }}>
-                        <Link href="/" className="lynsi-nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit', minWidth: 0, overflow: 'hidden' }} aria-label="Lynsi Food Products - Home">
-                            <img
-                                src={LOGO_URL}
-                                alt=""
-                                className="shrink"
-                                style={{ height: '40px', width: 'auto', maxWidth: '140px', objectFit: 'contain', display: 'block' }}
-                            />
-                            <span className="lynsi-nav-brand-text" style={{ fontWeight: 800, letterSpacing: '-0.5px', whiteSpace: 'nowrap', color: PALETTE.primary }}>
-                                Lynsi<span style={{ color: PALETTE.accent }}>FoodProducts</span>
-                            </span>
-                        </Link>
+                <LandingNav activeId="home" auth={auth ?? { user: null }} canRegister={canRegister} />
 
-                        <div className="nav-desktop" style={{ alignItems: 'center', gap: '12px' }}>
-                            {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
-                                const pageHref = getNavHref(id);
-                                return pageHref ? (
-                                    <Link
-                                        key={id}
-                                        href={pageHref}
-                                        className={`nav-link ${activeSection === id ? 'nav-link-active' : ''}`}
-                                    >
-                                        <Icon size={18} className="nav-link-icon" style={{ flexShrink: 0 }} />
-                                        <span>{label}</span>
-                                    </Link>
-                                ) : (
-                                    <a
-                                        key={id}
-                                        href={`#${id}`}
-                                        className={`nav-link ${activeSection === id ? 'nav-link-active' : ''}`}
-                                        onClick={(e) => { e.preventDefault(); scrollToSection(id); }}
-                                    >
-                                        <Icon size={18} className="nav-link-icon" style={{ flexShrink: 0 }} />
-                                        <span>{label}</span>
-                                    </a>
-                                );
-                            })}
-                        </div>
-
-                        <div className="flex items-center gap-1 sm:gap-2 shrink-0" style={{ minWidth: 0 }}>
-                            {/* Cart icon */}
-                            {auth.user && (
-                                <a href="/cart" style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 10, textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
-                                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
-                                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
-                                    title="My Cart"
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.94-1.51L23 6H6"/></svg>
-                                    {cartCount > 0 && (
-                                        <span style={{ position: 'absolute', top: 4, right: 4, minWidth: 16, height: 16, borderRadius: 50, background: '#ef4444', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', lineHeight: 1 }}>
-                                            {cartCount > 99 ? '99+' : cartCount}
-                                        </span>
-                                    )}
-                                </a>
-                            )}
-                            {auth.user ? (
-                                <div ref={userMenuRef} style={{ position: 'relative' }}>
-                                    <button
-                                        type="button"
-                                        onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                        style={{
-                                            display: 'inline-flex', alignItems: 'center', gap: '8px',
-                                            padding: '8px 14px', minHeight: '44px',
-                                            background: userMenuOpen ? PALETTE.bg : 'transparent',
-                                            border: `1px solid ${userMenuOpen ? PALETTE.border : 'transparent'}`,
-                                            borderRadius: '12px', cursor: 'pointer',
-                                            transition: 'all 0.2s', fontFamily: "'Inter', sans-serif",
-                                        }}
-                                        onMouseEnter={e => { if (!userMenuOpen) { (e.currentTarget as HTMLButtonElement).style.background = PALETTE.bg; (e.currentTarget as HTMLButtonElement).style.borderColor = PALETTE.border; } }}
-                                        onMouseLeave={e => { if (!userMenuOpen) { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'transparent'; } }}
-                                        aria-haspopup="true"
-                                        aria-expanded={userMenuOpen}
-                                    >
-                                        {/* Avatar: wrapper clips the circle, photo overlays initials */}
-                                        <div style={{
-                                            position: 'relative', flexShrink: 0,
-                                            width: 34, height: 34, borderRadius: '50%',
-                                            overflow: 'hidden',
-                                            background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            boxShadow: `0 0 0 2px ${PALETTE.border}, 0 1px 6px rgba(6,95,70,0.2)`,
-                                        }}>
-                                            <span style={{ color: PALETTE.white, fontSize: '12px', fontWeight: 700, userSelect: 'none' }}>
-                                                {auth.user.name.charAt(0).toUpperCase()}
-                                            </span>
-                                            {auth.user.profile_photo_url && (
-                                                <img
-                                                    src={auth.user.profile_photo_url}
-                                                    alt=""
-                                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                                                    onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                                                />
-                                            )}
-                                        </div>
-                                        <span className="hidden md:inline" style={{ fontSize: '14px', fontWeight: 600, color: PALETTE.primary, maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>
-                                            {auth.user.name}
-                                        </span>
-                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ color: PALETTE.muted, flexShrink: 0, transition: 'transform 0.2s', transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                                            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                    </button>
-
-                                    {userMenuOpen && (
-                                        <div style={{
-                                            position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-                                            minWidth: 200, background: PALETTE.white,
-                                            border: `1px solid ${PALETTE.border}`, borderRadius: '16px',
-                                            boxShadow: '0 8px 32px rgba(6,95,70,0.14)',
-                                            padding: '8px', zIndex: 1001,
-                                        }}>
-                                            {/* User info header */}
-                                            <div style={{ padding: '10px 12px 12px', borderBottom: `1px solid ${PALETTE.border}`, marginBottom: '4px' }}>
-                                                <div style={{ fontSize: '14px', fontWeight: 700, color: PALETTE.primary, wordBreak: 'break-word', lineHeight: 1.3 }}>{auth.user.name}</div>
-                                                <div style={{ fontSize: '12px', color: PALETTE.muted, marginTop: '2px', wordBreak: 'break-all' }}>{auth.user.email}</div>
-                                            </div>
-
-                                            {/* My Account */}
-                                            <Link
-                                                href={auth.user.role === 'admin' ? '/settings/profile' : '/account'}
-                                                style={{
-                                                    display: 'flex', alignItems: 'center', gap: '10px',
-                                                    padding: '10px 12px', borderRadius: '10px',
-                                                    textDecoration: 'none', color: PALETTE.primary,
-                                                    fontSize: '14px', fontWeight: 500, transition: 'background 0.15s',
-                                                }}
-                                                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
-                                                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
-                                                onClick={() => setUserMenuOpen(false)}
-                                            >
-                                                <span style={{ width: 20, textAlign: 'center' }}>👤</span>
-                                                My Account
-                                            </Link>
-
-                                            {/* My Purchase */}
-                                            <Link
-                                                href="/my-purchases"
-                                                style={{
-                                                    display: 'flex', alignItems: 'center', gap: '10px',
-                                                    padding: '10px 12px', borderRadius: '10px',
-                                                    textDecoration: 'none', color: PALETTE.primary,
-                                                    fontSize: '14px', fontWeight: 500, transition: 'background 0.15s',
-                                                }}
-                                                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
-                                                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
-                                                onClick={() => setUserMenuOpen(false)}
-                                            >
-                                                <span style={{ width: 20, textAlign: 'center' }}>🛒</span>
-                                                My Purchase
-                                            </Link>
-
-                                            {/* Admin Dashboard (admin role only) */}
-                                            {auth.user.role === 'admin' && (
-                                                <Link
-                                                    href="/dashboard"
-                                                    style={{
-                                                        display: 'flex', alignItems: 'center', gap: '10px',
-                                                        padding: '10px 12px', borderRadius: '10px',
-                                                        textDecoration: 'none', color: PALETTE.primary,
-                                                        fontSize: '14px', fontWeight: 500, transition: 'background 0.15s',
-                                                    }}
-                                                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
-                                                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
-                                                    onClick={() => setUserMenuOpen(false)}
-                                                >
-                                                    <span style={{ width: 20, textAlign: 'center' }}>⚙️</span>
-                                                    Dashboard
-                                                </Link>
-                                            )}
-
-                                            {/* Divider */}
-                                            <div style={{ height: 1, background: PALETTE.border, margin: '6px 0' }} />
-
-                                            {/* Logout */}
-                                            <button
-                                                type="button"
-                                                onClick={() => { setUserMenuOpen(false); router.post('/logout'); }}
-                                                style={{
-                                                    display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
-                                                    padding: '10px 12px', borderRadius: '10px',
-                                                    background: 'none', border: 'none', cursor: 'pointer',
-                                                    color: '#ef4444', fontSize: '14px', fontWeight: 500,
-                                                    textAlign: 'left', transition: 'background 0.15s',
-                                                    fontFamily: "'Inter', sans-serif",
-                                                }}
-                                                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fef2f2'; }}
-                                                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-                                            >
-                                                <span style={{ width: 20, textAlign: 'center' }}>🚪</span>
-                                                Logout
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <>
-                                    <Link href="/login" className="nav-link nav-desktop">Log in</Link>
-                                    {canRegister && (
-                                        <Link
-                                            href="/register"
-                                            className="lynsi-nav-cta shrink-0 inline-flex items-center justify-center min-h-[36px] sm:min-h-[40px] md:min-h-[44px] py-1.5 px-2.5 sm:py-2 sm:px-3 md:py-2.5 md:px-5 rounded-lg md:rounded-xl font-semibold text-xs sm:text-sm md:text-base whitespace-nowrap"
-                                            style={{ background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`, color: PALETTE.white, textDecoration: 'none' }}
-                                        >
-                                            Get Started
-                                        </Link>
-                                    )}
-                                </>
-                            )}
-                            <button
-                                type="button"
-                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="nav-mobile-btn shrink-0 flex items-center justify-center w-10 h-10 rounded-lg md:hidden"
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: PALETTE.primary, flexShrink: 0 }}
-                                id="mobile-menu-toggle"
-                                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-                            >
-                                {mobileMenuOpen ? (
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                                ) : (
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-
-                    {mobileMenuOpen && (
-                        <div style={{ background: PALETTE.white, borderTop: `1px solid ${PALETTE.border}`, padding: '12px 16px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
-                                    const pageHref = getNavHref(id);
-                                    const linkStyle = {
-                                        display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
-                                        color: activeSection === id ? PALETTE.primary : PALETTE.muted,
-                                        fontWeight: 500, textDecoration: 'none', borderRadius: '10px',
-                                        background: activeSection === id ? PALETTE.bg : 'transparent',
-                                        minHeight: 44,
-                                    };
-                                    return pageHref ? (
-                                        <Link
-                                            key={id}
-                                            href={pageHref}
-                                            style={linkStyle}
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
-                                            <Icon size={20} />
-                                            <span>{label}</span>
-                                        </Link>
-                                    ) : (
-                                        <a
-                                            key={id}
-                                            href={`#${id}`}
-                                            style={linkStyle}
-                                            onClick={(e) => { e.preventDefault(); scrollToSection(id); setMobileMenuOpen(false); }}
-                                        >
-                                            <Icon size={20} />
-                                            <span>{label}</span>
-                                        </a>
-                                    );
-                                })}
-
-                                {/* Mobile auth links */}
-                                <div style={{ borderTop: `1px solid ${PALETTE.border}`, marginTop: '8px', paddingTop: '8px' }}>
-                                    {auth.user ? (
-                                        <>
-                                            <div style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                <div style={{ width: 32, height: 32, borderRadius: '50%', background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: PALETTE.white, fontSize: '13px', fontWeight: 700 }}>
-                                                    {auth.user.name.charAt(0).toUpperCase()}
-                                                </div>
-                                                <div style={{ minWidth: 0, flex: 1 }}>
-                                                    <div style={{ fontSize: '14px', fontWeight: 700, color: PALETTE.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{auth.user.name}</div>
-                                                    <div style={{ fontSize: '12px', color: PALETTE.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{auth.user.email}</div>
-                                                </div>
-                                            </div>
-                                            <Link href={auth.user.role === 'admin' ? '/settings/profile' : '/account'} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
-                                                👤 My Account
-                                            </Link>
-                                            <Link href="/my-purchases" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
-                                                🛒 My Purchase
-                                            </Link>
-                                            {auth.user.role === 'admin' && (
-                                                <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
-                                                    ⚙️ Dashboard
-                                                </Link>
-                                            )}
-                                            <button
-                                                type="button"
-                                                onClick={() => { setMobileMenuOpen(false); router.post('/logout'); }}
-                                                style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', width: '100%', background: 'none', border: 'none', borderRadius: '10px', color: '#ef4444', fontSize: '14px', fontWeight: 500, cursor: 'pointer', textAlign: 'left', fontFamily: "'Inter', sans-serif" }}
-                                            >
-                                                🚪 Logout
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Link href="/login" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', color: PALETTE.primary, textDecoration: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 500 }} onClick={() => setMobileMenuOpen(false)}>
-                                                Sign in
-                                            </Link>
-                                    {canRegister && (
-                                        <Link href="/register" className="flex items-center justify-center min-h-[44px] py-2.5 px-4 rounded-xl font-semibold text-sm" style={{ background: `linear-gradient(135deg, ${PALETTE.secondary}, ${PALETTE.primary})`, color: PALETTE.white, textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>
-                                            Get Started
-                                        </Link>
-                                    )}
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </nav>
-
-                <div className="lynsi-nav-spacer">
                 {/* ── HERO AREA ─────────────────────────────────────────────────────── */}
                 <section id="home" className="lynsi-hero-section" style={{ background: PALETTE.bg, borderBottom: `1px solid ${PALETTE.border}` }}>
                     <div className="lynsi-container">
@@ -1749,7 +1304,6 @@ export default function Welcome({
                     </div>
                 </footer>
 
-                </div>
             </div>
         </>
     );

@@ -148,6 +148,7 @@ class LandingPageSetting extends Model
                 'email' => 'hello@lynsi.com',
                 'phone' => '+63 2 8123 4567',
                 'address' => 'Metro Manila, Philippines',
+                'facebook' => 'https://web.facebook.com/search/top?q=lynsi%20food%20products',
                 'footerNote' => 'We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.',
             ],
             'partners' => [

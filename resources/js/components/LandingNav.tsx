@@ -60,7 +60,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
         display: 'inline-flex' as const,
         alignItems: 'center',
         gap: 8,
-        padding: '10px 14px',
+        padding: '10px 12px',
         minHeight: 44,
         borderRadius: 10,
         fontWeight: 500,
@@ -68,6 +68,8 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
         textDecoration: 'none' as const,
         transition: 'all 0.2s',
         borderBottom: '2px solid transparent',
+        whiteSpace: 'nowrap' as const,
+        flexShrink: 0,
     };
 
     const accountHref = user?.role === 'admin' ? '/settings/profile' : '/account';
@@ -107,8 +109,8 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                     </span>
                 </Link>
 
-                {/* Desktop nav links */}
-                <div className="hidden md:flex" style={{ alignItems: 'center', gap: 12 }}>
+                {/* Desktop nav links – nowrap so labels stay on one line */}
+                <div className="hidden md:flex flex-nowrap shrink-0" style={{ alignItems: 'center', gap: 8 }}>
                     {NAV_ITEMS.map(({ id, label, href, icon: Icon }) => {
                         const isActive = activeId === id;
                         return (
@@ -121,16 +123,40 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                                     background: isActive ? PALETTE.bg : 'transparent',
                                     borderBottomColor: isActive ? PALETTE.accent : 'transparent',
                                 }}
+                                onMouseEnter={e => {
+                                    if (!isActive) {
+                                        (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(6,95,70,0.06)';
+                                        (e.currentTarget as HTMLAnchorElement).style.color = PALETTE.primary;
+                                    }
+                                }}
+                                onMouseLeave={e => {
+                                    if (!isActive) {
+                                        (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+                                        (e.currentTarget as HTMLAnchorElement).style.color = '#64748b';
+                                    }
+                                }}
                             >
                                 <Icon size={18} style={{ flexShrink: 0 }} />
-                                <span>{label}</span>
+                                <span className="whitespace-nowrap">{label}</span>
                             </Link>
                         );
                     })}
                 </div>
 
-                {/* Right side: cart + user/login/register + hamburger (mobile) */}
+                {/* Right side: notification bell + cart + user/login/register + hamburger (mobile) */}
                 <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                    {/* Notification bell – when not logged in redirects to login */}
+                    <Link
+                        href={user ? '/account' : '/login'}
+                        className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0"
+                        style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                        title={user ? 'Notifications' : 'Sign in to see notifications'}
+                        aria-label={user ? 'Notifications' : 'Sign in'}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </Link>
                     {/* Cart icon – always visible when logged in */}
                     {user && (
                         <Link href="/cart" className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0" style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
@@ -301,18 +327,38 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                         <>
                             <Link
                                 href="/login"
-                                className="hidden md:inline"
-                                style={{ color: PALETTE.muted, fontWeight: 500, fontSize: 14, textDecoration: 'none' }}
+                                className="hidden md:inline rounded-lg px-3 py-2"
+                                style={{ color: PALETTE.muted, fontWeight: 500, fontSize: 14, textDecoration: 'none', transition: 'all 0.2s' }}
+                                onMouseEnter={e => {
+                                    (e.currentTarget as HTMLAnchorElement).style.color = PALETTE.primary;
+                                    (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(6,95,70,0.06)';
+                                }}
+                                onMouseLeave={e => {
+                                    (e.currentTarget as HTMLAnchorElement).style.color = PALETTE.muted;
+                                    (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+                                }}
                             >
                                 Log in
                             </Link>
                             {canRegister && (
                                 <Link
                                     href="/register"
-                                    className="inline-flex items-center justify-center min-h-[32px] py-1 px-2 sm:min-h-[36px] sm:py-1.5 sm:px-2.5 md:min-h-[44px] md:py-2.5 md:px-5 rounded-md md:rounded-xl font-semibold text-[10px] sm:text-[11px] md:text-base whitespace-nowrap touch-manipulation shrink-0"
+                                    className="inline-flex items-center justify-center min-h-[32px] py-1 px-2 sm:min-h-[36px] sm:py-1.5 sm:px-2.5 md:min-h-[44px] md:py-2.5 md:px-5 rounded-md md:rounded-xl font-semibold text-[10px] sm:text-[11px] md:text-sm whitespace-nowrap touch-manipulation shrink-0"
                                     style={{
                                         background: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',
                                         color: PALETTE.white, textDecoration: 'none',
+                                        transition: 'all 0.25s ease',
+                                        boxShadow: '0 4px 14px rgba(6,95,70,0.35)',
+                                    }}
+                                    onMouseEnter={e => {
+                                        (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)';
+                                        (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 24px rgba(6,95,70,0.4)';
+                                        (e.currentTarget as HTMLAnchorElement).style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+                                    }}
+                                    onMouseLeave={e => {
+                                        (e.currentTarget as HTMLAnchorElement).style.transform = '';
+                                        (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 14px rgba(6,95,70,0.35)';
+                                        (e.currentTarget as HTMLAnchorElement).style.background = 'linear-gradient(135deg, #047857 0%, #065f46 100%)';
                                     }}
                                 >
                                     Get Started
@@ -342,18 +388,24 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
             {/* Mobile nav overlay – portaled to body so it always displays on top (fixes no-display on Shop, etc.) */}
             {mobileNavOpen && typeof document !== 'undefined' && createPortal(
                 <div
-                    className="md:hidden fixed inset-x-0 bottom-0 bg-white overflow-auto"
+                    className="md:hidden fixed inset-0 bg-white overflow-auto"
                     style={{
                         top: 56,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
                         zIndex: 9999,
                         borderTop: `1px solid ${PALETTE.border}`,
                         boxShadow: '0 8px 32px rgba(6,95,70,0.15)',
+                        paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
+                        paddingLeft: 'max(16px, env(safe-area-inset-left))',
+                        paddingRight: 'max(16px, env(safe-area-inset-right))',
                     }}
                     aria-modal="true"
                     role="dialog"
                     aria-label="Mobile menu"
                 >
-                    <nav className="flex flex-col py-3 px-2" aria-label="Mobile navigation">
+                    <nav className="flex flex-col py-4 px-4 sm:px-6 w-full max-w-full" aria-label="Mobile navigation">
                         {NAV_ITEMS.map(({ id, label, href, icon: Icon }) => {
                             const isActive = activeId === id;
                             return (
@@ -361,25 +413,26 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                                     key={id}
                                     href={href}
                                     onClick={() => setMobileNavOpen(false)}
-                                    className="flex items-center gap-3 min-h-[44px] px-3 py-2.5 rounded-xl text-sm font-medium touch-manipulation"
+                                    className="flex items-center gap-3 min-h-[48px] px-4 py-3 rounded-xl text-sm font-medium touch-manipulation"
                                     style={{
                                         textDecoration: 'none',
                                         color: isActive ? PALETTE.primary : '#475569',
                                         background: isActive ? PALETTE.bg : 'transparent',
                                     }}
                                 >
-                                    <Icon size={18} style={{ flexShrink: 0, color: isActive ? PALETTE.primary : undefined }} />
+                                    <Icon size={20} style={{ flexShrink: 0, color: isActive ? PALETTE.primary : undefined }} />
                                     {label}
                                 </Link>
                             );
                         })}
+                        {/* When logged in, profile dropdown in navbar covers My Account / My Purchase / Logout – no duplicate section here */}
                         {!user && (
                             <>
-                                <div className="border-t border-[#a7f3d0] my-2 mx-2" />
+                                <div className="border-t border-[#a7f3d0] my-3 mx-1" />
                                 <Link
                                     href="/login"
                                     onClick={() => setMobileNavOpen(false)}
-                                    className="flex items-center justify-center min-h-[44px] mx-2 px-3 rounded-xl font-medium text-sm"
+                                    className="flex items-center justify-center min-h-[48px] px-4 py-3 rounded-xl font-medium text-sm touch-manipulation"
                                     style={{ textDecoration: 'none', color: PALETTE.primary }}
                                 >
                                     Log in
@@ -388,7 +441,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                                     <Link
                                         href="/register"
                                         onClick={() => setMobileNavOpen(false)}
-                                        className="flex items-center justify-center min-h-[44px] mx-2 mt-1.5 px-3 rounded-xl font-semibold text-sm"
+                                        className="flex items-center justify-center min-h-[48px] mt-2 px-4 py-3 rounded-xl font-semibold text-sm touch-manipulation"
                                         style={{
                                             textDecoration: 'none',
                                             background: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',

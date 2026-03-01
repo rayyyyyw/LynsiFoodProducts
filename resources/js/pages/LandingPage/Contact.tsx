@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Send } from 'lucide-react';
+import { Send, Mail, Phone, MapPin, Facebook } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 
@@ -22,6 +22,7 @@ type ContactUsSection = {
     email?: string;
     phone?: string;
     address?: string;
+    facebook?: string;
     footerNote?: string;
 };
 
@@ -83,18 +84,25 @@ export default function Contact() {
 
     const canSubmit = !!auth?.user;
 
-    const cardStyle = {
-        display: 'flex' as const,
-        alignItems: 'center' as const,
+    const getInTouchCardStyle: React.CSSProperties = {
+        display: 'flex',
+        alignItems: 'center',
         gap: '16px',
-        padding: '24px 20px',
+        padding: '20px 18px',
         background: PALETTE.white,
         border: `1px solid ${PALETTE.border}`,
-        borderRadius: '16px',
+        borderRadius: '14px',
         textDecoration: 'none',
         color: 'inherit',
-        transition: 'all 0.25s',
+        transition: 'transform 0.25s ease, box-shadow 0.25s ease',
         minHeight: '44px',
+    };
+
+    const iconWrapStyle: React.CSSProperties = {
+        width: '48px', height: '48px', borderRadius: '12px',
+        background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
     };
 
     return (
@@ -156,54 +164,111 @@ export default function Contact() {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-5">
-                            {/* Contact info cards */}
-                            <div className="lg:col-span-2 space-y-3 sm:space-y-4">
-                                <h2 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '16px' }}>
-                                    Get in touch
-                                </h2>
-                                {contactUs.email && (
-                                    <a href={`mailto:${contactUs.email}`} style={cardStyle} className="hover:shadow-md">
-                                        <div style={{
-                                            width: '48px', height: '48px', borderRadius: '12px',
-                                            background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '22px', flexShrink: 0,
-                                        }}>✉️</div>
-                                        <div>
-                                            <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Email</div>
-                                            <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{contactUs.email}</div>
-                                        </div>
-                                    </a>
-                                )}
-                                {contactUs.phone && (
-                                    <a href={`tel:${(contactUs.phone ?? '').replace(/\s/g, '')}`} style={cardStyle} className="hover:shadow-md">
-                                        <div style={{
-                                            width: '48px', height: '48px', borderRadius: '12px',
-                                            background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '22px', flexShrink: 0,
-                                        }}>📞</div>
-                                        <div>
-                                            <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Phone</div>
-                                            <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{contactUs.phone}</div>
-                                        </div>
-                                    </a>
-                                )}
-                                {contactUs.address && (
-                                    <div style={{ ...cardStyle, cursor: 'default' }}>
-                                        <div style={{
-                                            width: '48px', height: '48px', borderRadius: '12px',
-                                            background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '22px', flexShrink: 0,
-                                        }}>📍</div>
-                                        <div>
-                                            <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Address</div>
-                                            <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{contactUs.address}</div>
-                                        </div>
+                        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-5 lg:items-stretch">
+                            {/* Get in touch – same card container as "Send us a message" for alignment */}
+                            <div className="lg:col-span-2 flex flex-col">
+                                <div className="rounded-2xl p-4 sm:p-5 md:p-[28px_24px] lg:p-[32px_28px] flex-1 flex flex-col" style={{
+                                    background: PALETTE.white,
+                                    border: `1px solid ${PALETTE.border}`,
+                                    boxShadow: '0 4px 24px rgba(6,95,70,0.08)',
+                                }}>
+                                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        Get in touch
+                                    </h2>
+                                    <div className="space-y-3 sm:space-y-4 flex-1">
+                                        {contactUs.email && (
+                                            <a
+                                                href={`mailto:${contactUs.email}`}
+                                                style={getInTouchCardStyle}
+                                                className="cursor-pointer"
+                                                onMouseEnter={e => {
+                                                    e.currentTarget.style.transform = 'scale(1.03)';
+                                                    e.currentTarget.style.boxShadow = `0 12px 32px rgba(6,95,70,0.15), 0 0 24px rgba(16,185,129,0.25)`;
+                                                }}
+                                                onMouseLeave={e => {
+                                                    e.currentTarget.style.transform = '';
+                                                    e.currentTarget.style.boxShadow = '';
+                                                }}
+                                            >
+                                                <div style={iconWrapStyle}><Mail size={22} style={{ color: PALETTE.primary }} /></div>
+                                                <div>
+                                                    <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Email</div>
+                                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{contactUs.email}</div>
+                                                </div>
+                                            </a>
+                                        )}
+                                        {contactUs.phone && (
+                                            <a
+                                                href={`tel:${(contactUs.phone ?? '').replace(/\s/g, '')}`}
+                                                style={getInTouchCardStyle}
+                                                className="cursor-pointer"
+                                                onMouseEnter={e => {
+                                                    e.currentTarget.style.transform = 'scale(1.03)';
+                                                    e.currentTarget.style.boxShadow = `0 12px 32px rgba(6,95,70,0.15), 0 0 24px rgba(16,185,129,0.25)`;
+                                                }}
+                                                onMouseLeave={e => {
+                                                    e.currentTarget.style.transform = '';
+                                                    e.currentTarget.style.boxShadow = '';
+                                                }}
+                                            >
+                                                <div style={iconWrapStyle}><Phone size={22} style={{ color: PALETTE.primary }} /></div>
+                                                <div>
+                                                    <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Phone</div>
+                                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{contactUs.phone}</div>
+                                                </div>
+                                            </a>
+                                        )}
+                                        {contactUs.address && (
+                                            <div
+                                                style={getInTouchCardStyle}
+                                                className="cursor-default"
+                                                onMouseEnter={e => {
+                                                    e.currentTarget.style.transform = 'scale(1.03)';
+                                                    e.currentTarget.style.boxShadow = `0 12px 32px rgba(6,95,70,0.15), 0 0 24px rgba(16,185,129,0.25)`;
+                                                }}
+                                                onMouseLeave={e => {
+                                                    e.currentTarget.style.transform = '';
+                                                    e.currentTarget.style.boxShadow = '';
+                                                }}
+                                            >
+                                                <div style={iconWrapStyle}><MapPin size={22} style={{ color: PALETTE.primary }} /></div>
+                                                <div>
+                                                    <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Address</div>
+                                                    <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>{contactUs.address}</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {/* Facebook – always show and clickable; use settings URL or default Lynsi search link */}
+                                        {(() => {
+                                            const defaultFbUrl = 'https://web.facebook.com/lynsi3579';
+                                            const url = contactUs.facebook?.trim() || defaultFbUrl;
+                                            const href = url.startsWith('http') ? url : `https://facebook.com/${url.replace(/^\/+|\/+$/g, '')}`;
+                                            return (
+                                                <a
+                                                    href={href}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={getInTouchCardStyle}
+                                                    className="cursor-pointer"
+                                                    onMouseEnter={e => {
+                                                        e.currentTarget.style.transform = 'scale(1.03)';
+                                                        e.currentTarget.style.boxShadow = `0 12px 32px rgba(6,95,70,0.15), 0 0 24px rgba(16,185,129,0.25)`;
+                                                    }}
+                                                    onMouseLeave={e => {
+                                                        e.currentTarget.style.transform = '';
+                                                        e.currentTarget.style.boxShadow = '';
+                                                    }}
+                                                >
+                                                    <div style={iconWrapStyle}><Facebook size={22} style={{ color: PALETTE.primary }} /></div>
+                                                    <div>
+                                                        <div style={{ fontSize: '12px', fontWeight: 600, color: PALETTE.muted, marginBottom: '2px' }}>Facebook</div>
+                                                        <div style={{ fontSize: '15px', fontWeight: 600, color: PALETTE.primary }}>Visit our page</div>
+                                                    </div>
+                                                </a>
+                                            );
+                                        })()}
                                     </div>
-                                )}
+                                </div>
                             </div>
 
                             {/* Query form (submit requires login) */}

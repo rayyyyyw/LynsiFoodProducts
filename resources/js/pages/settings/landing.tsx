@@ -57,7 +57,7 @@ type LandingContent = {
         farmToTableTitle?: string;
         farmToTableDesc?: string;
     };
-    contactUs?: { badge?: string; title?: string; subtitle?: string; email?: string; phone?: string; address?: string; footerNote?: string };
+    contactUs?: { badge?: string; title?: string; subtitle?: string; email?: string; phone?: string; address?: string; facebook?: string; footerNote?: string };
     partners?: { title?: string; items?: string[] };
 };
 
@@ -717,6 +717,15 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                 <Input
                                     value={(get('contactUs.address') as string) ?? ''}
                                     onChange={(e) => update('contactUs', { ...data.content?.contactUs, address: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <Label>Facebook page URL (optional)</Label>
+                                <Input
+                                    type="url"
+                                    placeholder="https://facebook.com/yourpage or yourpage"
+                                    value={(get('contactUs.facebook') as string) ?? ''}
+                                    onChange={(e) => update('contactUs', { ...data.content?.contactUs, facebook: e.target.value })}
                                 />
                             </div>
                             <div>
