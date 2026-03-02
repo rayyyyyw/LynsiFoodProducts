@@ -13,10 +13,10 @@ use Inertia\Response;
 
 class CheckoutController extends Controller
 {
-    /** Redirect to cart — checkout is now a wizard step within the cart page. */
+    /** Redirect to cart step 2 (checkout) — checkout is a wizard step within the cart page. */
     public function index(): RedirectResponse
     {
-        return redirect()->route('cart.index');
+        return redirect()->route('cart.index', ['step' => 2]);
     }
 
     /** Place the order. */
@@ -76,6 +76,7 @@ class CheckoutController extends Controller
                     'unit_price' => (float) $item->variant->price,
                     'line_total' => (float) $item->variant->price * $item->quantity,
                 ]);
+                $item->variant->decrement('stock_quantity', $item->quantity);
             }
 
             CartItem::where('user_id', $userId)->delete();

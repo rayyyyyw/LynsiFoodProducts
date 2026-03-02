@@ -3,10 +3,12 @@
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Products\CategoryController;
 use App\Http\Controllers\Products\InventoryController;
 use App\Http\Controllers\Products\ProductController;
 use App\Models\LandingPageSetting;
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,6 +39,7 @@ Route::get('/', function () {
                 'image_url' => $p->image_url,
                 'category' => $p->category?->name,
                 'variants' => $p->variants->map(fn ($v) => [
+                    'id' => $v->id,
                     'size' => $v->size,
                     'flavor' => $v->flavor,
                     'price' => $v->price,
@@ -204,9 +207,12 @@ Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(functi
 });
 
 /* ── Cart ── */
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+Route::patch('/cart/guest/{variantId}', [CartController::class, 'updateGuest'])->name('cart.guest.update');
+Route::delete('/cart/guest/{variantId}', [CartController::class, 'destroyGuest'])->name('cart.guest.destroy');
+Route::delete('/cart/guest', [CartController::class, 'clearGuest'])->name('cart.guest.clear');
 Route::middleware(['auth'])->prefix('cart')->name('cart.')->group(function () {
-    Route::get('/', [CartController::class, 'index'])->name('index');
-    Route::post('/', [CartController::class, 'store'])->name('store');
     Route::patch('/{cartItem}', [CartController::class, 'update'])->name('update');
     Route::delete('/{cartItem}', [CartController::class, 'destroy'])->name('destroy');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
@@ -230,8 +236,49 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('products')->name('prod
     Route::post('inventory/{variant}/adjust', [InventoryController::class, 'adjustStock'])->name('inventory.adjust');
 });
 
+Route::patch('dashboard/orders/{order}/status', [OrderController::class, 'updateStatus'])->middleware(['auth', 'verified', 'admin'])->name('dashboard.orders.update-status');
 Route::get('dashboard/{section}', function (string $section) {
-    return Inertia::render('dashboard', ['section' => $section]);
+    $payload = ['section' => $section];
+    if ($section === 'orders') {
+        $orderCounts = [
+            'pending' => Order::where('status', 'pending')->count(),
+            'processing' => Order::whereIn('status', ['processing', 'shipped'])->count(),
+            'delivered' => Order::where('status', 'delivered')->count(),
+            'cancelled' => Order::where('status', 'cancelled')->count(),
+        ];
+        $orders = Order::with(['user:id,name,email', 'items'])->latest()->paginate(20);
+        $orders->getCollection()->transform(function ($order) {
+            return [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $order->status,
+                'payment_method' => $order->payment_method,
+                'payment_status' => $order->payment_status,
+                'shipping_name' => $order->shipping_name,
+                'shipping_phone' => $order->shipping_phone,
+                'shipping_address' => $order->shipping_address,
+                'shipping_city' => $order->shipping_city,
+                'shipping_province' => $order->shipping_province,
+                'shipping_zip' => $order->shipping_zip,
+                'total' => (float) $order->total,
+                'subtotal' => (float) $order->subtotal,
+                'notes' => $order->notes,
+                'created_at' => $order->created_at->toDateTimeString(),
+                'user' => $order->user ? ['id' => $order->user->id, 'name' => $order->user->name, 'email' => $order->user->email] : null,
+                'items' => $order->items->map(fn ($item) => [
+                    'product_name' => $item->product_name,
+                    'variant_display_name' => $item->variant_display_name,
+                    'quantity' => $item->quantity,
+                    'unit_price' => (float) $item->unit_price,
+                    'line_total' => (float) $item->line_total,
+                ]),
+            ];
+        });
+        $payload['orders'] = $orders;
+        $payload['orderCounts'] = $orderCounts;
+    }
+
+    return Inertia::render('dashboard', $payload);
 })->middleware(['auth', 'verified', 'admin'])->where('section', 'orders|returns|customers|roles|discounts|coupons|banners|pages|blog|faq|sales|analytics|general|payments|shipping|email-templates')->name('dashboard.section');
 
 require __DIR__.'/settings.php';

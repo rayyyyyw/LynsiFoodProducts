@@ -91,7 +91,6 @@ export default function Shop() {
     }, []);
 
     function addToCart(variantId: number, productId: number, qty: number) {
-        if (!auth.user) { router.visit('/login'); return; }
         setAddingId(variantId);
         router.post('/cart', { variant_id: variantId, quantity: qty }, {
             preserveScroll: true,

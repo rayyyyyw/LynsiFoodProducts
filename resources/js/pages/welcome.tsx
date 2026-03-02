@@ -307,7 +307,7 @@ type FeaturedProduct = {
     expiry: string | null;
     image_url: string | null;
     category: string | null;
-    variants: { size: string | null; flavor: string | null; price: string; stock_quantity: number }[];
+    variants: { id: number; size: string | null; flavor: string | null; price: string; stock_quantity: number }[];
 };
 
 export default function Welcome({
@@ -763,6 +763,17 @@ export default function Welcome({
                                         const minPrice = p.variants?.length
                                             ? Math.min(...p.variants.map((v) => Number(v.price)))
                                             : null;
+                                        const firstVariant = p.variants?.length ? p.variants[0] : null;
+                                        const canAddToCart = firstVariant && (firstVariant.stock_quantity > 0);
+                                        const addToCart = (e: React.MouseEvent) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (!canAddToCart) return;
+                                            router.post('/cart', {
+                                                variant_id: firstVariant!.id,
+                                                quantity: 1,
+                                            });
+                                        };
                                         const cardContent = (
                                             <>
                                                 {p.image_url ? (
@@ -799,17 +810,21 @@ export default function Welcome({
                                                         </div>
                                                         <button
                                                             type="button"
-                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                                            onClick={addToCart}
+                                                            disabled={!canAddToCart}
                                                             style={{
                                                                 width: '44px', height: '44px', minWidth: '44px', minHeight: '44px',
                                                                 borderRadius: '12px', border: 'none',
-                                                                background: PALETTE.light, color: PALETTE.primary, fontSize: '20px',
+                                                                background: canAddToCart ? PALETTE.light : PALETTE.border,
+                                                                color: canAddToCart ? PALETTE.primary : PALETTE.muted,
+                                                                fontSize: '20px',
                                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                                cursor: 'pointer', transition: 'all 0.2s',
+                                                                cursor: canAddToCart ? 'pointer' : 'not-allowed',
+                                                                transition: 'all 0.2s',
                                                             }}
-                                                            onMouseEnter={e => { e.currentTarget.style.background = PALETTE.primary; e.currentTarget.style.color = PALETTE.white; }}
-                                                            onMouseLeave={e => { e.currentTarget.style.background = PALETTE.light; e.currentTarget.style.color = PALETTE.primary; }}
-                                                            aria-label={`Add ${p.name} to cart`}
+                                                            onMouseEnter={e => { if (canAddToCart) { e.currentTarget.style.background = PALETTE.primary; e.currentTarget.style.color = PALETTE.white; } }}
+                                                            onMouseLeave={e => { if (canAddToCart) { e.currentTarget.style.background = PALETTE.light; e.currentTarget.style.color = PALETTE.primary; } }}
+                                                            aria-label={canAddToCart ? `Add ${p.name} to cart` : `${p.name} out of stock`}
                                                         >
                                                             +
                                                         </button>

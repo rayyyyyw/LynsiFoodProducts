@@ -41,6 +41,7 @@ type CartItemData = {
         image_url: string | null;
         category: string | null;
     };
+    is_guest_item?: boolean;
 };
 
 const PH_PROVINCES = [
@@ -145,20 +146,23 @@ function Qty({ item }: { item: CartItemData }) {
         setDraft(serverQty);
     }
 
+    const isGuest = item.is_guest_item;
+    const patchUrl = isGuest ? `/cart/guest/${item.variant.id}` : `/cart/${item.id}`;
+
     function commit(raw: string) {
         const parsed = parseInt(raw, 10);
         if (isNaN(parsed) || parsed < 1) { setDraft(serverQty); return; }
         const clamped = Math.min(parsed, max);
         setDraft(String(clamped));
         if (clamped !== item.quantity) {
-            router.patch(`/cart/${item.id}`, { quantity: clamped }, { preserveScroll: true });
+            router.patch(patchUrl, { quantity: clamped }, { preserveScroll: true });
         }
     }
 
     function patch(qty: number) {
         const clamped = Math.min(Math.max(1, qty), max);
         setDraft(String(clamped));
-        router.patch(`/cart/${item.id}`, { quantity: clamped }, { preserveScroll: true });
+        router.patch(patchUrl, { quantity: clamped }, { preserveScroll: true });
     }
 
     return (
@@ -195,11 +199,11 @@ type AuthUser = {
 };
 
 /* ── Main wizard ── */
-export default function CartIndex({ items }: { items: CartItemData[] }) {
+export default function CartIndex({ items, initialStep = 1 }: { items: CartItemData[]; initialStep?: 1 | 2 }) {
     const { auth } = usePage().props as { auth: { user: AuthUser | null } };
     const user = auth?.user;
 
-    const [step, setStep] = useState<1 | 2>(1);
+    const [step, setStep] = useState<1 | 2>(initialStep);
     const [animDir, setAnimDir] = useState<'forward' | 'back'>('forward');
     const [animating, setAnimating] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -231,13 +235,21 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
         }, 220);
     }
 
-    function removeItem(id: number) {
-        router.delete(`/cart/${id}`, { preserveScroll: true });
+    function removeItem(item: CartItemData) {
+        if (item.is_guest_item) {
+            router.delete(`/cart/guest/${item.variant.id}`, { preserveScroll: true });
+        } else {
+            router.delete(`/cart/${item.id}`, { preserveScroll: true });
+        }
     }
 
     function clearCart() {
         if (window.confirm('Remove all items from your cart?')) {
-            router.delete('/cart', { preserveScroll: true });
+            if (user) {
+                router.delete('/cart', { preserveScroll: true });
+            } else {
+                router.delete('/cart/guest', { preserveScroll: true });
+            }
         }
     }
 
@@ -381,13 +393,64 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
                                 {/* ════ STEP 1: Review Cart ════ */}
                                 {step === 1 && (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                        {!user && (
+                                            <div style={{
+                                                background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                                                border: `1px solid ${P.border}`,
+                                                borderRadius: 14,
+                                                padding: '14px 18px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                flexWrap: 'wrap',
+                                                gap: 12,
+                                            }}>
+                                                <p style={{ fontSize: 14, fontWeight: 600, color: P.primary, margin: 0 }}>
+                                                    Create an account or log in to checkout. Your cart is saved.
+                                                </p>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                                                    <Link
+                                                        href="/login"
+                                                        style={{
+                                                            padding: '8px 16px',
+                                                            borderRadius: 10,
+                                                            fontSize: 13,
+                                                            fontWeight: 600,
+                                                            color: P.primary,
+                                                            background: P.white,
+                                                            border: `2px solid ${P.primary}`,
+                                                            textDecoration: 'none',
+                                                            transition: 'all 0.2s',
+                                                        }}
+                                                    >
+                                                        Log in
+                                                    </Link>
+                                                    <Link
+                                                        href="/register"
+                                                        style={{
+                                                            padding: '8px 16px',
+                                                            borderRadius: 10,
+                                                            fontSize: 13,
+                                                            fontWeight: 600,
+                                                            color: P.white,
+                                                            background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`,
+                                                            border: 'none',
+                                                            textDecoration: 'none',
+                                                            transition: 'all 0.2s',
+                                                        }}
+                                                    >
+                                                        Create account
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        )}
                                         <h1 style={{ fontSize: 22, fontWeight: 800, color: P.primary, letterSpacing: '-0.4px', marginBottom: 4 }}>
                                             🛒 Review Your Cart
                                             <span style={{ fontSize: 13, fontWeight: 500, color: P.textMuted, marginLeft: 10 }}>({totalQty} {totalQty === 1 ? 'item' : 'items'})</span>
                                         </h1>
 
                                         {items.map(item => (
-                                            <div key={item.id} style={{ display: 'flex', gap: 16, background: P.card, borderRadius: 16, border: `1px solid ${P.border}`, padding: 16, alignItems: 'center' }}>
+                                            <div key={item.is_guest_item ? `guest-${item.variant.id}` : item.id} style={{ display: 'flex', gap: 16, background: P.card, borderRadius: 16, border: `1px solid ${P.border}`, padding: 16, alignItems: 'center' }}>
                                                 <Link href={`/shop/product/${item.product.slug}`} style={{ flexShrink: 0 }}>
                                                     {item.product.image_url ? (
                                                         <img src={item.product.image_url} alt={item.product.name} style={{ width: 76, height: 76, borderRadius: 12, objectFit: 'cover', border: `1px solid ${P.border}` }} />
@@ -424,7 +487,7 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
 
                                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, flexShrink: 0 }}>
                                                     <span style={{ fontSize: 16, fontWeight: 800, color: P.primary }}>{formatPrice(item.variant.price * item.quantity)}</span>
-                                                    <button type="button" onClick={() => removeItem(item.id)} title="Remove"
+                                                    <button type="button" onClick={() => removeItem(item)} title="Remove"
                                                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.textLight, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4, borderRadius: 8, transition: 'all 0.15s' }}
                                                         onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.color = P.danger; b.style.background = P.dangerBg; }}
                                                         onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.color = P.textLight; b.style.background = 'none'; }}
@@ -442,6 +505,7 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
                                                 Clear cart
                                             </button>
 
+                                            {user ? (
                                             <button type="button" onClick={() => goStep(2)}
                                                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: "'Inter', sans-serif", boxShadow: '0 2px 8px rgba(6,95,70,0.25)', transition: 'all 0.2s' }}
                                                 onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; }}
@@ -449,6 +513,16 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
                                             >
                                                 Proceed to Checkout →
                                             </button>
+                                        ) : (
+                                            <Link
+                                                href="/checkout"
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, textDecoration: 'none', fontFamily: "'Inter', sans-serif", boxShadow: '0 2px 8px rgba(6,95,70,0.25)', transition: 'all 0.2s' }}
+                                                onMouseEnter={e => { const b = e.currentTarget as HTMLAnchorElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; }}
+                                                onMouseLeave={e => { const b = e.currentTarget as HTMLAnchorElement; b.style.transform = 'none'; b.style.boxShadow = '0 2px 8px rgba(6,95,70,0.25)'; }}
+                                            >
+                                                Proceed to Checkout →
+                                            </Link>
+                                        )}
                                         </div>
                                     </div>
                                 )}
@@ -564,7 +638,7 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
                                     {items.map(item => (
-                                        <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                        <div key={item.is_guest_item ? `guest-${item.variant.id}` : item.id} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                                             <div style={{ position: 'relative', flexShrink: 0 }}>
                                                 {item.product.image_url ? (
                                                     <img src={item.product.image_url} alt={item.product.name}
@@ -616,13 +690,24 @@ export default function CartIndex({ items }: { items: CartItemData[] }) {
 
                                 {step === 1 && (
                                     <>
-                                        <button type="button" onClick={() => goStep(2)}
-                                            style={{ width: '100%', marginTop: 18, padding: '13px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: "'Inter', sans-serif", boxShadow: '0 2px 8px rgba(6,95,70,0.28)', transition: 'all 0.2s' }}
-                                            onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; }}
-                                            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'none'; b.style.boxShadow = '0 2px 8px rgba(6,95,70,0.28)'; }}
-                                        >
-                                            Proceed to Checkout
-                                        </button>
+                                        {user ? (
+                                            <button type="button" onClick={() => goStep(2)}
+                                                style={{ width: '100%', marginTop: 18, padding: '13px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: "'Inter', sans-serif", boxShadow: '0 2px 8px rgba(6,95,70,0.28)', transition: 'all 0.2s' }}
+                                                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; }}
+                                                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'none'; b.style.boxShadow = '0 2px 8px rgba(6,95,70,0.28)'; }}
+                                            >
+                                                Proceed to Checkout
+                                            </button>
+                                        ) : (
+                                            <Link
+                                                href="/checkout"
+                                                style={{ display: 'block', width: '100%', marginTop: 18, padding: '13px', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 15, textAlign: 'center', textDecoration: 'none', fontFamily: "'Inter', sans-serif", boxShadow: '0 2px 8px rgba(6,95,70,0.28)', transition: 'all 0.2s', boxSizing: 'border-box' }}
+                                                onMouseEnter={e => { const b = e.currentTarget as HTMLAnchorElement; b.style.transform = 'translateY(-1px)'; b.style.boxShadow = '0 4px 14px rgba(6,95,70,0.32)'; }}
+                                                onMouseLeave={e => { const b = e.currentTarget as HTMLAnchorElement; b.style.transform = 'none'; b.style.boxShadow = '0 2px 8px rgba(6,95,70,0.28)'; }}
+                                            >
+                                                Proceed to Checkout
+                                            </Link>
+                                        )}
                                         <Link href="/shop" style={{ display: 'block', textAlign: 'center', marginTop: 10, fontSize: 13, color: P.textMuted, textDecoration: 'none' }}
                                             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = P.primary; }}
                                             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = P.textMuted; }}

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\CartItem;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -46,11 +47,14 @@ class HandleInertiaRequests extends Middleware
             ],
             'cartCount' => $user
                 ? CartItem::where('user_id', $user->id)->count()
-                : 0,
+                : count($request->session()->get('guest_cart', [])),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'flash' => [
                 'status' => $request->session()->get('status'),
             ],
+            'adminPendingOrdersCount' => $user && $user->role === 'admin'
+                ? Order::where('status', 'pending')->count()
+                : 0,
         ];
     }
 }

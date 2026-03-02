@@ -157,21 +157,19 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                     </Link>
-                    {/* Cart icon – always visible when logged in */}
-                    {user && (
-                        <Link href="/cart" className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0" style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
-                            title="My Cart"
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.94-1.51L23 6H6"/></svg>
-                            {cartCount > 0 && (
-                                <span style={{ position: 'absolute', top: 4, right: 4, minWidth: 16, height: 16, borderRadius: 50, background: '#ef4444', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', lineHeight: 1 }}>
-                                    {cartCount > 99 ? '99+' : cartCount}
-                                </span>
-                            )}
-                        </Link>
-                    )}
+                    {/* Cart icon – visible for everyone (guests see count from session cart; clicking goes to /cart then redirects to login if needed) */}
+                    <Link href="/cart" className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0" style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                        title={user ? 'My Cart' : 'Cart (sign in to view and checkout)'}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.94-1.51L23 6H6"/></svg>
+                        {cartCount > 0 && (
+                            <span style={{ position: 'absolute', top: 4, right: 4, minWidth: 16, height: 16, borderRadius: 50, background: '#ef4444', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', lineHeight: 1 }}>
+                                {cartCount > 99 ? '99+' : cartCount}
+                            </span>
+                        )}
+                    </Link>
                     {user ? (
                         <div ref={menuRef} style={{ position: 'relative' }}>
                             <button
@@ -425,6 +423,23 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                                 </Link>
                             );
                         })}
+                        {/* Cart – same for all; when logged in profile has My Account etc. */}
+                        <Link
+                            href="/cart"
+                            onClick={() => setMobileNavOpen(false)}
+                            className="flex items-center justify-between min-h-[48px] px-4 py-3 rounded-xl text-sm font-medium touch-manipulation"
+                            style={{ textDecoration: 'none', color: '#475569' }}
+                        >
+                            <span className="flex items-center gap-3">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.94-1.51L23 6H6"/></svg>
+                                Cart
+                            </span>
+                            {cartCount > 0 && (
+                                <span style={{ minWidth: 20, height: 20, borderRadius: 50, background: '#ef4444', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 6px' }}>
+                                    {cartCount > 99 ? '99+' : cartCount}
+                                </span>
+                            )}
+                        </Link>
                         {/* When logged in, profile dropdown in navbar covers My Account / My Purchase / Logout – no duplicate section here */}
                         {!user && (
                             <>

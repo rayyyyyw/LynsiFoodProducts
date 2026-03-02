@@ -58,7 +58,6 @@ export default function ProductDetail() {
     const [cartAdded,  setCartAdded]  = useState(false);
 
     function addToCart() {
-        if (!auth?.user) { router.visit('/login'); return; }
         if (!variant) return;
         setCartAdding(true);
         router.post('/cart', { variant_id: variant.id, quantity: qty }, {

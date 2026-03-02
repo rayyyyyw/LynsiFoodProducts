@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\CartItem;
+use App\Models\ProductVariant;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -27,12 +29,34 @@ class FortifyServiceProvider extends ServiceProvider
             {
                 public function toResponse($request)
                 {
+                    $this->mergeGuestCart($request);
                     $user = $request->user();
                     $redirectTo = ($user && $user->role === 'admin') ? '/dashboard' : '/';
 
                     return $request->wantsJson()
                         ? response()->json(['two_factor' => false])
                         : redirect()->intended($redirectTo);
+                }
+
+                private function mergeGuestCart($request): void
+                {
+                    $guestCart = $request->session()->get('guest_cart', []);
+                    if (empty($guestCart) || ! $request->user()) {
+                        return;
+                    }
+                    foreach ($guestCart as $variantId => $qty) {
+                        $variant = ProductVariant::find($variantId);
+                        if (! $variant) {
+                            continue;
+                        }
+                        $item = CartItem::firstOrNew([
+                            'user_id' => $request->user()->id,
+                            'product_variant_id' => $variantId,
+                        ]);
+                        $item->quantity = min(($item->quantity ?? 0) + (int) $qty, $variant->stock_quantity ?: 99);
+                        $item->save();
+                    }
+                    $request->session()->forget('guest_cart');
                 }
             };
         });
@@ -42,9 +66,32 @@ class FortifyServiceProvider extends ServiceProvider
             {
                 public function toResponse($request)
                 {
+                    $this->mergeGuestCart($request);
+
                     return $request->wantsJson()
                         ? response()->json($request->user(), 201)
-                        : redirect('/');
+                        : redirect()->intended('/');
+                }
+
+                private function mergeGuestCart($request): void
+                {
+                    $guestCart = $request->session()->get('guest_cart', []);
+                    if (empty($guestCart) || ! $request->user()) {
+                        return;
+                    }
+                    foreach ($guestCart as $variantId => $qty) {
+                        $variant = ProductVariant::find($variantId);
+                        if (! $variant) {
+                            continue;
+                        }
+                        $item = CartItem::firstOrNew([
+                            'user_id' => $request->user()->id,
+                            'product_variant_id' => $variantId,
+                        ]);
+                        $item->quantity = min(($item->quantity ?? 0) + (int) $qty, $variant->stock_quantity ?: 99);
+                        $item->save();
+                    }
+                    $request->session()->forget('guest_cart');
                 }
             };
         });
