@@ -15,6 +15,7 @@ const PALETTE = {
     dark: '#022c22',        // emerald-950
     onDark: '#a7f3d0',      // emerald-200 on dark bg
     onDarkMuted: '#6ee7b7', // emerald-300
+    heroAccent: '#34d399',  // emerald-400 — bright accent on dark (e.g. footer link hover)
     white: '#ffffff',
 } as const;
 
@@ -964,12 +965,12 @@ export default function Welcome({
                         </div>
                         <div className="locations-grid" style={{ display: 'grid' }}>
                             {(content.locations.items ?? []).map((loc, idx) => (
-                                <div key={loc.name || idx} className="benefit-card" style={{ textAlign: 'left' }}>
+                                <div key={loc.name || idx} className="benefit-card" style={{ textAlign: 'left', padding: '28px 24px' }}>
                                     {loc.tag && (
                                         <span style={{
-                                            position: 'absolute', top: '16px', right: '16px',
+                                            position: 'absolute', top: '20px', right: '20px',
                                             fontSize: '11px', fontWeight: 700, color: PALETTE.secondary,
-                                            background: PALETTE.light, padding: '4px 10px', borderRadius: '50px',
+                                            background: PALETTE.light, padding: '5px 12px', borderRadius: '50px',
                                         }}>
                                             {loc.tag}
                                         </span>
@@ -977,7 +978,7 @@ export default function Welcome({
                                     {loc.image_url?.trim() ? (
                                         <div style={{
                                             width: '100%', aspectRatio: '16/10', borderRadius: '12px',
-                                            overflow: 'hidden', marginBottom: '16px', background: PALETTE.light,
+                                            overflow: 'hidden', marginBottom: '20px', background: PALETTE.light,
                                         }}>
                                             <img
                                                 src={loc.image_url.trim()}
@@ -990,16 +991,18 @@ export default function Welcome({
                                             width: '48px', height: '48px', borderRadius: '12px',
                                             background: `linear-gradient(135deg, ${PALETTE.light}, ${PALETTE.border})`,
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '22px', marginBottom: '16px',
+                                            fontSize: '22px', marginBottom: '20px',
                                         }}>📍</div>
                                     )}
-                                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '10px' }}>{loc.name}</h3>
-                                    <p style={{ fontSize: '14px', color: PALETTE.primary, lineHeight: 1.6, marginBottom: '8px' }}>{loc.address}</p>
-                                    <p style={{ fontSize: '13px', color: PALETTE.muted, fontWeight: 600, marginBottom: '12px' }}>{loc.city}</p>
-                                    <a href={`tel:${loc.phone.replace(/\s/g, '')}`} style={{ fontSize: '14px', color: PALETTE.accent, fontWeight: 600, textDecoration: 'none', display: 'block', marginBottom: '6px' }}>
-                                        {loc.phone}
-                                    </a>
-                                    <p style={{ fontSize: '13px', color: PALETTE.muted }}>{loc.hours}</p>
+                                    <div style={{ padding: '0 2px' }}>
+                                        <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '12px', marginTop: 0, lineHeight: 1.3 }}>{loc.name}</h3>
+                                        <p style={{ fontSize: '14px', color: PALETTE.primary, lineHeight: 1.65, marginBottom: '10px' }}>{loc.address}</p>
+                                        <p style={{ fontSize: '13px', color: PALETTE.muted, fontWeight: 600, marginBottom: '14px' }}>{loc.city}</p>
+                                        <a href={`tel:${loc.phone.replace(/\s/g, '')}`} style={{ fontSize: '14px', color: PALETTE.accent, fontWeight: 600, textDecoration: 'none', display: 'block', marginBottom: '10px' }}>
+                                            {loc.phone}
+                                        </a>
+                                        <p style={{ fontSize: '13px', color: PALETTE.muted, marginBottom: 0, lineHeight: 1.5 }}>{loc.hours}</p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -1306,15 +1309,36 @@ export default function Welcome({
                             </div>
                         </div>
 
-                        <div className="footer-bottom" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '24px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
-                            <p style={{ fontSize: '12px', color: PALETTE.onDarkMuted }}>
-                                © 2026 LynsiFood Products. All rights reserved. Made with 💚 in the Philippines.
+                        <div className="footer-bottom" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '24px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <p style={{ fontSize: '12px', color: PALETTE.onDarkMuted, flex: '1 1 0', minWidth: 0 }}>
+                                © 2026 LynsiFoodProducts. All rights reserved.
                             </p>
-                            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', flex: '0 0 auto' }}>
                                 {['Privacy', 'Terms', 'Sitemap'].map(item => (
                                     <a key={item} href="#" style={{ fontSize: '12px', color: PALETTE.onDarkMuted, textDecoration: 'none' }}>{item}</a>
                                 ))}
                             </div>
+                            <a
+                                href="https://treebyte.vercel.app/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    fontSize: '12px',
+                                    color: PALETTE.onDarkMuted,
+                                    textDecoration: 'none',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '5px',
+                                    transition: 'color 0.2s',
+                                    whiteSpace: 'nowrap',
+                                    flex: '1 1 0',
+                                    justifyContent: 'flex-end',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.color = PALETTE.heroAccent; }}
+                                onMouseLeave={e => { e.currentTarget.style.color = PALETTE.onDarkMuted; }}
+                            >
+                                Powered by <strong style={{ color: PALETTE.onDark }}>TreeByte</strong> Software Development Services
+                            </a>
                         </div>
                     </div>
                 </footer>

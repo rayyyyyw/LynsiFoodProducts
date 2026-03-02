@@ -100,26 +100,26 @@ export default function Locations() {
                             {items.map((loc, idx) => (
                                 <div
                                     key={loc.name || idx}
-                                    className="p-4 sm:p-5 md:p-6 rounded-2xl"
+                                    className="rounded-2xl hover:shadow-lg"
                                     style={{
                                         background: PALETTE.white,
                                         border: `1px solid ${PALETTE.border}`,
                                         position: 'relative',
+                                        padding: '28px 24px',
                                         boxShadow: '0 4px 20px rgba(6,95,70,0.08)',
                                         transition: 'box-shadow 0.2s',
                                     }}
-                                    className="hover:shadow-lg"
                                 >
                                     {loc.tag && (
                                         <span style={{
                                             position: 'absolute',
-                                            top: '16px',
-                                            right: '16px',
+                                            top: '20px',
+                                            right: '20px',
                                             fontSize: '11px',
                                             fontWeight: 700,
                                             color: PALETTE.secondary,
                                             background: PALETTE.light,
-                                            padding: '4px 10px',
+                                            padding: '5px 12px',
                                             borderRadius: '50px',
                                         }}>
                                             {loc.tag}
@@ -131,7 +131,7 @@ export default function Locations() {
                                             aspectRatio: '16/10',
                                             borderRadius: '12px',
                                             overflow: 'hidden',
-                                            marginBottom: '16px',
+                                            marginBottom: '20px',
                                             background: PALETTE.light,
                                         }}>
                                             <img
@@ -150,42 +150,46 @@ export default function Locations() {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             fontSize: '22px',
-                                            marginBottom: '16px',
+                                            marginBottom: '20px',
                                         }}>
                                             📍
                                         </div>
                                     )}
-                                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '10px' }}>
-                                        {loc.name}
-                                    </h3>
-                                    {loc.address && (
-                                        <p style={{ fontSize: '14px', color: PALETTE.primary, lineHeight: 1.6, marginBottom: '8px' }}>
-                                            {loc.address}
-                                        </p>
-                                    )}
-                                    {loc.city && (
-                                        <p style={{ fontSize: '13px', color: PALETTE.muted, fontWeight: 600, marginBottom: '12px' }}>
-                                            {loc.city}
-                                        </p>
-                                    )}
-                                    {loc.phone && (
-                                        <a
-                                            href={`tel:${(loc.phone ?? '').replace(/\s/g, '')}`}
-                                            style={{
-                                                fontSize: '14px',
-                                                color: PALETTE.accent,
-                                                fontWeight: 600,
-                                                textDecoration: 'none',
-                                                display: 'block',
-                                                marginBottom: '6px',
-                                            }}
-                                        >
-                                            {loc.phone}
-                                        </a>
-                                    )}
-                                    {loc.hours && (
-                                        <p style={{ fontSize: '13px', color: PALETTE.muted }}>{loc.hours}</p>
-                                    )}
+                                    <div style={{ padding: '0 2px' }}>
+                                        <h3 style={{ fontSize: '18px', fontWeight: 700, color: PALETTE.primary, marginBottom: '12px', marginTop: 0, lineHeight: 1.3 }}>
+                                            {loc.name}
+                                        </h3>
+                                        {loc.address && (
+                                            <p style={{ fontSize: '14px', color: PALETTE.primary, lineHeight: 1.65, marginBottom: '10px' }}>
+                                                {loc.address}
+                                            </p>
+                                        )}
+                                        {loc.city && (
+                                            <p style={{ fontSize: '13px', color: PALETTE.muted, fontWeight: 600, marginBottom: '14px' }}>
+                                                {loc.city}
+                                            </p>
+                                        )}
+                                        {loc.phone && (
+                                            <a
+                                                href={`tel:${(loc.phone ?? '').replace(/\s/g, '')}`}
+                                                style={{
+                                                    fontSize: '14px',
+                                                    color: PALETTE.accent,
+                                                    fontWeight: 600,
+                                                    textDecoration: 'none',
+                                                    display: 'block',
+                                                    marginBottom: '10px',
+                                                }}
+                                            >
+                                                {loc.phone}
+                                            </a>
+                                        )}
+                                        {loc.hours && (
+                                            <p style={{ fontSize: '13px', color: PALETTE.muted, marginBottom: 0, lineHeight: 1.5 }}>
+                                                {loc.hours}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
