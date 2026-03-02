@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Home, ShoppingBag, MapPin, Info, Mail } from 'lucide-react';
+import { Home, ShoppingBag, MapPin, Info, Mail, Heart } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -40,6 +40,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
     const { cartCount = 0 } = usePage().props as { cartCount?: number };
     const [menuOpen, setMenuOpen] = useState(false);
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
+    const [favoriteCount, setFavoriteCount] = useState(0);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -55,6 +56,33 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
         else document.body.style.overflow = '';
         return () => { document.body.style.overflow = ''; };
     }, [mobileNavOpen]);
+
+    const favoritesKey = `lynsi_favorites_${(user as any)?.id ?? 'guest'}`;
+
+    // Favorites count from localStorage (client-side only, per user)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const readFavorites = () => {
+            try {
+                const raw = window.localStorage.getItem(favoritesKey);
+                const arr = raw ? JSON.parse(raw) : [];
+                setFavoriteCount(Array.isArray(arr) ? arr.length : 0);
+            } catch {
+                setFavoriteCount(0);
+            }
+        };
+
+        readFavorites();
+
+        const handler = () => readFavorites();
+        window.addEventListener('storage', handler);
+        window.addEventListener('lynsi:favorites-updated' as any, handler);
+        return () => {
+            window.removeEventListener('storage', handler);
+            window.removeEventListener('lynsi:favorites-updated' as any, handler);
+        };
+    }, [favoritesKey]);
 
     const linkBase = {
         display: 'inline-flex' as const,
@@ -143,7 +171,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                     })}
                 </div>
 
-                {/* Right side: notification bell + cart + user/login/register + hamburger (mobile) */}
+                {/* Right side: notification bell + favorites + cart + user/login/register + hamburger (mobile) */}
                 <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                     {/* Notification bell – when not logged in redirects to login */}
                     <Link
@@ -156,6 +184,47 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                         aria-label={user ? 'Notifications' : 'Sign in'}
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </Link>
+                    {/* Favorites icon – client-side favorites from localStorage */}
+                    <Link
+                        href="/favorites"
+                        className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0"
+                        style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+                        title="Favorites"
+                        aria-label="Favorites"
+                    >
+                        <Heart
+                            width={20}
+                            height={20}
+                            strokeWidth={2}
+                            fill={favoriteCount > 0 ? '#ef4444' : 'none'}
+                            className="shrink-0"
+                        />
+                        {favoriteCount > 0 && (
+                            <span
+                                style={{
+                                    position: 'absolute',
+                                    top: 4,
+                                    right: 4,
+                                    minWidth: 16,
+                                    height: 16,
+                                    borderRadius: 50,
+                                    background: '#ef4444',
+                                    color: '#fff',
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '0 4px',
+                                    lineHeight: 1,
+                                }}
+                            >
+                                {favoriteCount > 99 ? '99+' : favoriteCount}
+                            </span>
+                        )}
                     </Link>
                     {/* Cart icon – visible for everyone (guests see count from session cart; clicking goes to /cart then redirects to login if needed) */}
                     <Link href="/cart" className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0" style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
@@ -423,6 +492,23 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                                 </Link>
                             );
                         })}
+                        {/* Favorites */}
+                        <Link
+                            href="/favorites"
+                            onClick={() => setMobileNavOpen(false)}
+                            className="flex items-center justify-between min-h-[48px] px-4 py-3 rounded-xl text-sm font-medium touch-manipulation"
+                            style={{ textDecoration: 'none', color: '#475569' }}
+                        >
+                            <span className="flex items-center gap-3">
+                                <Heart className="h-5 w-5" />
+                                Favorites
+                            </span>
+                            {favoriteCount > 0 && (
+                                <span style={{ minWidth: 20, height: 20, borderRadius: 50, background: '#ef4444', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 6px' }}>
+                                    {favoriteCount > 99 ? '99+' : favoriteCount}
+                                </span>
+                            )}
+                        </Link>
                         {/* Cart – same for all; when logged in profile has My Account etc. */}
                         <Link
                             href="/cart"

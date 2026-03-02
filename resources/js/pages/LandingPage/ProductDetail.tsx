@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Heart, Minus, Plus, ShoppingCart, ShoppingBag } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 
 const PALETTE = {
@@ -45,7 +45,7 @@ function getSizeLabel(size: string | null): string | null {
 
 export default function ProductDetail() {
     const page = usePage();
-    const { auth } = page.props as { auth: { user: { name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null } | null };
+    const { auth } = page.props as { auth: { user: { id?: number; name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null } | null };
     const { product, canRegister = true } = page.props as {
         product: ProductData;
         canRegister?: boolean;
@@ -56,6 +56,9 @@ export default function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
     const [cartAdding, setCartAdding] = useState(false);
     const [cartAdded,  setCartAdded]  = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    const favoritesKey = `lynsi_favorites_${(auth?.user as any)?.id ?? 'guest'}`;
 
     function addToCart() {
         if (!variant) return;
@@ -78,6 +81,43 @@ export default function ProductDetail() {
     const qty = Math.min(Math.max(1, quantity), maxQty);
 
     const categoryName = product.category?.name ?? 'Uncategorized';
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = window.localStorage.getItem(favoritesKey);
+            const arr = raw ? JSON.parse(raw) : [];
+            if (Array.isArray(arr)) {
+                setIsFavorite(arr.includes(product.id));
+            } else {
+                setIsFavorite(false);
+            }
+        } catch {
+            setIsFavorite(false);
+        }
+    }, [product.id, favoritesKey]);
+
+    function toggleFavorite() {
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = window.localStorage.getItem(favoritesKey);
+            const arr: number[] = raw && Array.isArray(JSON.parse(raw))
+                ? (JSON.parse(raw) as unknown[]).filter((id): id is number => typeof id === 'number')
+                : [];
+            let next: number[];
+            if (arr.includes(product.id)) {
+                next = arr.filter(id => id !== product.id);
+                setIsFavorite(false);
+            } else {
+                next = [...arr, product.id];
+                setIsFavorite(true);
+            }
+            window.localStorage.setItem(favoritesKey, JSON.stringify(next));
+            window.dispatchEvent(new CustomEvent('lynsi:favorites-updated'));
+        } catch {
+            // ignore
+        }
+    }
 
     return (
         <div className="flex min-h-screen flex-col bg-[#ecfdf5]">
@@ -236,11 +276,20 @@ export default function ProductDetail() {
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={toggleFavorite}
                                     className="flex items-center justify-center gap-2 rounded-xl border px-6 py-3.5 font-semibold min-w-[140px]"
-                                    style={{ borderColor: PALETTE.border, color: PALETTE.primary, background: PALETTE.white }}
+                                    style={{
+                                        borderColor: isFavorite ? '#ef4444' : PALETTE.border,
+                                        color: isFavorite ? '#ef4444' : PALETTE.primary,
+                                        background: PALETTE.white,
+                                    }}
                                 >
-                                    <Heart className="h-5 w-5" />
-                                    Wishlist
+                                    <Heart
+                                        className="h-5 w-5"
+                                        color={isFavorite ? '#ef4444' : PALETTE.primary}
+                                        fill={isFavorite ? '#ef4444' : 'none'}
+                                    />
+                                    {isFavorite ? 'Favorited' : 'Add to Favorites'}
                                 </button>
                             </div>
                             {cartAdded && (

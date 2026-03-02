@@ -42,7 +42,7 @@ function formatPrice(price: number): string {
 
 export default function Shop() {
     const page = usePage();
-    const { auth } = page.props as { auth: { user: { name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null } };
+    const { auth } = page.props as { auth: { user: { id?: number; name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null } };
     const props = page.props as {
         products?: ProductItem[];
         categories?: { id: number; name: string; slug: string }[];
@@ -61,6 +61,9 @@ export default function Shop() {
     const [priceMin, setPriceMin] = useState('');
     const [priceMax, setPriceMax] = useState('');
     const [priceRangeApplied, setPriceRangeApplied] = useState(false);
+    const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+
+    const favoritesKey = `lynsi_favorites_${(auth?.user as any)?.id ?? 'guest'}`;
 
     /* Cart state */
     const [addingId,         setAddingId]         = useState<number | null>(null);
@@ -89,6 +92,46 @@ export default function Shop() {
         document.addEventListener('visibilitychange', onVisible);
         return () => document.removeEventListener('visibilitychange', onVisible);
     }, []);
+
+    /* Favorites: stored in localStorage as array of product IDs */
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = window.localStorage.getItem(favoritesKey);
+            const arr = raw ? JSON.parse(raw) : [];
+            if (Array.isArray(arr)) {
+                setFavoriteIds(arr.filter((id: unknown) => typeof id === 'number'));
+            } else {
+                setFavoriteIds([]);
+            }
+        } catch {
+            setFavoriteIds([]);
+        }
+    }, [favoritesKey]);
+
+    function syncFavorites(nextIds: number[]) {
+        setFavoriteIds(nextIds);
+        if (typeof window !== 'undefined') {
+            window.localStorage.setItem(favoritesKey, JSON.stringify(nextIds));
+            window.dispatchEvent(new CustomEvent('lynsi:favorites-updated'));
+        }
+    }
+
+    function toggleFavorite(productId: number) {
+        setFavoriteIds(prev => {
+            const set = new Set(prev);
+            if (set.has(productId)) {
+                set.delete(productId);
+            } else {
+                set.add(productId);
+            }
+            const next = Array.from(set);
+            syncFavorites(next);
+            return next;
+        });
+    }
+
+    const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
 
     function addToCart(variantId: number, productId: number, qty: number) {
         setAddingId(variantId);
@@ -160,6 +203,11 @@ export default function Shop() {
         }
         return list;
     }, [products, search, categoryId, sortBy, priceRangeApplied, priceMin, priceMax]);
+
+    const favoriteProducts = useMemo(
+        () => products.filter((p) => favoriteIdSet.has(p.id)),
+        [products, favoriteIdSet],
+    );
 
     return (
         <>
@@ -321,6 +369,7 @@ export default function Shop() {
                                 {filteredAndSorted.map((product) => {
                                     const price = getDisplayPrice(product);
                                     const categoryName = product.category?.name ?? 'Uncategorized';
+                                    const isFavorite = favoriteIdSet.has(product.id);
                                     const isAdded = addedId === product.id;
                                     const isAdding = product.variants.some(v => addingId === v.id);
 
@@ -347,9 +396,17 @@ export default function Shop() {
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                                        className="absolute right-2 top-2 rounded-full bg-white/90 p-2 shadow hover:bg-white" aria-label="Wishlist">
-                                                        <Heart className="h-4 w-4 text-neutral-600" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(product.id); }}
+                                                        className="absolute right-2 top-2 rounded-full bg-white/90 p-2 shadow hover:bg-white"
+                                                        aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                                                    >
+                                                        <Heart
+                                                            className="h-4 w-4"
+                                                            color={isFavorite ? '#ef4444' : '#4b5563'}
+                                                            fill={isFavorite ? '#ef4444' : 'none'}
+                                                        />
                                                     </button>
                                                 </div>
                                                 <div className="px-2.5 pt-2.5 pb-1 sm:px-3 sm:pt-3">

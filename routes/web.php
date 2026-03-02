@@ -10,6 +10,7 @@ use App\Http\Controllers\Products\ProductController;
 use App\Models\LandingPageSetting;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -104,6 +105,44 @@ Route::get('/shop', function () {
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('shop');
+
+Route::get('/favorites', function () {
+    $products = [];
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('products')) {
+            $products = Product::with('category', 'variants')
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($p) => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'slug' => $p->slug,
+                    'description' => $p->description,
+                    'image_url' => $p->image_url,
+                    'featured' => $p->featured,
+                    'category' => $p->category ? ['id' => $p->category->id, 'name' => $p->category->name, 'slug' => $p->category->slug] : null,
+                    'variants' => $p->variants->map(fn ($v) => [
+                        'id' => $v->id,
+                        'size' => $v->size,
+                        'flavor' => $v->flavor,
+                        'price' => (float) $v->price,
+                        'stock_quantity' => $v->stock_quantity,
+                    ]),
+                ]);
+        }
+    } catch (\Throwable $e) {
+    }
+
+    /** @var \Illuminate\Http\Response $response */
+    $response = Inertia::render('LandingPage/Favorites', [
+        'products' => $products,
+        'canRegister' => Features::enabled(Features::registration()),
+    ])->toResponse(request());
+
+    return $response->withHeaders([
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+    ]);
+})->name('favorites');
 
 Route::get('/shop/product/{slug}', function (string $slug) {
     $product = Product::with('category', 'variants')
@@ -258,6 +297,17 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('products')->name('prod
 
 Route::patch('dashboard/orders/{order}/status', [OrderController::class, 'updateStatus'])->middleware(['auth', 'verified', 'admin'])->name('dashboard.orders.update-status');
 Route::get('dashboard/{section}', function (string $section) {
+    if ($section === 'customers') {
+        $users = User::select('id', 'name', 'email', 'role', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return Inertia::render('UserManagement/Customers', [
+            'section' => $section,
+            'users' => $users,
+        ]);
+    }
+
     $payload = ['section' => $section];
     if ($section === 'orders') {
         $orderCounts = [
