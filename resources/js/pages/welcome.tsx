@@ -1,6 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Home, ShoppingBag, MapPin, Info, Mail } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 
 // ─── Emerald E‑commerce Palette ───────────────────────────────────────────────
@@ -20,14 +19,6 @@ const PALETTE = {
 } as const;
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
-
-const NAV_ITEMS: { id: string; label: string; icon: typeof Home }[] = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'products', label: 'Products', icon: ShoppingBag },
-    { id: 'our-locations', label: 'Our Locations', icon: MapPin },
-    { id: 'about-us', label: 'About Us', icon: Info },
-    { id: 'contact-us', label: 'Contact Us', icon: Mail },
-];
 
 const LOCATIONS = [
     {

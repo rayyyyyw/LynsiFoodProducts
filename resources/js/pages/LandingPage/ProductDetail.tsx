@@ -58,7 +58,7 @@ export default function ProductDetail() {
     const [cartAdded,  setCartAdded]  = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
 
-    const favoritesKey = `lynsi_favorites_${(auth?.user as any)?.id ?? 'guest'}`;
+    const favoritesKey = `lynsi_favorites_${auth?.user?.id ?? 'guest'}`;
 
     function addToCart() {
         if (!variant) return;
@@ -87,12 +87,13 @@ export default function ProductDetail() {
         try {
             const raw = window.localStorage.getItem(favoritesKey);
             const arr = raw ? JSON.parse(raw) : [];
-            if (Array.isArray(arr)) {
-                setIsFavorite(arr.includes(product.id));
-            } else {
-                setIsFavorite(false);
-            }
+            const safeIds = Array.isArray(arr)
+                ? (arr as unknown[]).filter((id): id is number => typeof id === 'number')
+                : [];
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setIsFavorite(safeIds.includes(product.id));
         } catch {
+             
             setIsFavorite(false);
         }
     }, [product.id, favoritesKey]);

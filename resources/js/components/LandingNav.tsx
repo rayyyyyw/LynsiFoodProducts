@@ -23,7 +23,7 @@ const NAV_ITEMS: { id: string; label: string; href: string; icon: typeof Home }[
     { id: 'contact-us', label: 'Contact Us', href: '/contact', icon: Mail },
 ];
 
-type AuthUser = { name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null;
+type AuthUser = { id?: number; name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null;
 
 type Props = {
     activeId: string;
@@ -57,7 +57,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
         return () => { document.body.style.overflow = ''; };
     }, [mobileNavOpen]);
 
-    const favoritesKey = `lynsi_favorites_${(user as any)?.id ?? 'guest'}`;
+    const favoritesKey = `lynsi_favorites_${user?.id ?? 'guest'}`;
 
     // Favorites count from localStorage (client-side only, per user)
     useEffect(() => {
@@ -77,10 +77,10 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
 
         const handler = () => readFavorites();
         window.addEventListener('storage', handler);
-        window.addEventListener('lynsi:favorites-updated' as any, handler);
+        window.addEventListener('lynsi:favorites-updated', handler as EventListener);
         return () => {
             window.removeEventListener('storage', handler);
-            window.removeEventListener('lynsi:favorites-updated' as any, handler);
+            window.removeEventListener('lynsi:favorites-updated', handler as EventListener);
         };
     }, [favoritesKey]);
 

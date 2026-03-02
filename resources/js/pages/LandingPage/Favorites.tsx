@@ -53,7 +53,7 @@ export default function Favorites() {
 
     const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
 
-    const favoritesKey = `lynsi_favorites_${(auth?.user as any)?.id ?? 'guest'}`;
+    const favoritesKey = `lynsi_favorites_${auth?.user?.id ?? 'guest'}`;
 
     // Picker state (reuse from shop for quantity & variant choice)
     const [addingId, setAddingId] = useState<number | null>(null);
@@ -78,12 +78,13 @@ export default function Favorites() {
         try {
             const raw = window.localStorage.getItem(favoritesKey);
             const arr = raw ? JSON.parse(raw) : [];
-            if (Array.isArray(arr)) {
-                setFavoriteIds(arr.filter((id: unknown) => typeof id === 'number'));
-            } else {
-                setFavoriteIds([]);
-            }
+            const safeIds = Array.isArray(arr)
+                ? (arr as unknown[]).filter((id): id is number => typeof id === 'number')
+                : [];
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setFavoriteIds(safeIds);
         } catch {
+             
             setFavoriteIds([]);
         }
     }, [favoritesKey]);

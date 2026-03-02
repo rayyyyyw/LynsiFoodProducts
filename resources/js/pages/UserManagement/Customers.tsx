@@ -1,9 +1,9 @@
 import { Head, usePage } from '@inertiajs/react';
 import { Users } from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { BreadcrumbItem } from '@/types';
+import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
+import type { BreadcrumbItem } from '@/types';
 
 type UserRow = {
     id: number;
@@ -24,9 +24,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Customers() {
-    const { users, section } = usePage().props as {
+    const { users } = usePage().props as {
         users?: UsersPaginated;
-        section?: string | null;
     };
 
     const list: UserRow[] = users?.data ?? [];

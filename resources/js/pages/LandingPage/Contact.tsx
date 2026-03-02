@@ -48,12 +48,22 @@ export default function Contact() {
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
 
+    // Keep initial name/email in sync with the logged-in user without extra renders
     useEffect(() => {
-        if (auth?.user) {
-            if (!name) setName(auth.user.name ?? '');
-            if (!email) setEmail(auth.user.email ?? '');
+        if (!auth?.user) return;
+        const nextName = auth.user.name ?? '';
+        const nextEmail = auth.user.email ?? '';
+        if (name !== nextName) {
+             
+            setName(nextName);
         }
-    }, [auth?.user, name, email]);
+        if (email !== nextEmail) {
+             
+            setEmail(nextEmail);
+        }
+        // We intentionally leave `name` and `email` out here to avoid loops.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [auth?.user]);
 
     useEffect(() => {
         const onVisible = () => {
