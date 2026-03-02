@@ -107,66 +107,143 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                 </div>
             </header>
 
-            {/* ── PROGRESS INDICATOR ── */}
-            <div style={{ background: P.white, borderBottom: `1px solid ${P.border}` }}>
-                <div style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+            {/* ── WIZARD STEPS ── */}
+            <div
+                role="navigation"
+                aria-label="Checkout progress"
+                style={{ background: P.white, borderBottom: `1px solid ${P.border}`, width: '100%' }}
+            >
+                <ol
+                    style={{
+                        listStyle: 'none',
+                        margin: '0 auto',
+                        padding: '16px 24px',
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                        maxWidth: 900,
+                        boxSizing: 'border-box',
+                    }}
+                >
+                    {/* Connecting line — sits only at circle-row height, never near labels */}
+                    <div
+                        aria-hidden="true"
+                        style={{
+                            position: 'absolute',
+                            /* left/right push inward so the line starts at the edge of the first/last circle */
+                            left: 'calc(24px + 16px)',
+                            right: 'calc(24px + 16px)',
+                            top: 'calc(16px + 16px)',    /* top padding + half circle */
+                            height: 3,
+                            background: P.accent,
+                            borderRadius: 2,
+                            zIndex: 0,
+                        }}
+                    />
+
                     {[
-                        { label: '1  Cart',         done: true,  active: false },
-                        { label: '2  Checkout',      done: true,  active: false },
-                        { label: '3  Confirmation',  done: false, active: true  },
+                        { num: 1, label: 'Cart',         done: true, active: false },
+                        { num: 2, label: 'Checkout',     done: true, active: false },
+                        { num: 3, label: 'Confirmation', done: true, active: true  },
                     ].map((step, i) => (
-                        <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {i > 0 && <span style={{ color: P.borderGray, fontSize: 16 }}>›</span>}
-                            <span style={{
-                                fontWeight: step.active ? 700 : step.done ? 500 : 400,
-                                color: step.active ? P.primary : step.done ? P.accent : P.textLight,
-                            }}>{step.label}</span>
-                        </span>
+                        <li
+                            key={i}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 6,
+                                position: 'relative',
+                                zIndex: 1,
+                            }}
+                            aria-current={step.active ? 'step' : undefined}
+                        >
+                            {/* Circle — sits above the line */}
+                            <div
+                                style={{
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: '50%',
+                                    background: step.active ? P.primary : P.accent,
+                                    color: P.white,
+                                    fontSize: 14,
+                                    fontWeight: 800,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0,
+                                    /* white halo isolates circle from the line */
+                                    boxShadow: step.active
+                                        ? `0 0 0 4px ${P.white}, 0 0 0 6px ${P.primary}`
+                                        : `0 0 0 4px ${P.white}`,
+                                }}
+                            >
+                                ✓
+                            </div>
+                            {/* Label sits cleanly below the circle / line */}
+                            <span
+                                style={{
+                                    fontWeight: step.active ? 700 : 500,
+                                    fontSize: 12,
+                                    color: step.active ? P.primary : P.accent,
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
+                                {step.label}
+                            </span>
+                        </li>
                     ))}
-                </div>
+                </ol>
             </div>
 
             {/* ── BODY ── */}
             <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 20px 80px' }}>
 
-                {/* Success Banner */}
-                <div className="pop-in" style={{ textAlign: 'center', marginBottom: 36 }}>
+                {/* Success + Final confirmation */}
+                <div className="pop-in" style={{ textAlign: 'center', marginBottom: 32 }}>
                     <div style={{ width: 72, height: 72, borderRadius: '50%', background: `linear-gradient(135deg, ${P.accent}, ${P.primary})`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 34, marginBottom: 16, boxShadow: '0 4px 20px rgba(16,185,129,0.4)' }}>
                         ✓
                     </div>
                     <h1 style={{ fontSize: 26, fontWeight: 800, color: P.primary, letterSpacing: '-0.5px', marginBottom: 6 }}>
                         Order Placed Successfully!
                     </h1>
-                    <p style={{ fontSize: 14, color: P.textMuted }}>
+                    <p style={{ fontSize: 14, color: P.textMuted, marginBottom: 16 }}>
                         Thank you, <strong>{order.shipping_name}</strong>! We've received your order and will process it shortly.
                     </p>
-                    <div style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: P.accentBg, border: `1px solid ${P.border}`, borderRadius: 50 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: P.primary }}>Order #</span>
-                        <span style={{ fontSize: 13, fontWeight: 800, color: P.primary, letterSpacing: '0.5px' }}>{order.order_number}</span>
+                    <div style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: P.accentBg, border: `1px solid ${P.border}`, borderRadius: 50 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: P.primary }}>Order #</span>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: P.primary, letterSpacing: '0.5px' }}>{order.order_number}</span>
+                        </div>
+                        <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            padding: '7px 14px', borderRadius: 50,
+                            background: status.bg, color: status.color,
+                            fontSize: 12, fontWeight: 700,
+                            border: `1px solid ${status.color}22`,
+                        }}>
+                            {status.icon} {status.label}
+                        </span>
                     </div>
-                    <div style={{ fontSize: 12, color: P.textLight, marginTop: 8 }}>{placedDate}</div>
+                    <div style={{ fontSize: 12, color: P.textLight, marginTop: 10 }}>{placedDate}</div>
                 </div>
 
-                {/* Status Badge */}
-                <div className="fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
-                    <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        padding: '7px 18px', borderRadius: 50,
-                        background: status.bg, color: status.color,
-                        fontSize: 13, fontWeight: 700, letterSpacing: '0.02em',
-                        border: `1px solid ${status.color}22`,
-                    }}>
-                        {status.icon} {status.label}
-                    </span>
-                </div>
+                {/* Review your order – final confirmation */}
+                <h2 style={{ fontSize: 15, fontWeight: 800, color: P.text, marginBottom: 16, letterSpacing: '-0.3px' }}>
+                    Review your order
+                </h2>
+                <p style={{ fontSize: 13, color: P.textMuted, marginBottom: 20 }}>
+                    Below is a summary of your order. You can track its status in your account.
+                </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
                     {/* Items */}
                     <section className="fade-up delay-1" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
-                        <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 16 }}>
-                            Items Ordered ({totalQty})
-                        </h2>
+                        <h3 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 16 }}>
+                            Items ordered ({totalQty})
+                        </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                             {order.items.map((item, idx) => (
                                 <div key={idx} style={{ display: 'flex', gap: 12, alignItems: 'center', paddingBottom: idx < order.items.length - 1 ? 12 : 0, borderBottom: idx < order.items.length - 1 ? `1px solid ${P.borderGray}` : 'none' }}>
@@ -244,13 +321,23 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
 
                     {/* Actions */}
                     <div className="fade-up delay-3" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 8 }}>
-                        <Link href="/shop" style={{
+                        <Link href="/my-purchases" style={{
                             display: 'inline-flex', alignItems: 'center', gap: 8,
                             padding: '12px 28px',
                             background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`,
                             color: P.white, borderRadius: 12, textDecoration: 'none',
                             fontWeight: 700, fontSize: 14,
                             boxShadow: '0 2px 8px rgba(6,95,70,0.25)',
+                        }}>
+                            View my orders
+                        </Link>
+                        <Link href="/shop" style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 8,
+                            padding: '12px 28px',
+                            background: P.white,
+                            color: P.primary, borderRadius: 12, textDecoration: 'none',
+                            fontWeight: 600, fontSize: 14,
+                            border: `2px solid ${P.border}`,
                         }}>
                             Continue Shopping
                         </Link>
@@ -262,7 +349,7 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                             fontWeight: 600, fontSize: 14,
                             border: `2px solid ${P.border}`,
                         }}>
-                            View My Account
+                            My Account
                         </Link>
                     </div>
 

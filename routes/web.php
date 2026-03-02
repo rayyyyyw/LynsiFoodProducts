@@ -50,11 +50,14 @@ Route::get('/', function () {
     } catch (\Throwable $e) {
     }
 
-    return Inertia::render('welcome', [
+    /** @var \Illuminate\Http\Response $response */
+    $response = Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'landingContent' => $landingContent,
         'featuredProducts' => $featuredProducts,
-    ])->toResponse(request())->withHeaders([
+    ])->toResponse(request());
+
+    return $response->withHeaders([
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('home');
@@ -90,11 +93,14 @@ Route::get('/shop', function () {
     } catch (\Throwable $e) {
     }
 
-    return Inertia::render('LandingPage/Shop', [
+    /** @var \Illuminate\Http\Response $response */
+    $response = Inertia::render('LandingPage/Shop', [
         'products' => $products,
         'categories' => $categories,
         'canRegister' => Features::enabled(Features::registration()),
-    ])->toResponse(request())->withHeaders([
+    ])->toResponse(request());
+
+    return $response->withHeaders([
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('shop');
@@ -121,10 +127,13 @@ Route::get('/shop/product/{slug}', function (string $slug) {
         ]),
     ];
 
-    return Inertia::render('LandingPage/ProductDetail', [
+    /** @var \Illuminate\Http\Response $response */
+    $response = Inertia::render('LandingPage/ProductDetail', [
         'product' => $payload,
         'canRegister' => Features::enabled(Features::registration()),
-    ])->toResponse(request())->withHeaders([
+    ])->toResponse(request());
+
+    return $response->withHeaders([
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('shop.product');
@@ -140,10 +149,13 @@ Route::get('/locations', function () {
     }
     $locations = $locations ?? LandingPageSetting::defaultContent()['locations'];
 
-    return Inertia::render('LandingPage/Locations', [
+    /** @var \Illuminate\Http\Response $response */
+    $response = Inertia::render('LandingPage/Locations', [
         'locations' => $locations,
         'canRegister' => Features::enabled(Features::registration()),
-    ])->toResponse(request())->withHeaders([
+    ])->toResponse(request());
+
+    return $response->withHeaders([
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('locations');
@@ -159,10 +171,13 @@ Route::get('/about', function () {
     }
     $aboutUs = $aboutUs ?? LandingPageSetting::defaultContent()['aboutUs'];
 
-    return Inertia::render('LandingPage/About', [
+    /** @var \Illuminate\Http\Response $response */
+    $response = Inertia::render('LandingPage/About', [
         'aboutUs' => $aboutUs,
         'canRegister' => Features::enabled(Features::registration()),
-    ])->toResponse(request())->withHeaders([
+    ])->toResponse(request());
+
+    return $response->withHeaders([
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('about');
@@ -178,10 +193,13 @@ Route::get('/contact', function () {
     }
     $contactUs = $contactUs ?? LandingPageSetting::defaultContent()['contactUs'];
 
-    return Inertia::render('LandingPage/Contact', [
+    /** @var \Illuminate\Http\Response $response */
+    $response = Inertia::render('LandingPage/Contact', [
         'contactUs' => $contactUs,
         'canRegister' => Features::enabled(Features::registration()),
-    ])->toResponse(request())->withHeaders([
+    ])->toResponse(request());
+
+    return $response->withHeaders([
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('contact');
@@ -198,6 +216,8 @@ Route::get('/account', function (\Illuminate\Http\Request $request) {
         'status' => $request->session()->get('status'),
     ]);
 })->middleware(['auth'])->name('account.profile');
+
+Route::get('/my-purchases', [OrderController::class, 'myOrders'])->middleware(['auth'])->name('account.orders');
 
 /* ── Checkout ── */
 Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
