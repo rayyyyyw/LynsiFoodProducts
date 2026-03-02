@@ -167,7 +167,9 @@ export default function CheckoutIndex({ items, user }: Props) {
 
     return (
         <>
-            <Head title="Checkout – Lynsi Food Products" />
+            <Head title="Checkout – Lynsi Food Products">
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+            </Head>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
                 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -175,11 +177,27 @@ export default function CheckoutIndex({ items, user }: Props) {
                 input:focus, textarea:focus, select:focus { border-color: ${P.accent} !important; box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
                 @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
                 .fade-in { animation: fade-in 0.25s ease; }
+
+                @media (max-width: 768px) {
+                    .co-header-inner { padding: 0 12px !important; min-height: 52px !important; }
+                    .co-progress     { padding: 10px 12px !important; }
+                    .co-body         { padding: 16px 12px 60px !important; }
+                    .co-title        { font-size: 20px !important; margin-bottom: 20px !important; }
+                    .co-wrap         { flex-direction: column !important; gap: 20px !important; }
+                    .co-form         { flex: none !important; width: 100% !important; }
+                    .co-sidebar      { width: 100% !important; max-width: 100% !important; position: static !important; }
+                    .co-grid-2       { grid-template-columns: 1fr !important; }
+                    .co-grid-3       { grid-template-columns: 1fr !important; }
+                    .co-section      { padding: 18px !important; }
+                }
+                @media (max-width: 480px) {
+                    .co-title { font-size: 18px !important; }
+                }
             `}</style>
 
             {/* ── HEADER ── */}
             <header style={{ position: 'sticky', top: 0, zIndex: 100, background: `linear-gradient(135deg, #022c22 0%, ${P.primary} 100%)`, boxShadow: '0 2px 12px rgba(2,44,34,0.3)' }}>
-                <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 58, gap: 16 }}>
+                <div className="co-header-inner" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 58, gap: 16 }}>
                     <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
                         <img src={LOGO_URL} alt="" style={{ height: 28, objectFit: 'contain' }} />
                         <span style={{ fontWeight: 800, fontSize: 15, color: P.white, letterSpacing: '-0.3px' }}>
@@ -206,7 +224,7 @@ export default function CheckoutIndex({ items, user }: Props) {
             </header>
 
             {/* ── PROGRESS INDICATOR ── */}
-            <div style={{ background: P.white, borderBottom: `1px solid ${P.border}` }}>
+            <div className="co-progress" style={{ background: P.white, borderBottom: `1px solid ${P.border}` }}>
                 <div style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
                     {[
                         { label: '1  Cart', done: true, active: false },
@@ -225,31 +243,31 @@ export default function CheckoutIndex({ items, user }: Props) {
             </div>
 
             {/* ── BODY ── */}
-            <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px 80px' }}>
-                <h1 style={{ fontSize: 26, fontWeight: 800, color: P.primary, letterSpacing: '-0.5px', marginBottom: 28 }}>
+            <div className="co-body" style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px 80px' }}>
+                <h1 className="co-title" style={{ fontSize: 26, fontWeight: 800, color: P.primary, letterSpacing: '-0.5px', marginBottom: 28 }}>
                     Checkout
                 </h1>
 
                 <form onSubmit={submit}>
-                    <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                    <div className="co-wrap" style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
                         {/* ── LEFT: Form ── */}
-                        <div style={{ flex: '1 1 520px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div className="co-form" style={{ flex: '1 1 520px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
 
                             {/* Delivery Details */}
-                            <section className="fade-in" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                            <section className="fade-in co-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                                 <h2 style={{ fontSize: 15, fontWeight: 800, color: P.text, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <span style={{ width: 28, height: 28, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>1</span>
                                     Delivery Details
                                 </h2>
 
                                 <div style={{ display: 'grid', gap: 16 }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                                    <div className="co-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                                         <CheckoutField data={data} setData={setData} errors={errors} label="Full Name"   name="shipping_name"  placeholder="Juan Dela Cruz" required />
                                         <CheckoutField data={data} setData={setData} errors={errors} label="Phone Number" name="shipping_phone" placeholder="09XXXXXXXXX" required />
                                     </div>
                                     <CheckoutField data={data} setData={setData} errors={errors} label="Street Address" name="shipping_address" placeholder="House/Unit no., Street, Barangay" required />
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: 14 }}>
+                                    <div className="co-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: 14 }}>
                                         <CheckoutField data={data} setData={setData} errors={errors} label="City / Municipality" name="shipping_city"  placeholder="City or municipality" required />
                                         <CheckoutField data={data} setData={setData} errors={errors} label="Province"            name="shipping_province" as="select" required />
                                         <CheckoutField data={data} setData={setData} errors={errors} label="ZIP Code"            name="shipping_zip"  placeholder="4000" />
@@ -258,7 +276,7 @@ export default function CheckoutIndex({ items, user }: Props) {
                             </section>
 
                             {/* Payment Method */}
-                            <section className="fade-in" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                            <section className="fade-in co-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                                 <h2 style={{ fontSize: 15, fontWeight: 800, color: P.text, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <span style={{ width: 28, height: 28, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>2</span>
                                     Payment Method
@@ -295,22 +313,17 @@ export default function CheckoutIndex({ items, user }: Props) {
                             </section>
 
                             {/* Order Notes */}
-                            <section className="fade-in" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                            <section className="fade-in co-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                                 <h2 style={{ fontSize: 15, fontWeight: 800, color: P.text, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <span style={{ width: 28, height: 28, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>3</span>
                                     Order Notes <span style={{ fontSize: 12, fontWeight: 400, color: P.textLight }}>(optional)</span>
                                 </h2>
-                                <Field
-                                    label=""
-                                    name="notes"
-                                    as="textarea"
-                                    placeholder="Special instructions, landmark, or delivery notes…"
-                                />
+                                <CheckoutField data={data} setData={setData} errors={errors} label="" name="notes" as="textarea" placeholder="Special instructions, landmark, or delivery notes…" />
                             </section>
                         </div>
 
                         {/* ── RIGHT: Order Summary ── */}
-                        <div style={{ width: 320, flexShrink: 0, position: 'sticky', top: 76 }}>
+                        <div className="co-sidebar" style={{ width: 320, flexShrink: 0, position: 'sticky', top: 76 }}>
                             <div className="fade-in" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 2px 12px rgba(6,95,70,0.07)' }}>
                                 <h2 style={{ fontSize: 15, fontWeight: 800, color: P.text, marginBottom: 18 }}>
                                     Order Summary

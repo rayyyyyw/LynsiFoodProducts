@@ -75,7 +75,9 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
 
     return (
         <>
-            <Head title={`Order ${order.order_number} – Lynsi Food Products`} />
+            <Head title={`Order ${order.order_number} – Lynsi Food Products`}>
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+            </Head>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
                 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -87,11 +89,29 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                 .delay-1  { animation-delay: 0.1s; }
                 .delay-2  { animation-delay: 0.2s; }
                 .delay-3  { animation-delay: 0.3s; }
+
+                @media (max-width: 768px) {
+                    .conf-header-inner { padding: 0 12px !important; min-height: 52px !important; }
+                    .conf-wizard ol    { padding: 12px 16px !important; max-width: 100% !important; }
+                    .conf-wizard span  { font-size: 11px !important; }
+                    .conf-body         { padding: 24px 16px 60px !important; }
+                    .conf-title        { font-size: 22px !important; }
+                    .conf-badges       { flex-direction: column !important; gap: 8px !important; }
+                    .conf-grid-2       { grid-template-columns: 1fr !important; gap: 16px !important; }
+                    .conf-actions      { flex-direction: column !important; width: 100% !important; }
+                    .conf-actions a    { width: 100% !important; justify-content: center !important; box-sizing: border-box !important; }
+                    .conf-item-row     { flex-wrap: wrap !important; gap: 8px !important; }
+                    .conf-item-price   { width: 100% !important; text-align: left !important; }
+                }
+                @media (max-width: 480px) {
+                    .conf-title { font-size: 20px !important; }
+                    .conf-section { padding: 18px !important; }
+                }
             `}</style>
 
             {/* ── HEADER ── */}
             <header style={{ position: 'sticky', top: 0, zIndex: 100, background: `linear-gradient(135deg, #022c22 0%, ${P.primary} 100%)`, boxShadow: '0 2px 12px rgba(2,44,34,0.3)' }}>
-                <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 58, gap: 16 }}>
+                <div className="conf-header-inner" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 58, gap: 16 }}>
                     <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
                         <img src={LOGO_URL} alt="" style={{ height: 28, objectFit: 'contain' }} />
                         <span style={{ fontWeight: 800, fontSize: 15, color: P.white, letterSpacing: '-0.3px' }}>
@@ -111,6 +131,7 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
             <div
                 role="navigation"
                 aria-label="Checkout progress"
+                className="conf-wizard"
                 style={{ background: P.white, borderBottom: `1px solid ${P.border}`, width: '100%' }}
             >
                 <ol
@@ -198,20 +219,20 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
             </div>
 
             {/* ── BODY ── */}
-            <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 20px 80px' }}>
+            <div className="conf-body" style={{ maxWidth: 760, margin: '0 auto', padding: '40px 20px 80px' }}>
 
                 {/* Success + Final confirmation */}
                 <div className="pop-in" style={{ textAlign: 'center', marginBottom: 32 }}>
                     <div style={{ width: 72, height: 72, borderRadius: '50%', background: `linear-gradient(135deg, ${P.accent}, ${P.primary})`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 34, marginBottom: 16, boxShadow: '0 4px 20px rgba(16,185,129,0.4)' }}>
                         ✓
                     </div>
-                    <h1 style={{ fontSize: 26, fontWeight: 800, color: P.primary, letterSpacing: '-0.5px', marginBottom: 6 }}>
+                    <h1 className="conf-title" style={{ fontSize: 26, fontWeight: 800, color: P.primary, letterSpacing: '-0.5px', marginBottom: 6 }}>
                         Order Placed Successfully!
                     </h1>
                     <p style={{ fontSize: 14, color: P.textMuted, marginBottom: 16 }}>
                         Thank you, <strong>{order.shipping_name}</strong>! We've received your order and will process it shortly.
                     </p>
-                    <div style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                    <div className="conf-badges" style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: P.accentBg, border: `1px solid ${P.border}`, borderRadius: 50 }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: P.primary }}>Order #</span>
                             <span style={{ fontSize: 13, fontWeight: 800, color: P.primary, letterSpacing: '0.5px' }}>{order.order_number}</span>
@@ -240,13 +261,13 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
                     {/* Items */}
-                    <section className="fade-up delay-1" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                    <section className="fade-up delay-1 conf-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                         <h3 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 16 }}>
                             Items ordered ({totalQty})
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                             {order.items.map((item, idx) => (
-                                <div key={idx} style={{ display: 'flex', gap: 12, alignItems: 'center', paddingBottom: idx < order.items.length - 1 ? 12 : 0, borderBottom: idx < order.items.length - 1 ? `1px solid ${P.borderGray}` : 'none' }}>
+                                <div key={idx} className="conf-item-row" style={{ display: 'flex', gap: 12, alignItems: 'center', paddingBottom: idx < order.items.length - 1 ? 12 : 0, borderBottom: idx < order.items.length - 1 ? `1px solid ${P.borderGray}` : 'none' }}>
                                     <div style={{ flexShrink: 0 }}>
                                         {item.product_image_url ? (
                                             <img src={item.product_image_url} alt={item.product_name}
@@ -264,7 +285,7 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                                             Qty {item.quantity} × {formatPrice(item.unit_price)}
                                         </div>
                                     </div>
-                                    <div style={{ fontSize: 14, fontWeight: 800, color: P.primary }}>
+                                    <div className="conf-item-price" style={{ fontSize: 14, fontWeight: 800, color: P.primary }}>
                                         {formatPrice(item.line_total)}
                                     </div>
                                 </div>
@@ -272,10 +293,10 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                         </div>
                     </section>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                    <div className="conf-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
 
                         {/* Delivery Info */}
-                        <section className="fade-up delay-2" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                        <section className="fade-up delay-2 conf-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                             <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                                 🚚 Delivery Address
                             </h2>
@@ -293,7 +314,7 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                         </section>
 
                         {/* Payment & Total */}
-                        <section className="fade-up delay-2" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                        <section className="fade-up delay-2 conf-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                             <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                                 💳 Payment
                             </h2>
@@ -320,7 +341,7 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                     </div>
 
                     {/* Actions */}
-                    <div className="fade-up delay-3" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 8 }}>
+                    <div className="fade-up delay-3 conf-actions" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 8 }}>
                         <Link href="/my-purchases" style={{
                             display: 'inline-flex', alignItems: 'center', gap: 8,
                             padding: '12px 28px',

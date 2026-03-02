@@ -206,6 +206,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
     const [step, setStep] = useState<1 | 2>(initialStep);
     const [animDir, setAnimDir] = useState<'forward' | 'back'>('forward');
     const [animating, setAnimating] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
     const subtotal  = items.reduce((s, i) => s + i.variant.price * i.quantity, 0);
@@ -255,6 +256,11 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
 
     function submitOrder(e: FormEvent) {
         e.preventDefault();
+        setShowConfirmModal(true);
+    }
+
+    function confirmAndPlaceOrder() {
+        setShowConfirmModal(false);
         post('/checkout');
     }
 
@@ -266,7 +272,9 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
 
     return (
         <>
-            <Head title="Checkout – Lynsi Food Products" />
+            <Head title="Checkout – Lynsi Food Products">
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+            </Head>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
                 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -288,11 +296,40 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                 .step-enter-back    { animation: slide-in-left  0.24s ease both; }
                 .step-exit-forward  { animation: slide-out-left  0.22s ease both; }
                 .step-exit-back     { animation: slide-out-right 0.22s ease both; }
+
+                @media (max-width: 768px) {
+                    .cart-header-inner { padding: 0 12px !important; min-height: 52px !important; }
+                    .cart-step-bar     { top: 52px !important; }
+                    .cart-step-inner   { padding: 0 12px !important; }
+                    .cart-step-label   { font-size: 11px !important; }
+                    .cart-body         { padding: 16px 12px 60px !important; }
+                    .cart-wrap         { flex-direction: column !important; gap: 20px !important; }
+                    .cart-main         { flex: none !important; width: 100% !important; }
+                    .cart-sidebar      { width: 100% !important; max-width: 100% !important; position: static !important; }
+                    .cart-item-row     { flex-wrap: wrap !important; gap: 12px !important; padding: 12px !important; }
+                    .cart-item-details { flex: 1 1 100% !important; min-width: 0 !important; }
+                    .cart-item-actions { flex-direction: row !important; width: 100% !important; justify-content: space-between !important; align-items: center !important; }
+                    .checkout-form-grid-2 { grid-template-columns: 1fr !important; }
+                    .checkout-form-grid-3 { grid-template-columns: 1fr !important; }
+                    .checkout-section  { padding: 18px !important; }
+                    .cart-footer-buttons { flex-wrap: wrap !important; gap: 10px !important; }
+                    .cart-footer-buttons button, .cart-footer-buttons a { min-width: 0 !important; }
+                    .confirm-modal-card { margin: 12px !important; max-height: 85vh !important; padding: 20px !important; }
+                    .confirm-modal-actions { flex-direction: column !important; }
+                    .confirm-modal-actions button { width: 100% !important; }
+                }
+                @media (max-width: 480px) {
+                    .cart-step-text { display: none !important; }
+                    .cart-item-row { flex-direction: column !important; align-items: flex-start !important; }
+                    .cart-item-row .cart-item-img { margin: 0 auto; }
+                    .cart-title { font-size: 18px !important; }
+                    .cart-title .cart-title-meta { margin-left: 6px !important; font-size: 12px !important; }
+                }
             `}</style>
 
             {/* ── HEADER ── */}
             <header style={{ position: 'sticky', top: 0, zIndex: 100, background: `linear-gradient(135deg, #022c22 0%, ${P.primary} 100%)`, boxShadow: '0 2px 12px rgba(2,44,34,0.3)' }}>
-                <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 58, gap: 16 }}>
+                <div className="cart-header-inner" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 58, gap: 16 }}>
                     <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
                         <img src={LOGO_URL} alt="" style={{ height: 28, objectFit: 'contain' }} />
                         <span style={{ fontWeight: 800, fontSize: 15, color: P.white, letterSpacing: '-0.3px' }}>
@@ -327,15 +364,15 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
             </header>
 
             {/* ── STEP INDICATOR ── */}
-            <div style={{ background: P.white, borderBottom: `1px solid ${P.border}`, position: 'sticky', top: 58, zIndex: 90 }}>
-                <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
+            <div className="cart-step-bar" style={{ background: P.white, borderBottom: `1px solid ${P.border}`, position: 'sticky', top: 58, zIndex: 90 }}>
+                <div className="cart-step-inner" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
                     <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
                         {STEPS.map((s, i) => {
                             const done   = step > s.n;
                             const active = step === s.n;
                             return (
                                 <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 0, flex: i < STEPS.length - 1 ? 1 : 'unset' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '13px 0', paddingRight: 8 }}>
+                                    <div className="cart-step-label" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '13px 0', paddingRight: 8 }}>
                                         <div style={{
                                             width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -346,7 +383,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                         }}>
                                             {done ? '✓' : s.n}
                                         </div>
-                                        <span style={{
+                                        <span className="cart-step-text" style={{
                                             fontSize: 13, fontWeight: active ? 700 : done ? 600 : 400,
                                             color: active ? P.primary : done ? P.accent : P.textLight,
                                             whiteSpace: 'nowrap',
@@ -364,7 +401,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
             </div>
 
             {/* ── BODY ── */}
-            <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px 80px' }}>
+            <div className="cart-body" style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px 80px' }}>
 
                 {/* Empty cart */}
                 {items.length === 0 ? (
@@ -377,10 +414,10 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                         </Link>
                     </div>
                 ) : (
-                    <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                    <div className="cart-wrap" style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
                         {/* ── MAIN CONTENT (steps) ── */}
-                        <div style={{ flex: '1 1 500px', minWidth: 0, overflow: 'hidden' }}>
+                        <div className="cart-main" style={{ flex: '1 1 500px', minWidth: 0, overflow: 'hidden' }}>
                             <div
                                 ref={contentRef}
                                 className={
@@ -444,14 +481,14 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                                 </div>
                                             </div>
                                         )}
-                                        <h1 style={{ fontSize: 22, fontWeight: 800, color: P.primary, letterSpacing: '-0.4px', marginBottom: 4 }}>
+                                        <h1 className="cart-title" style={{ fontSize: 22, fontWeight: 800, color: P.primary, letterSpacing: '-0.4px', marginBottom: 4 }}>
                                             🛒 Review Your Cart
-                                            <span style={{ fontSize: 13, fontWeight: 500, color: P.textMuted, marginLeft: 10 }}>({totalQty} {totalQty === 1 ? 'item' : 'items'})</span>
+                                            <span className="cart-title-meta" style={{ fontSize: 13, fontWeight: 500, color: P.textMuted, marginLeft: 10 }}>({totalQty} {totalQty === 1 ? 'item' : 'items'})</span>
                                         </h1>
 
                                         {items.map(item => (
-                                            <div key={item.is_guest_item ? `guest-${item.variant.id}` : item.id} style={{ display: 'flex', gap: 16, background: P.card, borderRadius: 16, border: `1px solid ${P.border}`, padding: 16, alignItems: 'center' }}>
-                                                <Link href={`/shop/product/${item.product.slug}`} style={{ flexShrink: 0 }}>
+                                            <div key={item.is_guest_item ? `guest-${item.variant.id}` : item.id} className="cart-item-row" style={{ display: 'flex', gap: 16, background: P.card, borderRadius: 16, border: `1px solid ${P.border}`, padding: 16, alignItems: 'center' }}>
+                                                <Link href={`/shop/product/${item.product.slug}`} className="cart-item-img" style={{ flexShrink: 0 }}>
                                                     {item.product.image_url ? (
                                                         <img src={item.product.image_url} alt={item.product.name} style={{ width: 76, height: 76, borderRadius: 12, objectFit: 'cover', border: `1px solid ${P.border}` }} />
                                                     ) : (
@@ -459,7 +496,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                                     )}
                                                 </Link>
 
-                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div className="cart-item-details" style={{ flex: 1, minWidth: 0 }}>
                                                     {item.product.category && (
                                                         <div style={{ fontSize: 11, fontWeight: 700, color: P.accent, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{item.product.category}</div>
                                                     )}
@@ -485,7 +522,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                                     </div>
                                                 </div>
 
-                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, flexShrink: 0 }}>
+                                                <div className="cart-item-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10, flexShrink: 0 }}>
                                                     <span style={{ fontSize: 16, fontWeight: 800, color: P.primary }}>{formatPrice(item.variant.price * item.quantity)}</span>
                                                     <button type="button" onClick={() => removeItem(item)} title="Remove"
                                                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.textLight, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4, borderRadius: 8, transition: 'all 0.15s' }}
@@ -498,7 +535,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                             </div>
                                         ))}
 
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                                        <div className="cart-footer-buttons" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
                                             <button type="button" onClick={clearCart}
                                                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: P.danger, fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', gap: 5, padding: '6px 4px' }}>
                                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
@@ -535,7 +572,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                         </h1>
 
                                         {/* Delivery details */}
-                                        <section style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                                        <section className="checkout-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 18 }}>
                                                 <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
                                                     <span style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>1</span>
@@ -549,12 +586,12 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                                 )}
                                             </div>
                                             <div style={{ display: 'grid', gap: 14 }}>
-                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                                                <div className="checkout-form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                                                     <CheckoutField data={data} setData={setData} errors={errors} label="Full Name"    name="shipping_name"  placeholder="Juan Dela Cruz" required />
                                                     <CheckoutField data={data} setData={setData} errors={errors} label="Phone Number" name="shipping_phone" placeholder="09XXXXXXXXX" required />
                                                 </div>
                                                 <CheckoutField data={data} setData={setData} errors={errors} label="Street Address" name="shipping_address" placeholder="House/Unit no., Street, Barangay" required />
-                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 110px', gap: 14 }}>
+                                                <div className="checkout-form-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 110px', gap: 14 }}>
                                                     <CheckoutField data={data} setData={setData} errors={errors} label="City / Municipality" name="shipping_city"     placeholder="City or municipality" required />
                                                     <CheckoutField data={data} setData={setData} errors={errors} label="Province"            name="shipping_province" as="select" required />
                                                     <CheckoutField data={data} setData={setData} errors={errors} label="ZIP Code"            name="shipping_zip"      placeholder="4000" />
@@ -563,7 +600,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                         </section>
 
                                         {/* Payment method */}
-                                        <section style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                                        <section className="checkout-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                                             <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                                                 <span style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>2</span>
                                                 Payment Method
@@ -595,7 +632,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                                         </section>
 
                                         {/* Order notes */}
-                                        <section style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
+                                        <section className="checkout-section" style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 1px 6px rgba(6,95,70,0.05)' }}>
                                             <h2 style={{ fontSize: 14, fontWeight: 800, color: P.text, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                                                 <span style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`, color: P.white, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>3</span>
                                                 Order Notes
@@ -629,7 +666,7 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                         </div>
 
                         {/* ── ORDER SUMMARY SIDEBAR ── */}
-                        <div style={{ width: 300, flexShrink: 0, position: 'sticky', top: 112 }}>
+                        <div className="cart-sidebar" style={{ width: 300, flexShrink: 0, position: 'sticky', top: 112 }}>
                             <div style={{ background: P.card, borderRadius: 18, border: `1px solid ${P.border}`, padding: 24, boxShadow: '0 2px 12px rgba(6,95,70,0.07)' }}>
                                 <h2 style={{ fontSize: 15, fontWeight: 800, color: P.text, marginBottom: 16 }}>
                                     Order Summary
@@ -726,6 +763,130 @@ export default function CartIndex({ items, initialStep = 1 }: { items: CartItemD
                     </div>
                 )}
             </div>
+
+            {/* ── Final confirmation modal (step 2) ── */}
+            {showConfirmModal && (
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="confirm-modal-title"
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 200,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 20,
+                        background: 'rgba(2,44,34,0.6)',
+                        backdropFilter: 'blur(4px)',
+                    }}
+                    onClick={() => setShowConfirmModal(false)}
+                >
+                    <div
+                        className="confirm-modal-card"
+                        style={{
+                            background: P.card,
+                            borderRadius: 20,
+                            border: `1px solid ${P.border}`,
+                            boxShadow: '0 24px 60px rgba(0,0,0,0.25)',
+                            maxWidth: 440,
+                            width: '100%',
+                            maxHeight: '90vh',
+                            overflow: 'auto',
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div style={{ padding: 28 }}>
+                            <h2 id="confirm-modal-title" style={{ fontSize: 20, fontWeight: 800, color: P.primary, marginBottom: 8 }}>
+                                Review your order
+                            </h2>
+                            <p style={{ fontSize: 14, color: P.textMuted, marginBottom: 20, lineHeight: 1.5 }}>
+                                Please review the items below. Are you sure you want to place this order?
+                            </p>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                                {items.map(item => (
+                                    <div key={item.is_guest_item ? `guest-${item.variant.id}` : item.id} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '12px 14px', background: P.accentBg, borderRadius: 12, border: `1px solid ${P.border}` }}>
+                                        {item.product.image_url ? (
+                                            <img src={item.product.image_url} alt={item.product.name} style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+                                        ) : (
+                                            <div style={{ width: 48, height: 48, borderRadius: 10, background: P.border, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>🥬</div>
+                                        )}
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontSize: 14, fontWeight: 700, color: P.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.name}</div>
+                                            {item.variant.display_name !== 'Default' && (
+                                                <div style={{ fontSize: 12, color: P.textMuted }}>{item.variant.display_name}</div>
+                                            )}
+                                            <div style={{ fontSize: 12, color: P.textLight, marginTop: 2 }}>
+                                                Qty {item.quantity} × {formatPrice(item.variant.price)}
+                                            </div>
+                                        </div>
+                                        <span style={{ fontSize: 14, fontWeight: 800, color: P.primary, flexShrink: 0 }}>{formatPrice(item.variant.price * item.quantity)}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ height: 1, background: P.borderGray, marginBottom: 14 }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: P.textMuted }}>
+                                    <span>Subtotal</span>
+                                    <span style={{ fontWeight: 600, color: P.text }}>{formatPrice(subtotal)}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: P.textMuted }}>
+                                    <span>Shipping</span>
+                                    <span style={{ fontWeight: 500, color: P.accent }}>{shippingFee === 0 ? 'Free' : formatPrice(shippingFee)}</span>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 800, color: P.text, marginBottom: 24 }}>
+                                <span>Total</span>
+                                <span style={{ color: P.primary }}>{formatPrice(total)}</span>
+                            </div>
+
+                            <div className="confirm-modal-actions" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmModal(false)}
+                                    style={{
+                                        padding: '12px 24px',
+                                        background: P.white,
+                                        color: P.textMuted,
+                                        border: `2px solid ${P.borderGray}`,
+                                        borderRadius: 12,
+                                        fontWeight: 600,
+                                        fontSize: 14,
+                                        cursor: 'pointer',
+                                        fontFamily: "'Inter', sans-serif",
+                                    }}
+                                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = P.accent; (e.currentTarget as HTMLButtonElement).style.color = P.primary; }}
+                                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = P.borderGray; (e.currentTarget as HTMLButtonElement).style.color = P.textMuted; }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={confirmAndPlaceOrder}
+                                    disabled={processing}
+                                    style={{
+                                        padding: '12px 24px',
+                                        background: processing ? P.textLight : `linear-gradient(135deg, ${P.secondary}, ${P.primary})`,
+                                        color: P.white,
+                                        border: 'none',
+                                        borderRadius: 12,
+                                        fontWeight: 700,
+                                        fontSize: 14,
+                                        cursor: processing ? 'not-allowed' : 'pointer',
+                                        fontFamily: "'Inter', sans-serif",
+                                        boxShadow: processing ? 'none' : '0 2px 8px rgba(6,95,70,0.28)',
+                                    }}
+                                >
+                                    {processing ? 'Placing order…' : 'Yes, place order'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
