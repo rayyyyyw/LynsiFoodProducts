@@ -295,7 +295,7 @@ export default function Shop() {
                                         placeholder="Min"
                                         value={priceMin}
                                         onChange={(e) => setPriceMin(e.target.value)}
-                                        className="w-full rounded border border-neutral-300 px-2 py-1.5 text-xs sm:text-sm focus:border-emerald-500 focus:outline-none min-h-[36px]"
+                                        className="w-full rounded border border-neutral-300 bg-white px-2 py-1.5 text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-emerald-500 focus:outline-none min-h-[36px]"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -307,7 +307,7 @@ export default function Shop() {
                                         placeholder="Max"
                                         value={priceMax}
                                         onChange={(e) => setPriceMax(e.target.value)}
-                                        className="w-full rounded border border-neutral-300 px-2 py-1.5 text-xs sm:text-sm focus:border-emerald-500 focus:outline-none min-h-[36px]"
+                                        className="w-full rounded border border-neutral-300 bg-white px-2 py-1.5 text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-emerald-500 focus:outline-none min-h-[36px]"
                                     />
                                 </div>
                                 <button

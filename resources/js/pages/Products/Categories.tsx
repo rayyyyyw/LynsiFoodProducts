@@ -1,5 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { CircleDollarSign, Layers, ListChecks, Pencil, Plus, Trash2 } from 'lucide-react';
+import { CircleDollarSign, ChevronDown, Layers, ListChecks, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,29 @@ type Category = {
     price_list?: PriceItem[];
 };
 
+function StyledSelect({ id, value, onChange, placeholder, children }: {
+    id?: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    placeholder: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <div className="relative">
+            <select
+                id={id}
+                value={value}
+                onChange={onChange}
+                className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-border bg-background px-3 pr-9 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+                <option value="" className="text-muted-foreground">{placeholder}</option>
+                {children}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
+    );
+}
+
 export default function Categories({
     categories = [],
 }: {
@@ -43,10 +66,7 @@ export default function Categories({
     const [selectedCategoryIdForPriceList, setSelectedCategoryIdForPriceList] = useState<number | ''>('');
     const [newFlavorInput, setNewFlavorInput] = useState('');
 
-    const addForm = useForm({
-        name: '',
-        slug: '',
-    });
+    const addForm = useForm({ name: '', slug: '' });
 
     const flavorsForm = useForm({
         name: '',
@@ -150,17 +170,8 @@ export default function Categories({
 
     const handleAdd = (e: React.FormEvent) => {
         e.preventDefault();
-        const payload = {
-            name: addForm.data.name,
-            slug: addForm.data.slug,
-            flavors: [],
-            price_list: [],
-        };
-        addForm.transform(() => payload);
-        addForm.post('/products/categories', {
-            preserveScroll: true,
-            onSuccess: () => addForm.reset(),
-        });
+        addForm.transform(() => ({ name: addForm.data.name, slug: addForm.data.slug, flavors: [], price_list: [] }));
+        addForm.post('/products/categories', { preserveScroll: true, onSuccess: () => addForm.reset() });
     };
 
     const handleSaveFlavors = (e: React.FormEvent) => {
@@ -170,18 +181,10 @@ export default function Categories({
         const priceList = (flavorsForm.data.price_list ?? [])
             .filter((p) => String(p.size ?? '').trim() !== '')
             .map((p) => ({ size: String(p.size).trim(), price: Number(p.price) || 0 }));
-        const payload = {
-            name: flavorsForm.data.name,
-            slug: flavorsForm.data.slug,
-            flavors,
-            price_list: priceList,
-        };
-        flavorsForm.transform(() => payload);
+        flavorsForm.transform(() => ({ name: flavorsForm.data.name, slug: flavorsForm.data.slug, flavors, price_list: priceList }));
         flavorsForm.put(`/products/categories/${selectedCategoryIdForFlavors}`, {
             preserveScroll: true,
-            onSuccess: () => {
-                setSelectedCategoryIdForFlavors('');
-            },
+            onSuccess: () => setSelectedCategoryIdForFlavors(''),
         });
     };
 
@@ -191,18 +194,10 @@ export default function Categories({
         const priceList = priceListForm.data.price_list
             .filter((x) => String(x.size ?? '').trim() !== '')
             .map((x) => ({ size: String(x.size).trim(), price: Number(x.price) || 0 }));
-        const payload = {
-            name: priceListForm.data.name,
-            slug: priceListForm.data.slug,
-            flavors: priceListForm.data.flavors ?? [],
-            price_list: priceList,
-        };
-        priceListForm.transform(() => payload);
+        priceListForm.transform(() => ({ name: priceListForm.data.name, slug: priceListForm.data.slug, flavors: priceListForm.data.flavors ?? [], price_list: priceList }));
         priceListForm.put(`/products/categories/${selectedCategoryIdForPriceList}`, {
             preserveScroll: true,
-            onSuccess: () => {
-                setSelectedCategoryIdForPriceList('');
-            },
+            onSuccess: () => setSelectedCategoryIdForPriceList(''),
         });
     };
 
@@ -213,17 +208,8 @@ export default function Categories({
             .filter((x) => String(x.size ?? '').trim() !== '')
             .map((x) => ({ size: String(x.size).trim(), price: Number(x.price) || 0 }));
         const flavors = editForm.data.flavors.filter((f) => String(f ?? '').trim() !== '');
-        const payload = {
-            name: editForm.data.name,
-            slug: editForm.data.slug,
-            flavors,
-            price_list: priceList,
-        };
-        editForm.transform(() => payload);
-        editForm.put(`/products/categories/${editing.id}`, {
-            preserveScroll: true,
-            onSuccess: () => setEditing(null),
-        });
+        editForm.transform(() => ({ name: editForm.data.name, slug: editForm.data.slug, flavors, price_list: priceList }));
+        editForm.put(`/products/categories/${editing.id}`, { preserveScroll: true, onSuccess: () => setEditing(null) });
     };
 
     const handleDelete = (cat: Category) => {
@@ -231,6 +217,18 @@ export default function Categories({
         router.delete(`/products/categories/${cat.id}`, { preserveScroll: true });
         setEditing(null);
     };
+
+    function FormErrors({ errors }: { errors: Record<string, unknown> }) {
+        const entries = Object.entries(errors);
+        if (entries.length === 0) return null;
+        return (
+            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {entries.map(([k, v]) => (
+                    <div key={k}>{typeof v === 'string' ? v : Array.isArray(v) ? (v as string[]).join(', ') : String(v)}</div>
+                ))}
+            </div>
+        );
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -244,7 +242,7 @@ export default function Categories({
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-3">
-                    {/* Card 1: Food Category — list of categories + add form */}
+                    {/* ── Card 1: Food Category ─────────────────────────────────── */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -254,25 +252,21 @@ export default function Categories({
                             <CardDescription>These appear when adding a product. Add new categories below.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <ul className="min-h-16 list-none space-y-1.5 rounded-md border bg-muted/20 px-3 py-2">
+                            <div className="min-h-16 rounded-lg border bg-muted/20 px-3 py-2.5">
                                 {categories.length === 0 ? (
-                                    <li className="text-sm text-muted-foreground">No categories yet.</li>
+                                    <p className="text-sm text-muted-foreground">No categories yet.</p>
                                 ) : (
-                                    categories.map((cat) => (
-                                        <li key={cat.id} className="text-sm font-medium">
-                                            {cat.name}
-                                        </li>
-                                    ))
-                                )}
-                            </ul>
-                            <form onSubmit={handleAdd} className="space-y-3">
-                                {Object.keys(addForm.errors).length > 0 && (
-                                    <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                                        {Object.entries(addForm.errors).map(([k, v]) => (
-                                            <div key={k}>{typeof v === 'string' ? v : Array.isArray(v) ? (v as string[]).join(', ') : String(v)}</div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {categories.map((cat) => (
+                                            <span key={cat.id} className="inline-flex items-center rounded-full border bg-background px-2.5 py-1 text-xs font-medium text-foreground shadow-sm">
+                                                {cat.name}
+                                            </span>
                                         ))}
                                     </div>
                                 )}
+                            </div>
+                            <form onSubmit={handleAdd} className="space-y-3">
+                                <FormErrors errors={addForm.errors} />
                                 <div className="space-y-1.5">
                                     <Label htmlFor="cat-name" className="text-xs">Add category</Label>
                                     <Input id="cat-name" placeholder="e.g. Banana Chips" value={addForm.data.name} onChange={(e) => addForm.setData('name', e.target.value)} />
@@ -286,55 +280,64 @@ export default function Categories({
                         </CardContent>
                     </Card>
 
-                    {/* Card 2: Flavor Category — list of flavors for selected category */}
+                    {/* ── Card 2: Flavor Category ───────────────────────────────── */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <ListChecks className="size-5" />
                                 Flavor Category
                             </CardTitle>
-                            <CardDescription>Pick a food category, then manage its flavors. These appear when adding a product.</CardDescription>
+                            <CardDescription>Pick a food category, then manage its flavors.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="flavors-category" className="text-xs">Category</Label>
-                                <select
+                                <StyledSelect
                                     id="flavors-category"
-                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                     value={String(selectedCategoryIdForFlavors)}
                                     onChange={handleSelectCategoryForFlavors}
+                                    placeholder="Select a category"
                                 >
-                                    <option value="">Select a category</option>
                                     {categories.map((cat) => (
                                         <option key={cat.id} value={cat.id}>{cat.name}</option>
                                     ))}
-                                </select>
+                                </StyledSelect>
                             </div>
+
                             {selectedCategoryForFlavors ? (
                                 <form onSubmit={handleSaveFlavors} className="space-y-4">
-                                    <ul className="min-h-12 list-none space-y-1.5 rounded-md border bg-muted/20 px-3 py-2">
+                                    {/* Flavor chips */}
+                                    <div className="min-h-12 rounded-lg border bg-muted/10 p-2.5">
                                         {flavorsForm.data.flavors.filter((f) => String(f ?? '').trim()).length === 0 ? (
-                                            <li className="text-sm text-muted-foreground">No flavors. Add below.</li>
+                                            <p className="py-1 text-center text-sm text-muted-foreground">No flavors yet. Add one below.</p>
                                         ) : (
-                                            flavorsForm.data.flavors
-                                                .map((f, i) => ({ f, i }))
-                                                .filter(({ f }) => String(f ?? '').trim())
-                                                .map(({ f, i }) => (
-                                                    <li key={i} className="flex items-center justify-between gap-2">
-                                                        <span className="text-sm font-medium">{f}</span>
-                                                        <Button type="button" variant="ghost" size="icon" className="size-7 shrink-0 text-destructive" onClick={() => removeFlavor(i, 'flavorsForm')}>
-                                                            <Trash2 className="size-3.5" />
-                                                        </Button>
-                                                    </li>
-                                                ))
+                                            <div className="flex flex-wrap gap-2">
+                                                {flavorsForm.data.flavors.map((f, i) => {
+                                                    if (!String(f ?? '').trim()) return null;
+                                                    return (
+                                                        <span key={i} className="group inline-flex items-center gap-1 rounded-full border bg-primary/5 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm transition-colors hover:bg-primary/10">
+                                                            {f}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeFlavor(i, 'flavorsForm')}
+                                                                className="ml-0.5 inline-flex size-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
+                                                            >
+                                                                <X className="size-3" />
+                                                            </button>
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
                                         )}
-                                    </ul>
-                                    <div className="flex flex-wrap items-center gap-2">
+                                    </div>
+
+                                    {/* Add flavor input */}
+                                    <div className="flex items-center gap-2">
                                         <Input
-                                            placeholder="e.g. BBQ"
+                                            placeholder="e.g. BBQ, Cheese, Original"
                                             value={newFlavorInput}
                                             onChange={(e) => setNewFlavorInput(e.target.value)}
-                                            className="h-9 flex-1 min-w-24 text-sm"
+                                            className="h-9 flex-1 min-w-0 text-sm"
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter') {
                                                     e.preventDefault();
@@ -348,142 +351,142 @@ export default function Categories({
                                             type="button"
                                             variant="outline"
                                             size="sm"
+                                            className="shrink-0"
                                             onClick={() => {
                                                 const v = newFlavorInput.trim();
                                                 if (v) flavorsForm.setData('flavors', [...flavorsForm.data.flavors, v]);
                                                 setNewFlavorInput('');
                                             }}
                                         >
-                                            <Plus className="mr-1 size-4" /> Add flavor
+                                            <Plus className="mr-1 size-4" /> Add
                                         </Button>
                                     </div>
+
                                     <Button type="submit" className="w-full" disabled={flavorsForm.processing}>
                                         {flavorsForm.processing ? 'Saving...' : 'Save flavors'}
                                     </Button>
-                                    {Object.keys(flavorsForm.errors).length > 0 && (
-                                        <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                                            {Object.entries(flavorsForm.errors).map(([k, v]) => (
-                                                <div key={k}>{typeof v === 'string' ? v : Array.isArray(v) ? (v as string[]).join(', ') : String(v)}</div>
-                                            ))}
-                                        </div>
-                                    )}
+                                    <FormErrors errors={flavorsForm.errors} />
                                 </form>
                             ) : (
-                                <p className="text-sm text-muted-foreground">Select a category to view and edit its flavors.</p>
+                                <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed bg-muted/5 py-8 text-center">
+                                    <ListChecks className="size-8 text-muted-foreground/40" />
+                                    <p className="text-sm text-muted-foreground">Select a category above to manage its flavors.</p>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
 
-                    {/* Card 3: Size & Price Category — list of size and price */}
+                    {/* ── Card 3: Size & Price Category ─────────────────────────── */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <CircleDollarSign className="size-5" />
-                                Size & Price Category
+                                Size & Price
                             </CardTitle>
-                            <CardDescription>Pick a food category, then manage sizes and prices. These appear when adding a product.</CardDescription>
+                            <CardDescription>Pick a food category, then manage sizes and prices.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="price-category" className="text-xs">Category</Label>
-                                <select
+                                <StyledSelect
                                     id="price-category"
-                                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                     value={String(selectedCategoryIdForPriceList)}
                                     onChange={handleSelectCategoryForPriceList}
+                                    placeholder="Select a category"
                                 >
-                                    <option value="">Select a category</option>
                                     {categories.map((cat) => (
                                         <option key={cat.id} value={cat.id}>{cat.name}</option>
                                     ))}
-                                </select>
+                                </StyledSelect>
                             </div>
+
                             {selectedCategoryForPriceList ? (
                                 <form onSubmit={handleSavePriceList} className="space-y-4">
-                                    <ul className="min-h-12 list-none space-y-2">
+                                    <div className="space-y-2">
                                         {priceListForm.data.price_list.length === 0 ? (
-                                            <li className="rounded-lg border border-dashed bg-muted/10 px-4 py-3 text-center text-sm text-muted-foreground">
-                                                No sizes. Add below.
-                                            </li>
+                                            <div className="rounded-lg border border-dashed bg-muted/5 px-4 py-6 text-center text-sm text-muted-foreground">
+                                                No sizes yet. Add one below.
+                                            </div>
                                         ) : (
-                                            priceListForm.data.price_list.map((p, i) => (
-                                                <li key={i} className="flex items-center gap-3 rounded-lg border bg-background px-3 py-2 shadow-sm">
-                                                    <div className="flex flex-1 min-w-0 items-center">
-                                                        <Input
-                                                            placeholder="Size"
-                                                            value={p.size}
-                                                            onChange={(e) => setPrice(i, 'size', e.target.value, 'priceListForm')}
-                                                            className="h-9 rounded-r-none border-r-0 text-sm"
-                                                        />
-                                                        <span className="flex h-9 shrink-0 items-center rounded-r-md border border-l-0 bg-muted/50 px-2.5 text-sm font-medium text-muted-foreground">
-                                                            g
-                                                        </span>
+                                            <div className="space-y-2">
+                                                {priceListForm.data.price_list.map((p, i) => (
+                                                    <div key={i} className="flex items-center gap-2 rounded-lg border bg-background p-2 shadow-sm">
+                                                        <div className="flex flex-1 items-center min-w-0">
+                                                            <Input
+                                                                placeholder="Size"
+                                                                value={p.size}
+                                                                onChange={(e) => setPrice(i, 'size', e.target.value, 'priceListForm')}
+                                                                className="h-9 rounded-r-none border-r-0 text-sm"
+                                                            />
+                                                            <span className="flex h-9 shrink-0 items-center rounded-r-md border border-l-0 bg-muted/50 px-2 text-xs font-semibold text-muted-foreground">
+                                                                g
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <span className="flex h-9 shrink-0 items-center rounded-l-md border border-r-0 bg-muted/50 px-2 text-xs font-semibold text-muted-foreground">
+                                                                ₱
+                                                            </span>
+                                                            <Input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min={0}
+                                                                placeholder="0.00"
+                                                                value={p.price}
+                                                                onChange={(e) => setPrice(i, 'price', e.target.value, 'priceListForm')}
+                                                                className="h-9 w-24 rounded-l-none text-sm"
+                                                            />
+                                                        </div>
+                                                        <Button type="button" variant="ghost" size="icon" className="size-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" onClick={() => removePrice(i, 'priceListForm')} aria-label="Remove row">
+                                                            <Trash2 className="size-3.5" />
+                                                        </Button>
                                                     </div>
-                                                    <div className="flex items-center">
-                                                        <span className="flex h-9 shrink-0 items-center rounded-l-md border border-r-0 bg-muted/50 px-2.5 text-sm font-medium text-muted-foreground">
-                                                            ₱
-                                                        </span>
-                                                        <Input
-                                                            type="number"
-                                                            step="0.01"
-                                                            min={0}
-                                                            placeholder="0"
-                                                            value={p.price}
-                                                            onChange={(e) => setPrice(i, 'price', e.target.value, 'priceListForm')}
-                                                            className="h-9 w-24 rounded-l-none text-sm"
-                                                        />
-                                                    </div>
-                                                    <Button type="button" variant="ghost" size="icon" className="size-9 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" onClick={() => removePrice(i, 'priceListForm')} aria-label="Remove row">
-                                                        <Trash2 className="size-4" />
-                                                    </Button>
-                                                </li>
-                                            ))
+                                                ))}
+                                            </div>
                                         )}
-                                    </ul>
+                                    </div>
                                     <div className="flex flex-wrap gap-2">
                                         <Button type="button" variant="outline" size="sm" onClick={() => addPrice('priceListForm')}>
                                             <Plus className="mr-1 size-4" /> Add size & price
                                         </Button>
-                                        <Button type="submit" disabled={priceListForm.processing}>
-                                            {priceListForm.processing ? 'Saving...' : 'Save size & price'}
+                                        <Button type="submit" size="sm" disabled={priceListForm.processing}>
+                                            {priceListForm.processing ? 'Saving...' : 'Save prices'}
                                         </Button>
                                     </div>
-                                    {Object.keys(priceListForm.errors).length > 0 && (
-                                        <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                                            {Object.entries(priceListForm.errors).map(([k, v]) => (
-                                                <div key={k}>{typeof v === 'string' ? v : Array.isArray(v) ? (v as string[]).join(', ') : String(v)}</div>
-                                            ))}
-                                        </div>
-                                    )}
+                                    <FormErrors errors={priceListForm.errors} />
                                 </form>
                             ) : (
-                                <p className="text-sm text-muted-foreground">Select a category to view and edit its sizes and prices.</p>
+                                <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed bg-muted/5 py-8 text-center">
+                                    <CircleDollarSign className="size-8 text-muted-foreground/40" />
+                                    <p className="text-sm text-muted-foreground">Select a category above to manage sizes and prices.</p>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Your categories: compact summary with setup status */}
+                {/* ── Summary table ──────────────────────────────────────────── */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Your categories</CardTitle>
-                        <CardDescription>See which categories exist and how they’re set up. Edit to change everything, or use the cards above to change only flavors or prices.</CardDescription>
+                        <CardDescription>Overview of all categories. Click edit to change everything at once.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {categories.length === 0 ? (
-                            <p className="py-6 text-center text-sm text-muted-foreground">No categories yet. Add one in the Food category card above.</p>
+                            <p className="py-6 text-center text-sm text-muted-foreground">No categories yet. Add one above.</p>
                         ) : (
                             <ul className="divide-y rounded-lg border">
                                 {categories.map((cat) => {
                                     const flavorCount = (cat.flavors ?? []).length;
                                     const sizeCount = (cat.price_list ?? []).length;
                                     return (
-                                        <li key={cat.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 first:rounded-t-lg last:rounded-b-lg hover:bg-muted/30 sm:flex-nowrap">
+                                        <li key={cat.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 first:rounded-t-lg last:rounded-b-lg hover:bg-muted/30 sm:flex-nowrap">
                                             <div className="min-w-0 flex-1">
-                                                <span className="font-medium">{cat.name}</span>
-                                                <span className="ml-2 text-sm text-muted-foreground">
-                                                    {flavorCount} flavor{flavorCount !== 1 ? 's' : ''} · {sizeCount} size{sizeCount !== 1 ? 's' : ''} · {cat.products_count} product{cat.products_count !== 1 ? 's' : ''}
-                                                </span>
+                                                <span className="font-semibold">{cat.name}</span>
+                                                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                                                    <span>{flavorCount} flavor{flavorCount !== 1 ? 's' : ''}</span>
+                                                    <span>{sizeCount} size{sizeCount !== 1 ? 's' : ''}</span>
+                                                    <span>{cat.products_count} product{cat.products_count !== 1 ? 's' : ''}</span>
+                                                </div>
                                             </div>
                                             <div className="flex shrink-0 gap-1">
                                                 <Button variant="ghost" size="icon" className="size-8" aria-label="Edit" onClick={() => openEdit(cat)}>
@@ -501,20 +504,15 @@ export default function Categories({
                     </CardContent>
                 </Card>
 
+                {/* ── Edit dialog ────────────────────────────────────────────── */}
                 <Dialog open={!!editing} onOpenChange={(open) => !open && setEditing(null)}>
                     <DialogContent className="max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Edit category</DialogTitle>
                             <p className="text-sm text-muted-foreground">Update name, slug, flavors, and price list.</p>
                         </DialogHeader>
-                        <form onSubmit={handleEdit} className="space-y-4">
-                            {Object.keys(editForm.errors).length > 0 && (
-                                <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                                    {Object.entries(editForm.errors).map(([k, v]) => (
-                                        <div key={k}>{typeof v === 'string' ? v : Array.isArray(v) ? (v as string[]).join(', ') : String(v)}</div>
-                                    ))}
-                                </div>
-                            )}
+                        <form onSubmit={handleEdit} className="space-y-5">
+                            <FormErrors errors={editForm.errors} />
                             <div className="space-y-2">
                                 <Label>Name</Label>
                                 <Input value={editForm.data.name} onChange={(e) => editForm.setData('name', e.target.value)} />
@@ -525,6 +523,8 @@ export default function Categories({
                                 <Input value={editForm.data.slug} onChange={(e) => editForm.setData('slug', e.target.value)} />
                                 <InputError message={editForm.errors.slug} />
                             </div>
+
+                            {/* Flavors */}
                             <div className="space-y-2">
                                 <Label>Flavors</Label>
                                 {editForm.data.flavors.map((f, i) => (
@@ -539,20 +539,22 @@ export default function Categories({
                                     <Plus className="mr-1 size-4" /> Add flavor
                                 </Button>
                             </div>
+
+                            {/* Sizes & prices */}
                             <div className="space-y-2">
                                 <Label>Price list (size & price)</Label>
                                 {editForm.data.price_list.map((p, i) => (
-                                    <div key={i} className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/5 px-3 py-2">
+                                    <div key={i} className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/5 p-2">
                                         <div className="flex items-center">
                                             <Input placeholder="Size" value={p.size} onChange={(e) => setPrice(i, 'size', e.target.value, 'editForm')} className="h-9 w-24 rounded-r-none border-r-0" />
-                                            <span className="flex h-9 shrink-0 items-center rounded-r-md border border-l-0 bg-muted/50 px-2.5 text-sm font-medium text-muted-foreground">g</span>
+                                            <span className="flex h-9 shrink-0 items-center rounded-r-md border border-l-0 bg-muted/50 px-2 text-xs font-semibold text-muted-foreground">g</span>
                                         </div>
                                         <div className="flex items-center">
-                                            <span className="flex h-9 shrink-0 items-center rounded-l-md border border-r-0 bg-muted/50 px-2.5 text-sm font-medium text-muted-foreground">₱</span>
-                                            <Input type="number" step="0.01" min={0} placeholder="0" value={p.price} onChange={(e) => setPrice(i, 'price', e.target.value, 'editForm')} className="h-9 w-24 rounded-l-none" />
+                                            <span className="flex h-9 shrink-0 items-center rounded-l-md border border-r-0 bg-muted/50 px-2 text-xs font-semibold text-muted-foreground">₱</span>
+                                            <Input type="number" step="0.01" min={0} placeholder="0.00" value={p.price} onChange={(e) => setPrice(i, 'price', e.target.value, 'editForm')} className="h-9 w-24 rounded-l-none" />
                                         </div>
-                                        <Button type="button" variant="ghost" size="icon" className="size-9 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" onClick={() => removePrice(i, 'editForm')} aria-label="Remove row">
-                                            <Trash2 className="size-4" />
+                                        <Button type="button" variant="ghost" size="icon" className="size-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" onClick={() => removePrice(i, 'editForm')} aria-label="Remove row">
+                                            <Trash2 className="size-3.5" />
                                         </Button>
                                     </div>
                                 ))}
@@ -560,6 +562,7 @@ export default function Categories({
                                     <Plus className="mr-1 size-4" /> Add size & price
                                 </Button>
                             </div>
+
                             <DialogFooter>
                                 <Button type="button" variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
                                 <Button type="submit" disabled={editForm.processing}>{editForm.processing ? 'Saving...' : 'Update'}</Button>

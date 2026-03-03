@@ -301,15 +301,59 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('products')->name('prod
 });
 
 Route::patch('dashboard/orders/{order}/status', [OrderController::class, 'updateStatus'])->middleware(['auth', 'verified', 'admin'])->name('dashboard.orders.update-status');
+
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+    Route::patch('dashboard/customers/{user}/toggle-active', function (User $user) {
+        abort_if($user->role === 'admin', 403, 'Cannot deactivate an admin account.');
+        $user->update(['is_active' => !$user->is_active]);
+        return back();
+    })->name('dashboard.customers.toggle-active');
+
+    Route::delete('dashboard/customers/{user}', function (User $user) {
+        abort_if($user->role === 'admin', 403, 'Cannot delete an admin account.');
+        $user->delete();
+        return back();
+    })->name('dashboard.customers.destroy');
+});
+
 Route::get('dashboard/{section}', function (string $section) {
     if ($section === 'customers') {
-        $users = User::select('id', 'name', 'email', 'role', 'created_at')
+        $users = User::withCount('orders')
+            ->where('role', '!=', 'admin')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
+
+        $users->getCollection()->transform(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'is_active' => $user->is_active,
+                'profile_photo_url' => $user->profile_photo_url,
+                'phone' => $user->phone,
+                'address' => $user->address,
+                'city' => $user->city,
+                'province' => $user->province,
+                'zip' => $user->zip,
+                'orders_count' => $user->orders_count,
+                'total_spent' => (float) $user->orders()->sum('total'),
+                'created_at' => $user->created_at->toDateTimeString(),
+            ];
+        });
+
+        $now = now();
+        $nonAdmin = User::where('role', '!=', 'admin');
+        $customerStats = [
+            'total' => (clone $nonAdmin)->count(),
+            'active' => (clone $nonAdmin)->where('is_active', true)->count(),
+            'inactive' => (clone $nonAdmin)->where('is_active', false)->count(),
+            'new_this_month' => (clone $nonAdmin)->whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->count(),
+        ];
 
         return Inertia::render('UserManagement/Customers', [
             'section' => $section,
             'users' => $users,
+            'customerStats' => $customerStats,
         ]);
     }
 
