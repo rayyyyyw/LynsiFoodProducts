@@ -118,21 +118,29 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
             }}
         >
             <div
-                className="w-full max-w-[1200px] mx-auto flex items-center justify-between gap-1 sm:gap-2 md:gap-4 min-h-12 sm:min-h-14 md:min-h-16 px-2 sm:px-3 md:px-5"
+                className="w-full max-w-[1200px] mx-auto flex items-center justify-between gap-2 sm:gap-3 md:gap-4 min-h-12 sm:min-h-14 md:min-h-16 px-3 sm:px-4 md:px-5"
+                style={{ paddingLeft: 'max(12px, env(safe-area-inset-left))', paddingRight: 'max(12px, env(safe-area-inset-right))' }}
             >
-                {/* Logo – shrink on mobile so hamburger + CTA stay visible */}
+                {/* Logo – on very small screens logo-only; then "Lynsi" only; then full name to avoid truncation */}
                 <Link
                     href="/"
-                    className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1 md:flex-initial max-w-[55%] md:max-w-none"
+                    className="flex items-center gap-1.5 sm:gap-2 min-w-0 shrink md:flex-initial max-w-[45%] sm:max-w-[50%] md:max-w-none"
                     style={{ textDecoration: 'none', color: 'inherit' }}
                     aria-label="Lynsi Food Products - Home"
                 >
                     <img
                         src={LOGO_URL}
                         alt=""
-                        className="h-6 w-auto max-w-[56px] sm:h-7 sm:max-w-[72px] md:h-10 md:max-w-[140px] object-contain block shrink"
+                        className="h-7 w-auto max-w-[48px] sm:h-8 sm:max-w-[56px] md:h-10 md:max-w-[140px] object-contain block shrink-0"
                     />
-                    <span className="font-extrabold text-[11px] sm:text-[13px] md:text-lg tracking-tight truncate" style={{ color: PALETTE.primary }}>
+                    {/* Mobile: "Lynsi" only to avoid truncation; sm: add "FoodProducts"; md: full text */}
+                    <span className="font-extrabold text-[13px] sm:text-[14px] md:text-lg tracking-tight whitespace-nowrap md:hidden" style={{ color: PALETTE.primary }}>
+                        Lynsi
+                    </span>
+                    <span className="font-extrabold text-[14px] tracking-tight whitespace-nowrap hidden sm:inline md:hidden" style={{ color: PALETTE.accent }}>
+                        FoodProducts
+                    </span>
+                    <span className="font-extrabold text-lg tracking-tight whitespace-nowrap hidden md:inline" style={{ color: PALETTE.primary }}>
                         Lynsi<span style={{ color: PALETTE.accent }}>FoodProducts</span>
                     </span>
                 </Link>
@@ -171,12 +179,12 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                     })}
                 </div>
 
-                {/* Right side: notification bell + favorites + cart + user/login/register + hamburger (mobile) */}
-                <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                {/* Right side: notification bell + favorites + cart + user/login/register + hamburger (mobile) – compact on small screens */}
+                <div className="flex items-center gap-0.5 sm:gap-1.5 md:gap-2 shrink-0 min-w-0">
                     {/* Notification bell – when not logged in redirects to login */}
                     <Link
                         href={user ? '/account' : '/login'}
-                        className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0"
+                        className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg shrink-0 touch-manipulation"
                         style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
                         onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
@@ -188,7 +196,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                     {/* Favorites icon – client-side favorites from localStorage */}
                     <Link
                         href="/favorites"
-                        className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0"
+                        className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg shrink-0 touch-manipulation"
                         style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
                         onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
@@ -227,7 +235,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                         )}
                     </Link>
                     {/* Cart icon – visible for everyone (guests see count from session cart; clicking goes to /cart then redirects to login if needed) */}
-                    <Link href="/cart" className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg shrink-0" style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
+                    <Link href="/cart" className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg shrink-0 touch-manipulation" style={{ position: 'relative', textDecoration: 'none', color: PALETTE.primary, transition: 'background 0.15s' }}
                         onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = PALETTE.bg; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
                         title={user ? 'My Cart' : 'Cart (sign in to view and checkout)'}
@@ -410,7 +418,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                             {canRegister && (
                                 <Link
                                     href="/register"
-                                    className="inline-flex items-center justify-center min-h-[32px] py-1 px-2 sm:min-h-[36px] sm:py-1.5 sm:px-2.5 md:min-h-[44px] md:py-2.5 md:px-5 rounded-md md:rounded-xl font-semibold text-[10px] sm:text-[11px] md:text-sm whitespace-nowrap touch-manipulation shrink-0"
+                                    className="inline-flex items-center justify-center min-h-[32px] py-1.5 px-2 sm:min-h-[36px] sm:py-2 sm:px-3 md:min-h-[44px] md:py-2.5 md:px-5 rounded-lg md:rounded-xl font-semibold text-[11px] sm:text-[12px] md:text-sm whitespace-nowrap touch-manipulation shrink-0"
                                     style={{
                                         background: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',
                                         color: PALETTE.white, textDecoration: 'none',
@@ -438,7 +446,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                     <button
                         type="button"
                         onClick={() => setMobileNavOpen(!mobileNavOpen)}
-                        className="md:hidden flex items-center justify-center w-10 h-10 shrink-0 rounded-lg touch-manipulation"
+                        className="md:hidden flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-lg touch-manipulation"
                         style={{ background: mobileNavOpen ? PALETTE.bg : 'transparent', border: `1px solid ${mobileNavOpen ? PALETTE.border : 'transparent'}`, color: PALETTE.primary }}
                         aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
                         aria-expanded={mobileNavOpen}
@@ -464,6 +472,7 @@ export function LandingNav({ activeId, auth, canRegister = true }: Props) {
                         zIndex: 9999,
                         borderTop: `1px solid ${PALETTE.border}`,
                         boxShadow: '0 8px 32px rgba(6,95,70,0.15)',
+                        paddingTop: 16,
                         paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
                         paddingLeft: 'max(16px, env(safe-area-inset-left))',
                         paddingRight: 'max(16px, env(safe-area-inset-right))',

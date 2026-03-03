@@ -339,11 +339,12 @@ export default function Welcome({
                     rel="stylesheet"
                 />
                 <style>{`
-                    html { scroll-behavior: smooth; }
-                    section[id] { scroll-margin-top: 60px; }
+                    html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+                    body { overflow-x: hidden; }
+                    section[id] { scroll-margin-top: 56px; }
                     @media (min-width: 640px) { section[id] { scroll-margin-top: 72px; } }
 
-                    .lynsi-container { max-width: 1200px; margin: 0 auto; padding: 0 16px; width: 100%; }
+                    .lynsi-container { max-width: 1200px; margin: 0 auto; padding: 0 16px; width: 100%; box-sizing: border-box; min-width: 0; }
                     @media (min-width: 480px) { .lynsi-container { padding: 0 20px; } }
                     @media (min-width: 768px) { .lynsi-container { padding: 0 24px; } }
                     @supports (padding: max(0px)) {
@@ -356,7 +357,7 @@ export default function Welcome({
                     @media (min-width: 768px) { .lynsi-section { padding: 80px 24px; } }
                     @media (min-width: 1024px) { .lynsi-section { padding: 96px 24px; } }
 
-                    .lynsi-hero-section { padding: 28px 16px 44px; position: relative; }
+                    .lynsi-hero-section { padding: 24px 16px 40px; position: relative; min-width: 0; }
                     @media (min-width: 480px) { .lynsi-hero-section { padding: 40px 20px 56px; } }
                     @media (min-width: 768px) { .lynsi-hero-section { padding: 56px 24px 72px; } }
                     @media (min-width: 1024px) { .lynsi-hero-section { padding: 64px 48px 80px; } }
@@ -512,10 +513,10 @@ export default function Welcome({
                     }
                     @media (min-width: 768px) { .step-card { padding: 36px 28px; } }
 
-                    .lynsi-hero-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; }
-                    .lynsi-hero-inner .lynsi-hero-text { text-align: left; flex: 1; min-width: 0; max-width: 560px; }
-                    .lynsi-hero-inner .lynsi-hero-text p { margin-left: 0; margin-right: 0; }
-                    .lynsi-hero-visual { width: 100%; min-height: 240px; flex: 1 1 auto; flex-shrink: 0; border-radius: 12px; overflow: hidden; display: flex; align-items: stretch; justify-content: stretch; }
+                    .lynsi-hero-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; min-width: 0; }
+                    .lynsi-hero-inner .lynsi-hero-text { text-align: left; flex: 1; min-width: 0; max-width: 560px; overflow-wrap: break-word; }
+                    .lynsi-hero-inner .lynsi-hero-text p { margin-left: 0; margin-right: 0; overflow-wrap: break-word; }
+                    .lynsi-hero-visual { width: 100%; min-height: 220px; flex: 1 1 auto; flex-shrink: 0; border-radius: 12px; overflow: hidden; display: flex; align-items: stretch; justify-content: stretch; min-width: 0; }
                     .lynsi-hero-visual-inner { flex: 1; width: 100%; min-height: 240px; display: flex; flex-direction: column; align-items: stretch; justify-content: stretch; }
                     @media (min-width: 480px) {
                         .lynsi-hero-visual { min-height: 280px; border-radius: 16px; }
@@ -613,7 +614,7 @@ export default function Welcome({
                 `}</style>
             </Head>
 
-            <div className="flex min-h-screen flex-col" style={{ background: PALETTE.bg, fontFamily: "'Inter', sans-serif", color: PALETTE.primary }}>
+            <div className="flex min-h-screen flex-col overflow-x-hidden" style={{ background: PALETTE.bg, fontFamily: "'Inter', sans-serif", color: PALETTE.primary }}>
 
                 <LandingNav activeId="home" auth={auth ?? { user: null }} canRegister={canRegister} />
 
@@ -735,7 +736,7 @@ export default function Welcome({
                 {/* ── PRODUCTS ──────────────────────────────────────────────────────── */}
                 <section id="products" className="lynsi-section" style={{ background: PALETTE.white }}>
                     <div className="lynsi-container">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 sm:gap-5 mb-8 sm:mb-10">
                             <div>
                                 <div className="section-badge">{content.products.badge}</div>
                                 <h2 className="lynsi-section-title" style={{ fontWeight: 800, color: PALETTE.primary, marginBottom: '12px', letterSpacing: '-0.02em' }}>
