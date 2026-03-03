@@ -56,6 +56,18 @@ function StyledSelect({ id, value, onChange, placeholder, children }: {
     );
 }
 
+function FormErrors({ errors }: { errors: Record<string, unknown> }) {
+    const entries = Object.entries(errors);
+    if (entries.length === 0) return null;
+    return (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {entries.map(([k, v]) => (
+                <div key={k}>{typeof v === 'string' ? v : Array.isArray(v) ? (v as string[]).join(', ') : String(v)}</div>
+            ))}
+        </div>
+    );
+}
+
 export default function Categories({
     categories = [],
 }: {
@@ -217,18 +229,6 @@ export default function Categories({
         router.delete(`/products/categories/${cat.id}`, { preserveScroll: true });
         setEditing(null);
     };
-
-    function FormErrors({ errors }: { errors: Record<string, unknown> }) {
-        const entries = Object.entries(errors);
-        if (entries.length === 0) return null;
-        return (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {entries.map(([k, v]) => (
-                    <div key={k}>{typeof v === 'string' ? v : Array.isArray(v) ? (v as string[]).join(', ') : String(v)}</div>
-                ))}
-            </div>
-        );
-    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
