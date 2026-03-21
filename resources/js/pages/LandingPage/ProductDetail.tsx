@@ -15,7 +15,13 @@ const PALETTE = {
     white: '#ffffff',
 } as const;
 
-type Variant = { id: number; size: string | null; flavor: string | null; price: number; stock_quantity: number };
+type Variant = {
+    id: number;
+    size: string | null;
+    flavor: string | null;
+    price: number;
+    stock_quantity: number;
+};
 type CategoryRef = { id: number; name: string; slug: string } | null;
 type ProductData = {
     id: number;
@@ -45,7 +51,17 @@ function getSizeLabel(size: string | null): string | null {
 
 export default function ProductDetail() {
     const page = usePage();
-    const { auth } = page.props as { auth: { user: { id?: number; name?: string; email?: string; role?: string; profile_photo_url?: string | null } | null } | null };
+    const { auth } = page.props as {
+        auth: {
+            user: {
+                id?: number;
+                name?: string;
+                email?: string;
+                role?: string;
+                profile_photo_url?: string | null;
+            } | null;
+        } | null;
+    };
     const { product, canRegister = true } = page.props as {
         product: ProductData;
         canRegister?: boolean;
@@ -55,7 +71,7 @@ export default function ProductDetail() {
     const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [cartAdding, setCartAdding] = useState(false);
-    const [cartAdded,  setCartAdded]  = useState(false);
+    const [cartAdded, setCartAdded] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
 
     const favoritesKey = `lynsi_favorites_${auth?.user?.id ?? 'guest'}`;
@@ -63,15 +79,19 @@ export default function ProductDetail() {
     function addToCart() {
         if (!variant) return;
         setCartAdding(true);
-        router.post('/cart', { variant_id: variant.id, quantity: qty }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setCartAdding(false);
-                setCartAdded(true);
-                setTimeout(() => setCartAdded(false), 2000);
+        router.post(
+            '/cart',
+            { variant_id: variant.id, quantity: qty },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setCartAdding(false);
+                    setCartAdded(true);
+                    setTimeout(() => setCartAdded(false), 2000);
+                },
+                onError: () => setCartAdding(false),
             },
-            onError: () => setCartAdding(false),
-        });
+        );
     }
 
     const variant = product.variants[selectedVariantIndex];
@@ -88,12 +108,13 @@ export default function ProductDetail() {
             const raw = window.localStorage.getItem(favoritesKey);
             const arr = raw ? JSON.parse(raw) : [];
             const safeIds = Array.isArray(arr)
-                ? (arr as unknown[]).filter((id): id is number => typeof id === 'number')
+                ? (arr as unknown[]).filter(
+                      (id): id is number => typeof id === 'number',
+                  )
                 : [];
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsFavorite(safeIds.includes(product.id));
         } catch {
-             
             setIsFavorite(false);
         }
     }, [product.id, favoritesKey]);
@@ -102,12 +123,15 @@ export default function ProductDetail() {
         if (typeof window === 'undefined') return;
         try {
             const raw = window.localStorage.getItem(favoritesKey);
-            const arr: number[] = raw && Array.isArray(JSON.parse(raw))
-                ? (JSON.parse(raw) as unknown[]).filter((id): id is number => typeof id === 'number')
-                : [];
+            const arr: number[] =
+                raw && Array.isArray(JSON.parse(raw))
+                    ? (JSON.parse(raw) as unknown[]).filter(
+                          (id): id is number => typeof id === 'number',
+                      )
+                    : [];
             let next: number[];
             if (arr.includes(product.id)) {
-                next = arr.filter(id => id !== product.id);
+                next = arr.filter((id) => id !== product.id);
                 setIsFavorite(false);
             } else {
                 next = [...arr, product.id];
@@ -124,7 +148,11 @@ export default function ProductDetail() {
         <div className="flex min-h-screen flex-col bg-[#ecfdf5]">
             <Head title={`${product.name} – Lynsi Food Products`} />
 
-            <LandingNav activeId="products" auth={auth ?? { user: null }} canRegister={canRegister} />
+            <LandingNav
+                activeId="products"
+                auth={auth ?? { user: null }}
+                canRegister={canRegister}
+            />
 
             <main className="flex-1 px-4 py-8">
                 <div className="mx-auto max-w-6xl">
@@ -140,7 +168,11 @@ export default function ProductDetail() {
                         {/* Left: product image */}
                         <div
                             className="overflow-hidden rounded-2xl border bg-white"
-                            style={{ borderColor: PALETTE.border, aspectRatio: '1', maxHeight: '560px' }}
+                            style={{
+                                borderColor: PALETTE.border,
+                                aspectRatio: '1',
+                                maxHeight: '560px',
+                            }}
                         >
                             {product.image_url ? (
                                 <img
@@ -161,33 +193,49 @@ export default function ProductDetail() {
                         {/* Right: details */}
                         <div className="flex flex-col">
                             <span
-                                className="mb-2 inline-block w-fit rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide"
-                                style={{ background: PALETTE.light, color: PALETTE.primary }}
+                                className="mb-2 inline-block w-fit rounded-full px-3 py-1 text-xs font-medium tracking-wide uppercase"
+                                style={{
+                                    background: PALETTE.light,
+                                    color: PALETTE.primary,
+                                }}
                             >
                                 {categoryName}
                             </span>
-                            <h1 className="mb-2 text-2xl font-bold text-neutral-900 md:text-3xl">{product.name}</h1>
-                            <p className="mb-3 text-sm text-neutral-500">by Lynsi Food Products</p>
+                            <h1 className="mb-2 text-2xl font-bold text-neutral-900 md:text-3xl">
+                                {product.name}
+                            </h1>
+                            <p className="mb-3 text-sm text-neutral-500">
+                                by Lynsi Food Products
+                            </p>
 
                             {variant && (variant.flavor || variant.size) && (
                                 <div className="mb-4 flex flex-col gap-1">
                                     {variant.flavor && (
-                                        <div className="text-slate-600 font-medium">{variant.flavor}</div>
+                                        <div className="font-medium text-slate-600">
+                                            {variant.flavor}
+                                        </div>
                                     )}
                                     {getSizeLabel(variant.size) && (
-                                        <div className="text-slate-500 text-sm">{getSizeLabel(variant.size)}</div>
+                                        <div className="text-sm text-slate-500">
+                                            {getSizeLabel(variant.size)}
+                                        </div>
                                     )}
                                 </div>
                             )}
 
                             <div className="mb-6">
-                                <span className="text-3xl font-bold" style={{ color: PALETTE.primary }}>
+                                <span
+                                    className="text-3xl font-bold"
+                                    style={{ color: PALETTE.primary }}
+                                >
                                     {formatPrice(price)}
                                 </span>
                             </div>
 
                             {product.description && (
-                                <p className="mb-6 text-neutral-600 leading-relaxed">{product.description}</p>
+                                <p className="mb-6 leading-relaxed text-neutral-600">
+                                    {product.description}
+                                </p>
                             )}
 
                             {/* Variant selector (if multiple) */}
@@ -207,12 +255,25 @@ export default function ProductDetail() {
                                                 }}
                                                 className="rounded-lg border px-3 py-2 text-sm font-medium transition-colors"
                                                 style={{
-                                                    borderColor: selectedVariantIndex === i ? PALETTE.accent : PALETTE.border,
-                                                    background: selectedVariantIndex === i ? PALETTE.bg : PALETTE.white,
-                                                    color: selectedVariantIndex === i ? PALETTE.primary : PALETTE.muted,
+                                                    borderColor:
+                                                        selectedVariantIndex ===
+                                                        i
+                                                            ? PALETTE.accent
+                                                            : PALETTE.border,
+                                                    background:
+                                                        selectedVariantIndex ===
+                                                        i
+                                                            ? PALETTE.bg
+                                                            : PALETTE.white,
+                                                    color:
+                                                        selectedVariantIndex ===
+                                                        i
+                                                            ? PALETTE.primary
+                                                            : PALETTE.muted,
                                                 }}
                                             >
-                                                {getVariantLabel(v)} – {formatPrice(v.price)}
+                                                {getVariantLabel(v)} –{' '}
+                                                {formatPrice(v.price)}
                                             </button>
                                         ))}
                                     </div>
@@ -221,22 +282,37 @@ export default function ProductDetail() {
 
                             {/* Quantity */}
                             <div className="mb-6">
-                                <label className="mb-2 block text-sm font-medium text-neutral-700">Quantity</label>
+                                <label className="mb-2 block text-sm font-medium text-neutral-700">
+                                    Quantity
+                                </label>
                                 <div className="flex items-center gap-3">
-                                    <div className="flex items-center rounded-lg border bg-white" style={{ borderColor: PALETTE.border }}>
+                                    <div
+                                        className="flex items-center rounded-lg border bg-white"
+                                        style={{ borderColor: PALETTE.border }}
+                                    >
                                         <button
                                             type="button"
-                                            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                                            onClick={() =>
+                                                setQuantity((q) =>
+                                                    Math.max(1, q - 1),
+                                                )
+                                            }
                                             disabled={qty <= 1}
                                             className="flex h-11 w-11 items-center justify-center text-neutral-600 disabled:opacity-50"
                                             aria-label="Decrease quantity"
                                         >
                                             <Minus className="h-4 w-4" />
                                         </button>
-                                        <span className="min-w-10 text-center font-medium">{qty}</span>
+                                        <span className="min-w-10 text-center font-medium">
+                                            {qty}
+                                        </span>
                                         <button
                                             type="button"
-                                            onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
+                                            onClick={() =>
+                                                setQuantity((q) =>
+                                                    Math.min(maxQty, q + 1),
+                                                )
+                                            }
                                             disabled={qty >= maxQty}
                                             className="flex h-11 w-11 items-center justify-center text-neutral-600 disabled:opacity-50"
                                             aria-label="Increase quantity"
@@ -244,10 +320,18 @@ export default function ProductDetail() {
                                             <Plus className="h-4 w-4" />
                                         </button>
                                     </div>
-                                    {stock > 0
-                                        ? <span className="text-sm text-neutral-500">{stock} available</span>
-                                        : <span className="text-sm font-semibold" style={{ color: '#ef4444' }}>Out of stock</span>
-                                    }
+                                    {stock > 0 ? (
+                                        <span className="text-sm text-neutral-500">
+                                            {stock} available
+                                        </span>
+                                    ) : (
+                                        <span
+                                            className="text-sm font-semibold"
+                                            style={{ color: '#ef4444' }}
+                                        >
+                                            Out of stock
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
@@ -257,48 +341,118 @@ export default function ProductDetail() {
                                     type="button"
                                     onClick={addToCart}
                                     disabled={cartAdding || stock === 0}
-                                    className="flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold min-w-[140px] transition-all"
+                                    className="flex min-w-[140px] flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold transition-all"
                                     style={{
-                                        background: cartAdded ? PALETTE.light : PALETTE.primary,
-                                        color: cartAdded ? PALETTE.primary : PALETTE.white,
-                                        opacity: (cartAdding || stock === 0) ? 0.7 : 1,
-                                        cursor: (cartAdding || stock === 0) ? 'not-allowed' : 'pointer',
+                                        background: cartAdded
+                                            ? PALETTE.light
+                                            : PALETTE.primary,
+                                        color: cartAdded
+                                            ? PALETTE.primary
+                                            : PALETTE.white,
+                                        opacity:
+                                            cartAdding || stock === 0 ? 0.7 : 1,
+                                        cursor:
+                                            cartAdding || stock === 0
+                                                ? 'not-allowed'
+                                                : 'pointer',
                                     }}
                                 >
                                     {cartAdded ? (
-                                        <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Added to Cart!</>
+                                        <>
+                                            <svg
+                                                width="18"
+                                                height="18"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2.5"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>{' '}
+                                            Added to Cart!
+                                        </>
                                     ) : cartAdding ? (
-                                        <><span style={{ width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} /> Adding…</>
+                                        <>
+                                            <span
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    border: '2.5px solid rgba(255,255,255,0.4)',
+                                                    borderTopColor: '#fff',
+                                                    borderRadius: '50%',
+                                                    display: 'inline-block',
+                                                    animation:
+                                                        'spin 0.7s linear infinite',
+                                                }}
+                                            />{' '}
+                                            Adding…
+                                        </>
                                     ) : stock === 0 ? (
                                         'Out of Stock'
                                     ) : (
-                                        <><ShoppingCart className="h-5 w-5" /> Add to Cart</>
+                                        <>
+                                            <ShoppingCart className="h-5 w-5" />{' '}
+                                            Add to Cart
+                                        </>
                                     )}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={toggleFavorite}
-                                    className="flex items-center justify-center gap-2 rounded-xl border px-6 py-3.5 font-semibold min-w-[140px]"
+                                    className="flex min-w-[140px] items-center justify-center gap-2 rounded-xl border px-6 py-3.5 font-semibold"
                                     style={{
-                                        borderColor: isFavorite ? '#ef4444' : PALETTE.border,
-                                        color: isFavorite ? '#ef4444' : PALETTE.primary,
+                                        borderColor: isFavorite
+                                            ? '#ef4444'
+                                            : PALETTE.border,
+                                        color: isFavorite
+                                            ? '#ef4444'
+                                            : PALETTE.primary,
                                         background: PALETTE.white,
                                     }}
                                 >
                                     <Heart
                                         className="h-5 w-5"
-                                        color={isFavorite ? '#ef4444' : PALETTE.primary}
+                                        color={
+                                            isFavorite
+                                                ? '#ef4444'
+                                                : PALETTE.primary
+                                        }
                                         fill={isFavorite ? '#ef4444' : 'none'}
                                     />
-                                    {isFavorite ? 'Favorited' : 'Add to Favorites'}
+                                    {isFavorite
+                                        ? 'Favorited'
+                                        : 'Add to Favorites'}
                                 </button>
                             </div>
                             {cartAdded && (
-                                <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
-                                    <Link href="/cart" className="rounded-lg px-4 py-2 text-sm font-semibold text-white" style={{ background: PALETTE.primary, textDecoration: 'none' }}>
+                                <div
+                                    style={{
+                                        marginTop: 12,
+                                        display: 'flex',
+                                        gap: 10,
+                                    }}
+                                >
+                                    <Link
+                                        href="/cart"
+                                        className="rounded-lg px-4 py-2 text-sm font-semibold text-white"
+                                        style={{
+                                            background: PALETTE.primary,
+                                            textDecoration: 'none',
+                                        }}
+                                    >
                                         View Cart →
                                     </Link>
-                                    <Link href="/shop" className="rounded-lg border px-4 py-2 text-sm font-semibold" style={{ borderColor: PALETTE.border, color: PALETTE.primary, textDecoration: 'none' }}>
+                                    <Link
+                                        href="/shop"
+                                        className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                                        style={{
+                                            borderColor: PALETTE.border,
+                                            color: PALETTE.primary,
+                                            textDecoration: 'none',
+                                        }}
+                                    >
                                         Continue Shopping
                                     </Link>
                                 </div>
@@ -306,16 +460,23 @@ export default function ProductDetail() {
 
                             {/* Optional: expiry */}
                             {product.expiry && (
-                                <div className="mt-8 border-t pt-6" style={{ borderColor: PALETTE.border }}>
-                                    <h3 className="mb-1 text-sm font-semibold text-neutral-700">Best before</h3>
-                                    <p className="text-sm text-neutral-600">{product.expiry}</p>
+                                <div
+                                    className="mt-8 border-t pt-6"
+                                    style={{ borderColor: PALETTE.border }}
+                                >
+                                    <h3 className="mb-1 text-sm font-semibold text-neutral-700">
+                                        Best before
+                                    </h3>
+                                    <p className="text-sm text-neutral-600">
+                                        {product.expiry}
+                                    </p>
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
             </main>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
     );
 }

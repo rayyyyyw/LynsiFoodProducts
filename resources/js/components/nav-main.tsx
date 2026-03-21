@@ -27,12 +27,14 @@ export function NavMain(props: NavMainProps) {
                         <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
                         <SidebarMenu>
                             {group.items.map((item) => (
-                                <SidebarMenuItem key={`${group.label}-${item.title}`}>
+                                <SidebarMenuItem
+                                    key={`${group.label}-${item.title}`}
+                                >
                                     <SidebarMenuButton
                                         asChild
                                         isActive={isCurrentUrl(item.href)}
                                         tooltip={{ children: item.title }}
-                                        className="data-[active=true]:bg-black data-[active=true]:text-white dark:data-[active=true]:bg-white dark:data-[active=true]:text-black data-[active=true]:hover:bg-black dark:data-[active=true]:hover:bg-white [&[data-active=true]>svg]:text-white dark:[&[data-active=true]>svg]:text-black"
+                                        className="data-[active=true]:bg-black data-[active=true]:text-white data-[active=true]:hover:bg-black dark:data-[active=true]:bg-white dark:data-[active=true]:text-black dark:data-[active=true]:hover:bg-white [&[data-active=true]>svg]:text-white dark:[&[data-active=true]>svg]:text-black"
                                     >
                                         <Link href={item.href} prefetch>
                                             {item.icon && <item.icon />}

@@ -11,7 +11,7 @@ export default function AppLogo() {
                 />
             </div>
             <div className="ml-2 min-w-0 flex-1 text-left">
-                <span className="truncate text-sm font-semibold leading-tight text-sidebar-foreground">
+                <span className="truncate text-sm leading-tight font-semibold text-sidebar-foreground">
                     Lynsi Administrator
                 </span>
             </div>

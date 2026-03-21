@@ -36,9 +36,7 @@ const products = (path: string) => `${productsPath}/${path}`;
 const mainNavGroups: NavGroup[] = [
     {
         label: 'Platform',
-        items: [
-            { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
-        ],
+        items: [{ title: 'Dashboard', href: dashboard(), icon: LayoutGrid }],
     },
     {
         label: 'Products',
@@ -46,7 +44,11 @@ const mainNavGroups: NavGroup[] = [
         items: [
             { title: 'Categories', href: products('categories'), icon: Layers },
             { title: 'Products', href: products('products'), icon: Package },
-            { title: 'Inventory', href: products('inventory'), icon: BarChart3 },
+            {
+                title: 'Inventory',
+                href: products('inventory'),
+                icon: BarChart3,
+            },
         ],
     },
     {
@@ -62,7 +64,11 @@ const mainNavGroups: NavGroup[] = [
         icon: Users,
         items: [
             { title: 'Customers', href: base('customers'), icon: Users },
-            { title: 'Reseller Applications', href: base('reseller'), icon: ClipboardList },
+            {
+                title: 'Reseller Applications',
+                href: base('reseller'),
+                icon: ClipboardList,
+            },
         ],
     },
     {
@@ -78,7 +84,11 @@ const mainNavGroups: NavGroup[] = [
         icon: HelpCircle,
         items: [
             { title: 'Queries', href: base('queries'), icon: HelpCircle },
-            { title: 'Feedbacks', href: base('feedbacks'), icon: MessageSquare },
+            {
+                title: 'Feedbacks',
+                href: base('feedbacks'),
+                icon: MessageSquare,
+            },
         ],
     },
 ];

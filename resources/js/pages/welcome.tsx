@@ -4,78 +4,218 @@ import { LandingNav } from '@/components/LandingNav';
 
 // ─── Palette ────────────────────────────────────────────────────────────────
 const P = {
-    forest:      '#031a0c',
-    deep:        '#052e16',
-    emerald:     '#065f46',
-    jade:        '#047857',
-    mint:        '#10b981',
-    sage:        '#34d399',
-    foam:        '#d1fae5',
-    mist:        '#f0fdf4',
-    white:       '#ffffff',
-    glassLight:  'rgba(255,255,255,0.72)',
-    glassDark:   'rgba(3,26,12,0.55)',
+    forest: '#031a0c',
+    deep: '#052e16',
+    emerald: '#065f46',
+    jade: '#047857',
+    mint: '#10b981',
+    sage: '#34d399',
+    foam: '#d1fae5',
+    mist: '#f0fdf4',
+    white: '#ffffff',
+    glassLight: 'rgba(255,255,255,0.72)',
+    glassDark: 'rgba(3,26,12,0.55)',
     glassStroke: 'rgba(255,255,255,0.18)',
     glassStrokeDark: 'rgba(52,211,153,0.18)',
-    textDark:    '#031a0c',
-    textMuted:   '#047857',
-    onDark:      '#d1fae5',
+    textDark: '#031a0c',
+    textMuted: '#047857',
+    onDark: '#d1fae5',
     onDarkMuted: '#6ee7b7',
 } as const;
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
 const LOCATIONS = [
-    { name: 'Lynsi Manila Hub',   address: '123 Organic Way, Bonifacio Global City', city: 'Metro Manila', phone: '+63 2 8123 4567',  hours: 'Mon–Sat 7AM–8PM', tag: 'Headquarters',      image_url: '' },
-    { name: 'Lynsi Cebu Store',   address: '456 Fresh Farm Road, Cebu Business Park',city: 'Cebu City',    phone: '+63 32 412 3456', hours: 'Mon–Sat 8AM–7PM', tag: 'Pick-up & Delivery', image_url: '' },
-    { name: 'Lynsi Davao Branch', address: '789 Eco Street, Lanang',                 city: 'Davao City',   phone: '+63 82 221 5678', hours: 'Mon–Sat 7AM–7PM', tag: 'Full Service',       image_url: '' },
+    {
+        name: 'Lynsi Manila Hub',
+        address: '123 Organic Way, Bonifacio Global City',
+        city: 'Metro Manila',
+        phone: '+63 2 8123 4567',
+        hours: 'Mon–Sat 7AM–8PM',
+        tag: 'Headquarters',
+        image_url: '',
+    },
+    {
+        name: 'Lynsi Cebu Store',
+        address: '456 Fresh Farm Road, Cebu Business Park',
+        city: 'Cebu City',
+        phone: '+63 32 412 3456',
+        hours: 'Mon–Sat 8AM–7PM',
+        tag: 'Pick-up & Delivery',
+        image_url: '',
+    },
+    {
+        name: 'Lynsi Davao Branch',
+        address: '789 Eco Street, Lanang',
+        city: 'Davao City',
+        phone: '+63 82 221 5678',
+        hours: 'Mon–Sat 7AM–7PM',
+        tag: 'Full Service',
+        image_url: '',
+    },
 ];
 
 const PRODUCTS = [
-    { name: 'Organic Hass Avocados', price: '₱350', unit: '/kg',   category: 'Fresh Fruits',  icon: '🥑', badge: 'Bestseller',      color: '#bbf7d0' },
-    { name: 'Farm-Fresh Tomatoes',   price: '₱120', unit: '/kg',   category: 'Vegetables',    icon: '🍅', badge: 'Harvested Today', color: '#fecaca' },
-    { name: 'Free-Range Brown Eggs', price: '₱240', unit: '/doz',  category: 'Dairy & Eggs',  icon: '🥚', badge: 'Organic',         color: '#fef3c7' },
-    { name: 'Artisan Sourdough',     price: '₱180', unit: '/loaf', category: 'Bakery',        icon: '🥖', badge: 'Fresh Baked',     color: '#fed7aa' },
+    {
+        name: 'Organic Hass Avocados',
+        price: '₱350',
+        unit: '/kg',
+        category: 'Fresh Fruits',
+        icon: '🥑',
+        badge: 'Bestseller',
+        color: '#bbf7d0',
+    },
+    {
+        name: 'Farm-Fresh Tomatoes',
+        price: '₱120',
+        unit: '/kg',
+        category: 'Vegetables',
+        icon: '🍅',
+        badge: 'Harvested Today',
+        color: '#fecaca',
+    },
+    {
+        name: 'Free-Range Brown Eggs',
+        price: '₱240',
+        unit: '/doz',
+        category: 'Dairy & Eggs',
+        icon: '🥚',
+        badge: 'Organic',
+        color: '#fef3c7',
+    },
+    {
+        name: 'Artisan Sourdough',
+        price: '₱180',
+        unit: '/loaf',
+        category: 'Bakery',
+        icon: '🥖',
+        badge: 'Fresh Baked',
+        color: '#fed7aa',
+    },
 ];
 
-const PARTNERS = ['FreshMart', 'GreenLeaf Co.', 'NaturaBite', 'OrganicHub', 'EcoFarm', 'PureGrown', 'HarvestPlus', 'VerdeFoods'];
+const PARTNERS = [
+    'FreshMart',
+    'GreenLeaf Co.',
+    'NaturaBite',
+    'OrganicHub',
+    'EcoFarm',
+    'PureGrown',
+    'HarvestPlus',
+    'VerdeFoods',
+];
 
 const BENEFITS = [
-    { icon: '🍃', title: '100% Organic',          desc: 'Every product is certified organic — no pesticides, no additives, just pure goodness from farm to table.' },
-    { icon: '🚚', title: 'Same-Day Delivery',      desc: 'Order before noon and get your fresh produce delivered to your door the very same day.' },
-    { icon: '🌱', title: 'Sustainably Sourced',    desc: 'We partner directly with local eco-farms to reduce food miles and support sustainable agriculture.' },
-    { icon: '💚', title: 'Health-First Selection', desc: 'Every product is hand-picked by nutritionists to ensure maximum health benefits for your family.' },
-    { icon: '♻️', title: 'Zero-Waste Packaging',   desc: 'All packaging is 100% compostable or recyclable — because we care about the planet as much as you do.' },
-    { icon: '🔒', title: 'Quality Guarantee',      desc: 'Not satisfied? We offer a full refund, no questions asked. Your satisfaction is our promise.' },
+    {
+        icon: '🍃',
+        title: '100% Organic',
+        desc: 'Every product is certified organic — no pesticides, no additives, just pure goodness from farm to table.',
+    },
+    {
+        icon: '🚚',
+        title: 'Same-Day Delivery',
+        desc: 'Order before noon and get your fresh produce delivered to your door the very same day.',
+    },
+    {
+        icon: '🌱',
+        title: 'Sustainably Sourced',
+        desc: 'We partner directly with local eco-farms to reduce food miles and support sustainable agriculture.',
+    },
+    {
+        icon: '💚',
+        title: 'Health-First Selection',
+        desc: 'Every product is hand-picked by nutritionists to ensure maximum health benefits for your family.',
+    },
+    {
+        icon: '♻️',
+        title: 'Zero-Waste Packaging',
+        desc: 'All packaging is 100% compostable or recyclable — because we care about the planet as much as you do.',
+    },
+    {
+        icon: '🔒',
+        title: 'Quality Guarantee',
+        desc: 'Not satisfied? We offer a full refund, no questions asked. Your satisfaction is our promise.',
+    },
 ];
 
 const STEPS = [
-    { step: '01', title: 'Choose Your Products',    desc: 'Browse our curated selection of over 500 fresh, organic food products sourced from certified local farms.' },
-    { step: '02', title: 'We Pack & Prepare',       desc: "Our team carefully handpicks, inspects, and packs your order in eco-friendly, temperature-controlled packaging." },
-    { step: '03', title: 'Delivered Fresh to You',  desc: 'Receive your fresh order right at your doorstep within hours — guaranteed fresh or your money back.' },
+    {
+        step: '01',
+        title: 'Choose Your Products',
+        desc: 'Browse our curated selection of over 500 fresh, organic food products sourced from certified local farms.',
+    },
+    {
+        step: '02',
+        title: 'We Pack & Prepare',
+        desc: 'Our team carefully handpicks, inspects, and packs your order in eco-friendly, temperature-controlled packaging.',
+    },
+    {
+        step: '03',
+        title: 'Delivered Fresh to You',
+        desc: 'Receive your fresh order right at your doorstep within hours — guaranteed fresh or your money back.',
+    },
 ];
 
 const TESTIMONIALS = [
-    { name: 'Maria Santos', role: 'Home Chef, Manila',   avatar: '👩‍🍳', stars: 5, text: "Lynsi Food Products has completely transformed how I cook. The freshness is unbeatable and I love knowing exactly where my food comes from. Highly recommend!" },
-    { name: 'Carlos Reyes', role: 'Fitness Coach, Cebu', avatar: '🏋️', stars: 5, text: "As a fitness coach, I recommend Lynsi to all my clients. The organic quality is top-notch and my clients have seen real improvements in their energy levels." },
-    { name: 'Ana Lim',      role: 'Mother of 3, Davao',  avatar: '👩‍👧', stars: 5, text: "I feel so much better knowing my kids are eating clean food. The same-day delivery is a game changer for our busy family schedule. We love Lynsi!" },
+    {
+        name: 'Maria Santos',
+        role: 'Home Chef, Manila',
+        avatar: '👩‍🍳',
+        stars: 5,
+        text: 'Lynsi Food Products has completely transformed how I cook. The freshness is unbeatable and I love knowing exactly where my food comes from. Highly recommend!',
+    },
+    {
+        name: 'Carlos Reyes',
+        role: 'Fitness Coach, Cebu',
+        avatar: '🏋️',
+        stars: 5,
+        text: 'As a fitness coach, I recommend Lynsi to all my clients. The organic quality is top-notch and my clients have seen real improvements in their energy levels.',
+    },
+    {
+        name: 'Ana Lim',
+        role: 'Mother of 3, Davao',
+        avatar: '👩‍👧',
+        stars: 5,
+        text: 'I feel so much better knowing my kids are eating clean food. The same-day delivery is a game changer for our busy family schedule. We love Lynsi!',
+    },
 ];
 
-function mergeWithDefaults(incoming: ReturnType<typeof getDefaultLandingContent> | null | undefined): ReturnType<typeof getDefaultLandingContent> {
+function mergeWithDefaults(
+    incoming: ReturnType<typeof getDefaultLandingContent> | null | undefined,
+): ReturnType<typeof getDefaultLandingContent> {
     const d = getDefaultLandingContent();
     if (!incoming || typeof incoming !== 'object') return d;
     return {
-        hero:       { ...d.hero,       ...incoming.hero },
-        products:   { ...d.products,   ...incoming.products,   items: incoming.products?.items   ?? d.products?.items },
-        benefits:   { ...d.benefits,   ...incoming.benefits,   items: incoming.benefits?.items   ?? d.benefits?.items },
-        howItWorks: { ...d.howItWorks, ...incoming.howItWorks, steps: incoming.howItWorks?.steps ?? d.howItWorks?.steps },
-        locations:  { ...d.locations,  ...incoming.locations,  items: incoming.locations?.items  ?? d.locations?.items },
-        aboutUs:    { ...d.aboutUs,    ...incoming.aboutUs },
-        contactUs:  { ...d.contactUs,  ...incoming.contactUs },
-        partners:   {
-            ...d.partners, ...incoming.partners,
+        hero: { ...d.hero, ...incoming.hero },
+        products: {
+            ...d.products,
+            ...incoming.products,
+            items: incoming.products?.items ?? d.products?.items,
+        },
+        benefits: {
+            ...d.benefits,
+            ...incoming.benefits,
+            items: incoming.benefits?.items ?? d.benefits?.items,
+        },
+        howItWorks: {
+            ...d.howItWorks,
+            ...incoming.howItWorks,
+            steps: incoming.howItWorks?.steps ?? d.howItWorks?.steps,
+        },
+        locations: {
+            ...d.locations,
+            ...incoming.locations,
+            items: incoming.locations?.items ?? d.locations?.items,
+        },
+        aboutUs: { ...d.aboutUs, ...incoming.aboutUs },
+        contactUs: { ...d.contactUs, ...incoming.contactUs },
+        partners: {
+            ...d.partners,
+            ...incoming.partners,
             title: incoming.partners?.title ?? d.partners?.title,
-            items: Array.isArray(incoming.partners?.items) ? incoming.partners.items : (d.partners?.items ?? []),
+            items: Array.isArray(incoming.partners?.items)
+                ? incoming.partners.items
+                : (d.partners?.items ?? []),
         },
     };
 }
@@ -86,50 +226,80 @@ function getDefaultLandingContent() {
             badge: '🌿 Philippines #1 Organic Food Platform',
             titleLine1: 'Lynsi Food Products,',
             titleLine2: 'Taste Beyond Compare',
-            subtitle: 'Discover over 500+ certified organic products from trusted local farms. Healthier eating, starting today — no compromises.',
-            ctaPrimary: '🛒 Shop Now', ctaSecondary: '▶ How It Works',
-            stat1Num: '500+', stat1Label: 'Products',
-            stat2Num: '50k+', stat2Label: 'Happy Customers',
-            stat3Num: '100%', stat3Label: 'Organic Certified',
+            subtitle:
+                'Discover over 500+ certified organic products from trusted local farms. Healthier eating, starting today — no compromises.',
+            ctaPrimary: '🛒 Shop Now',
+            ctaSecondary: '▶ How It Works',
+            stat1Num: '500+',
+            stat1Label: 'Products',
+            stat2Num: '50k+',
+            stat2Label: 'Happy Customers',
+            stat3Num: '100%',
+            stat3Label: 'Organic Certified',
         },
         products: {
-            badge: '🛒 Fresh Arrivals', title: 'Featured Products',
-            subtitle: 'Hand-picked, certified organic produce fresh from our local farm partners to your table.',
-            catalogueLabel: 'View Full Catalogue →', items: [...PRODUCTS],
+            badge: '🛒 Fresh Arrivals',
+            title: 'Featured Products',
+            subtitle:
+                'Hand-picked, certified organic produce fresh from our local farm partners to your table.',
+            catalogueLabel: 'View Full Catalogue →',
+            items: [...PRODUCTS],
         },
         benefits: {
-            badge: '🌿 Why Choose Lynsi', title: 'Benefits That Matter to You',
-            subtitle: "We don't just deliver food — we deliver a healthier, greener, more conscious lifestyle straight to your home.",
+            badge: '🌿 Why Choose Lynsi',
+            title: 'Benefits That Matter to You',
+            subtitle:
+                "We don't just deliver food — we deliver a healthier, greener, more conscious lifestyle straight to your home.",
             items: [...BENEFITS],
         },
         howItWorks: {
-            badge: '⚡ Simple Process', title: 'How It Works',
-            subtitle: 'From browse to doorstep in 3 effortless steps. Fresh food has never been this easy.',
+            badge: '⚡ Simple Process',
+            title: 'How It Works',
+            subtitle:
+                'From browse to doorstep in 3 effortless steps. Fresh food has never been this easy.',
             steps: [...STEPS],
         },
         locations: {
-            badge: '📍 Visit Us', title: 'Our Locations',
-            subtitle: 'Find a Lynsi store near you. Walk in for fresh picks or order ahead for same-day pickup and delivery.',
+            badge: '📍 Visit Us',
+            title: 'Our Locations',
+            subtitle:
+                'Find a Lynsi store near you. Walk in for fresh picks or order ahead for same-day pickup and delivery.',
             items: [...LOCATIONS],
         },
         aboutUs: {
-            badge: '🌿 Our Story', title: 'About Lynsi Food Products',
-            subtitle: "We're on a mission to make fresh, organic food accessible to every Filipino family.",
-            paragraph1: 'Lynsi Food Products started with a simple belief: everyone deserves access to clean, nutritious food straight from the farm. We partner directly with certified organic growers across the Philippines to bring you over 500+ products — from fresh produce to pantry staples — delivered to your doorstep.',
-            paragraph2: "Our values are rooted in sustainability, transparency, and community. We're committed to zero-waste packaging, fair partnerships with local farmers, and the highest quality standards so you can eat with confidence.",
-            stat1Num: '500+', stat1Label: 'Organic Products',
-            stat2Num: '50k+', stat2Label: 'Happy Families',
-            stat3Num: '100%', stat3Label: 'Philippine Sourced',
+            badge: '🌿 Our Story',
+            title: 'About Lynsi Food Products',
+            subtitle:
+                "We're on a mission to make fresh, organic food accessible to every Filipino family.",
+            paragraph1:
+                'Lynsi Food Products started with a simple belief: everyone deserves access to clean, nutritious food straight from the farm. We partner directly with certified organic growers across the Philippines to bring you over 500+ products — from fresh produce to pantry staples — delivered to your doorstep.',
+            paragraph2:
+                "Our values are rooted in sustainability, transparency, and community. We're committed to zero-waste packaging, fair partnerships with local farmers, and the highest quality standards so you can eat with confidence.",
+            stat1Num: '500+',
+            stat1Label: 'Organic Products',
+            stat2Num: '50k+',
+            stat2Label: 'Happy Families',
+            stat3Num: '100%',
+            stat3Label: 'Philippine Sourced',
             farmToTableTitle: 'Farm to Table',
-            farmToTableDesc: 'Every product is traceable to our partner farms. Quality you can trust.',
+            farmToTableDesc:
+                'Every product is traceable to our partner farms. Quality you can trust.',
         },
         contactUs: {
-            badge: '📬 Get in Touch', title: 'Contact Us',
-            subtitle: "Have questions, feedback, or need support? We'd love to hear from you.",
-            email: 'hello@lynsi.com', phone: '+63 2 8123 4567', address: 'Metro Manila, Philippines',
-            footerNote: "We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.",
+            badge: '📬 Get in Touch',
+            title: 'Contact Us',
+            subtitle:
+                "Have questions, feedback, or need support? We'd love to hear from you.",
+            email: 'hello@lynsi.com',
+            phone: '+63 2 8123 4567',
+            address: 'Metro Manila, Philippines',
+            footerNote:
+                'We typically respond within 24 hours. For orders and delivery support, you can also reach us through your account dashboard after signing in.',
         },
-        partners: { title: 'Trusted by leading food brands & retailers', items: [...PARTNERS] },
+        partners: {
+            title: 'Trusted by leading food brands & retailers',
+            items: [...PARTNERS],
+        },
     };
 }
 
@@ -137,21 +307,74 @@ function Stars({ count }: { count: number }) {
     return (
         <div style={{ display: 'flex', gap: '3px', marginBottom: '14px' }}>
             {Array.from({ length: count }).map((_, i) => (
-                <span key={i} style={{ color: '#f59e0b', fontSize: '15px' }}>★</span>
+                <span key={i} style={{ color: '#f59e0b', fontSize: '15px' }}>
+                    ★
+                </span>
             ))}
         </div>
     );
 }
 
 // ─── Leaf SVG decoration ─────────────────────────────────────────────────────
-function LeafOrb({ size = 300, opacity = 0.06, top = 'auto', left = 'auto', right = 'auto', bottom = 'auto', rotate = 0, color = P.mint }: { size?: number; opacity?: number; top?: string; left?: string; right?: string; bottom?: string; rotate?: number; color?: string }) {
+function LeafOrb({
+    size = 300,
+    opacity = 0.06,
+    top = 'auto',
+    left = 'auto',
+    right = 'auto',
+    bottom = 'auto',
+    rotate = 0,
+    color = P.mint,
+}: {
+    size?: number;
+    opacity?: number;
+    top?: string;
+    left?: string;
+    right?: string;
+    bottom?: string;
+    rotate?: number;
+    color?: string;
+}) {
     return (
-        <div style={{ position: 'absolute', top, left, right, bottom, width: size, height: size, opacity, transform: `rotate(${rotate}deg)`, pointerEvents: 'none', zIndex: 0 }}>
-            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
-                <path d="M 100 10 Q 170 10 190 80 Q 200 120 160 160 Q 120 200 70 180 Q 20 155 10 100 Q -5 40 60 15 Q 80 8 100 10 Z" fill={color} />
-                <path d="M100 10 L100 180" stroke="rgba(255,255,255,0.3)" strokeWidth="1" strokeDasharray="4 6" />
-                <path d="M100 60 Q 130 80 100 100 Q 70 80 100 60 Z" fill="rgba(255,255,255,0.15)" />
-                <path d="M100 90 Q 140 110 100 135 Q 60 110 100 90 Z" fill="rgba(255,255,255,0.12)" />
+        <div
+            style={{
+                position: 'absolute',
+                top,
+                left,
+                right,
+                bottom,
+                width: size,
+                height: size,
+                opacity,
+                transform: `rotate(${rotate}deg)`,
+                pointerEvents: 'none',
+                zIndex: 0,
+            }}
+        >
+            <svg
+                viewBox="0 0 200 200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ width: '100%', height: '100%' }}
+            >
+                <path
+                    d="M 100 10 Q 170 10 190 80 Q 200 120 160 160 Q 120 200 70 180 Q 20 155 10 100 Q -5 40 60 15 Q 80 8 100 10 Z"
+                    fill={color}
+                />
+                <path
+                    d="M100 10 L100 180"
+                    stroke="rgba(255,255,255,0.3)"
+                    strokeWidth="1"
+                    strokeDasharray="4 6"
+                />
+                <path
+                    d="M100 60 Q 130 80 100 100 Q 70 80 100 60 Z"
+                    fill="rgba(255,255,255,0.15)"
+                />
+                <path
+                    d="M100 90 Q 140 110 100 135 Q 60 110 100 90 Z"
+                    fill="rgba(255,255,255,0.12)"
+                />
             </svg>
         </div>
     );
@@ -160,35 +383,77 @@ function LeafOrb({ size = 300, opacity = 0.06, top = 'auto', left = 'auto', righ
 // ─── Types ───────────────────────────────────────────────────────────────────
 type LandingContent = ReturnType<typeof getDefaultLandingContent>;
 type FeaturedProduct = {
-    id: number; slug?: string; name: string; description: string | null; expiry: string | null;
-    image_url: string | null; category: string | null;
-    variants: { id: number; size: string | null; flavor: string | null; price: string; stock_quantity: number }[];
+    id: number;
+    slug?: string;
+    name: string;
+    description: string | null;
+    expiry: string | null;
+    image_url: string | null;
+    category: string | null;
+    variants: {
+        id: number;
+        size: string | null;
+        flavor: string | null;
+        price: string;
+        stock_quantity: number;
+    }[];
 };
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function Welcome({ canRegister = true, landingContent, featuredProducts = [] }: {
-    canRegister?: boolean; landingContent?: LandingContent | null; featuredProducts?: FeaturedProduct[];
+export default function Welcome({
+    canRegister = true,
+    landingContent,
+    featuredProducts = [],
+}: {
+    canRegister?: boolean;
+    landingContent?: LandingContent | null;
+    featuredProducts?: FeaturedProduct[];
 }) {
-    const { auth } = usePage().props as { auth: { user: { name: string; email: string; role?: string; profile_photo_url?: string | null } | null } };
+    const { auth } = usePage().props as {
+        auth: {
+            user: {
+                name: string;
+                email: string;
+                role?: string;
+                profile_photo_url?: string | null;
+            } | null;
+        };
+    };
     const content = mergeWithDefaults(landingContent);
 
     useEffect(() => {
-        const onVisible = () => { if (document.visibilityState === 'visible') router.reload({ only: ['landingContent', 'featuredProducts'] }); };
+        const onVisible = () => {
+            if (document.visibilityState === 'visible')
+                router.reload({ only: ['landingContent', 'featuredProducts'] });
+        };
         document.addEventListener('visibilitychange', onVisible);
-        return () => document.removeEventListener('visibilitychange', onVisible);
+        return () =>
+            document.removeEventListener('visibilitychange', onVisible);
     }, []);
 
     const scrollToSection = (id: string) => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document
+            .getElementById(id)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     return (
         <>
             <Head title="Lynsi Food Products – Fresh Organic Delivered to You">
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1"
+                />
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+                <link
+                    rel="preconnect"
+                    href="https://fonts.gstatic.com"
+                    crossOrigin="anonymous"
+                />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+                    rel="stylesheet"
+                />
                 <style>{`
                     *, *::before, *::after { box-sizing: border-box; }
                     html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
@@ -658,89 +923,316 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                 `}</style>
             </Head>
 
-            <div className="lynsi-root bg-forest" style={{ minHeight: '100vh', overflowX: 'hidden' }}>
-
-                <LandingNav overlay activeId="home" auth={auth ?? { user: null }} canRegister={canRegister} />
+            <div
+                className="lynsi-root bg-forest"
+                style={{ minHeight: '100vh', overflowX: 'hidden' }}
+            >
+                <LandingNav
+                    overlay
+                    activeId="home"
+                    auth={auth ?? { user: null }}
+                    canRegister={canRegister}
+                />
 
                 {/* ══════════════════════════════════════════════════════════════
                     HERO — Dark Forest, Glassmorphic visual card
                 ══════════════════════════════════════════════════════════════ */}
-                <section id="home" className="bg-forest noise-overlay hero-section" style={{ position: 'relative', overflow: 'hidden' }}>
-
+                <section
+                    id="home"
+                    className="bg-forest noise-overlay hero-section"
+                    style={{ position: 'relative', overflow: 'hidden' }}
+                >
                     {/* ── Ambient glow orbs ─────────────────────────────────── */}
-                    <div style={{ position: 'absolute', top: '15%',  left: '10%',  width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.16) 0%, transparent 70%)', filter: 'blur(50px)', pointerEvents: 'none', zIndex: 0 }} />
-                    <div style={{ position: 'absolute', bottom: '10%', right: '8%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(52,211,153,0.10) 0%, transparent 70%)', filter: 'blur(40px)', pointerEvents: 'none', zIndex: 0 }} />
-                    <div style={{ position: 'absolute', top: '50%',   right: '25%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,95,70,0.20) 0%, transparent 70%)',  filter: 'blur(30px)', pointerEvents: 'none', zIndex: 0 }} />
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: '15%',
+                            left: '10%',
+                            width: 400,
+                            height: 400,
+                            borderRadius: '50%',
+                            background:
+                                'radial-gradient(circle, rgba(16,185,129,0.16) 0%, transparent 70%)',
+                            filter: 'blur(50px)',
+                            pointerEvents: 'none',
+                            zIndex: 0,
+                        }}
+                    />
+                    <div
+                        style={{
+                            position: 'absolute',
+                            bottom: '10%',
+                            right: '8%',
+                            width: 300,
+                            height: 300,
+                            borderRadius: '50%',
+                            background:
+                                'radial-gradient(circle, rgba(52,211,153,0.10) 0%, transparent 70%)',
+                            filter: 'blur(40px)',
+                            pointerEvents: 'none',
+                            zIndex: 0,
+                        }}
+                    />
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            right: '25%',
+                            width: 200,
+                            height: 200,
+                            borderRadius: '50%',
+                            background:
+                                'radial-gradient(circle, rgba(6,95,70,0.20) 0%, transparent 70%)',
+                            filter: 'blur(30px)',
+                            pointerEvents: 'none',
+                            zIndex: 0,
+                        }}
+                    />
 
                     {/* ── Falling SVG Leaves ────────────────────────────────── */}
                     {/* Leaf shape A — classic pointed */}
-                    {[1,2,4,7,10,13].map(n => (
+                    {[1, 2, 4, 7, 10, 13].map((n) => (
                         <div key={n} className={`hero-leaf leaf-${n}`}>
-                            <svg width={n % 3 === 0 ? 22 : n % 3 === 1 ? 18 : 26} height={n % 3 === 0 ? 32 : n % 3 === 1 ? 28 : 38} viewBox="0 0 26 38" fill="none">
-                                <path d="M13 1 C20 1 25 8 25 16 C25 26 18 35 13 37 C8 35 1 26 1 16 C1 8 6 1 13 1Z" fill={n % 2 === 0 ? 'rgba(52,211,153,0.55)' : 'rgba(16,185,129,0.50)'} />
-                                <line x1="13" y1="3" x2="13" y2="35" stroke="rgba(255,255,255,0.30)" strokeWidth="0.8" />
-                                <path d="M13 12 Q18 18 13 22 Q8 18 13 12Z" fill="rgba(255,255,255,0.15)" />
+                            <svg
+                                width={n % 3 === 0 ? 22 : n % 3 === 1 ? 18 : 26}
+                                height={
+                                    n % 3 === 0 ? 32 : n % 3 === 1 ? 28 : 38
+                                }
+                                viewBox="0 0 26 38"
+                                fill="none"
+                            >
+                                <path
+                                    d="M13 1 C20 1 25 8 25 16 C25 26 18 35 13 37 C8 35 1 26 1 16 C1 8 6 1 13 1Z"
+                                    fill={
+                                        n % 2 === 0
+                                            ? 'rgba(52,211,153,0.55)'
+                                            : 'rgba(16,185,129,0.50)'
+                                    }
+                                />
+                                <line
+                                    x1="13"
+                                    y1="3"
+                                    x2="13"
+                                    y2="35"
+                                    stroke="rgba(255,255,255,0.30)"
+                                    strokeWidth="0.8"
+                                />
+                                <path
+                                    d="M13 12 Q18 18 13 22 Q8 18 13 12Z"
+                                    fill="rgba(255,255,255,0.15)"
+                                />
                             </svg>
                         </div>
                     ))}
                     {/* Leaf shape B — wide oval */}
-                    {[3,6,9,12,15].map(n => (
+                    {[3, 6, 9, 12, 15].map((n) => (
                         <div key={n} className={`hero-leaf leaf-${n}`}>
-                            <svg width={n % 2 === 0 ? 30 : 24} height={n % 2 === 0 ? 20 : 16} viewBox="0 0 30 20" fill="none">
-                                <path d="M15 1 C25 1 29 6 29 10 C29 14 25 19 15 19 C5 19 1 14 1 10 C1 6 5 1 15 1Z" fill={n % 3 === 0 ? 'rgba(34,197,94,0.45)' : 'rgba(52,211,153,0.40)'} />
-                                <line x1="15" y1="2" x2="15" y2="18" stroke="rgba(255,255,255,0.25)" strokeWidth="0.7" />
-                                <path d="M8 10 Q15 6 22 10" stroke="rgba(255,255,255,0.20)" strokeWidth="0.6" fill="none" />
+                            <svg
+                                width={n % 2 === 0 ? 30 : 24}
+                                height={n % 2 === 0 ? 20 : 16}
+                                viewBox="0 0 30 20"
+                                fill="none"
+                            >
+                                <path
+                                    d="M15 1 C25 1 29 6 29 10 C29 14 25 19 15 19 C5 19 1 14 1 10 C1 6 5 1 15 1Z"
+                                    fill={
+                                        n % 3 === 0
+                                            ? 'rgba(34,197,94,0.45)'
+                                            : 'rgba(52,211,153,0.40)'
+                                    }
+                                />
+                                <line
+                                    x1="15"
+                                    y1="2"
+                                    x2="15"
+                                    y2="18"
+                                    stroke="rgba(255,255,255,0.25)"
+                                    strokeWidth="0.7"
+                                />
+                                <path
+                                    d="M8 10 Q15 6 22 10"
+                                    stroke="rgba(255,255,255,0.20)"
+                                    strokeWidth="0.6"
+                                    fill="none"
+                                />
                             </svg>
                         </div>
                     ))}
                     {/* Leaf shape C — maple-ish */}
-                    {[5,8,11,14].map(n => (
+                    {[5, 8, 11, 14].map((n) => (
                         <div key={n} className={`hero-leaf leaf-${n}`}>
-                            <svg width="20" height="22" viewBox="0 0 20 22" fill="none">
-                                <path d="M10 1 C14 4 19 4 17 8 C19 9 20 12 17 12 C18 15 16 18 13 17 L10 21 L7 17 C4 18 2 15 3 12 C0 12 1 9 3 8 C1 4 6 4 10 1Z" fill="rgba(16,185,129,0.48)" />
-                                <line x1="10" y1="5" x2="10" y2="20" stroke="rgba(255,255,255,0.25)" strokeWidth="0.7" />
+                            <svg
+                                width="20"
+                                height="22"
+                                viewBox="0 0 20 22"
+                                fill="none"
+                            >
+                                <path
+                                    d="M10 1 C14 4 19 4 17 8 C19 9 20 12 17 12 C18 15 16 18 13 17 L10 21 L7 17 C4 18 2 15 3 12 C0 12 1 9 3 8 C1 4 6 4 10 1Z"
+                                    fill="rgba(16,185,129,0.48)"
+                                />
+                                <line
+                                    x1="10"
+                                    y1="5"
+                                    x2="10"
+                                    y2="20"
+                                    stroke="rgba(255,255,255,0.25)"
+                                    strokeWidth="0.7"
+                                />
                             </svg>
                         </div>
                     ))}
 
                     {/* ── Centered hero content ─────────────────────────────── */}
-                    <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxWidth: 680, margin: '0 auto' }}>
-
+                    <div
+                        className="container"
+                        style={{ position: 'relative', zIndex: 2 }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                textAlign: 'center',
+                                maxWidth: 680,
+                                margin: '0 auto',
+                            }}
+                        >
                             {/* Social proof row */}
-                            <div className="anim-fadeinup" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <div
+                                className="anim-fadeinup"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    marginBottom: 16,
+                                    flexWrap: 'wrap',
+                                    justifyContent: 'center',
+                                }}
+                            >
                                 <div style={{ display: 'flex' }}>
-                                    {['#10b981','#34d399','#6ee7b7'].map((c, i) => (
-                                        <div key={i} style={{ width: 30, height: 30, borderRadius: '50%', background: `radial-gradient(circle at 35% 35%, ${c}, #065f46)`, border: '2px solid #031a0c', marginLeft: i ? -8 : 0, boxShadow: '0 2px 8px rgba(0,0,0,0.35)' }} />
-                                    ))}
+                                    {['#10b981', '#34d399', '#6ee7b7'].map(
+                                        (c, i) => (
+                                            <div
+                                                key={i}
+                                                style={{
+                                                    width: 30,
+                                                    height: 30,
+                                                    borderRadius: '50%',
+                                                    background: `radial-gradient(circle at 35% 35%, ${c}, #065f46)`,
+                                                    border: '2px solid #031a0c',
+                                                    marginLeft: i ? -8 : 0,
+                                                    boxShadow:
+                                                        '0 2px 8px rgba(0,0,0,0.35)',
+                                                }}
+                                            />
+                                        ),
+                                    )}
                                 </div>
-                                <span style={{ color: P.onDarkMuted, fontSize: 13, fontWeight: 500 }}>{content.hero.stat2Num} {content.hero.stat2Label}</span>
-                                <span style={{ color: P.onDark, fontSize: 12, opacity: 0.4 }}>·</span>
-                                <span style={{ color: P.onDarkMuted, fontSize: 13, fontWeight: 500 }}>{content.hero.stat3Num} {content.hero.stat3Label}</span>
+                                <span
+                                    style={{
+                                        color: P.onDarkMuted,
+                                        fontSize: 13,
+                                        fontWeight: 500,
+                                    }}
+                                >
+                                    {content.hero.stat2Num}{' '}
+                                    {content.hero.stat2Label}
+                                </span>
+                                <span
+                                    style={{
+                                        color: P.onDark,
+                                        fontSize: 12,
+                                        opacity: 0.4,
+                                    }}
+                                >
+                                    ·
+                                </span>
+                                <span
+                                    style={{
+                                        color: P.onDarkMuted,
+                                        fontSize: 13,
+                                        fontWeight: 500,
+                                    }}
+                                >
+                                    {content.hero.stat3Num}{' '}
+                                    {content.hero.stat3Label}
+                                </span>
                             </div>
 
                             {/* Badge */}
-                            <div className="badge badge-dark anim-fadeinup anim-d1" style={{ marginBottom: 14, padding: '5px 14px', fontSize: 10.5, letterSpacing: '0.06em' }}>{content.hero.badge}</div>
+                            <div
+                                className="badge badge-dark anim-fadeinup anim-d1"
+                                style={{
+                                    marginBottom: 14,
+                                    padding: '5px 14px',
+                                    fontSize: 10.5,
+                                    letterSpacing: '0.06em',
+                                }}
+                            >
+                                {content.hero.badge}
+                            </div>
 
                             {/* Headline */}
-                            <h1 className="section-title display hero-headline anim-fadeinup anim-d2" style={{ color: P.white, margin: '0 0 4px' }}>
+                            <h1
+                                className="section-title display hero-headline anim-fadeinup anim-d2"
+                                style={{ color: P.white, margin: '0 0 4px' }}
+                            >
                                 {content.hero.titleLine1}
                             </h1>
-                            <h1 className="section-title display-italic hero-headline anim-fadeinup anim-d3" style={{ margin: '0 0 20px' }}>
-                                <span className="grad-text">{content.hero.titleLine2}</span>
+                            <h1
+                                className="section-title display-italic hero-headline anim-fadeinup anim-d3"
+                                style={{ margin: '0 0 20px' }}
+                            >
+                                <span className="grad-text">
+                                    {content.hero.titleLine2}
+                                </span>
                             </h1>
 
                             {/* Subtitle */}
-                            <p className="hero-sub anim-fadeinup anim-d4" style={{ color: P.onDarkMuted, maxWidth: 480, margin: '0 auto 28px' }}>
+                            <p
+                                className="hero-sub anim-fadeinup anim-d4"
+                                style={{
+                                    color: P.onDarkMuted,
+                                    maxWidth: 480,
+                                    margin: '0 auto 28px',
+                                }}
+                            >
                                 {content.hero.subtitle}
                             </p>
 
                             {/* CTA buttons — centered */}
-                            <div className="hero-cta anim-fadeinup anim-d5" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', marginBottom: 40 }}>
-                                <a href="#products" className="btn-primary" style={{ minWidth: 140 }} onClick={e => { e.preventDefault(); scrollToSection('products'); }}>
+                            <div
+                                className="hero-cta anim-fadeinup anim-d5"
+                                style={{
+                                    display: 'flex',
+                                    gap: 12,
+                                    flexWrap: 'wrap',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: 40,
+                                }}
+                            >
+                                <a
+                                    href="#products"
+                                    className="btn-primary"
+                                    style={{ minWidth: 140 }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        scrollToSection('products');
+                                    }}
+                                >
                                     {content.hero.ctaPrimary}
                                 </a>
-                                <a href="#how-it-works" className="btn-ghost-light" style={{ minWidth: 140 }} onClick={e => { e.preventDefault(); scrollToSection('how-it-works'); }}>
+                                <a
+                                    href="#how-it-works"
+                                    className="btn-ghost-light"
+                                    style={{ minWidth: 140 }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        scrollToSection('how-it-works');
+                                    }}
+                                >
                                     {content.hero.ctaSecondary}
                                 </a>
                             </div>
@@ -754,20 +1246,29 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                                         maxWidth: 920,
                                         margin: '0 auto',
                                         paddingTop: 22,
-                                        borderTop: '1px solid rgba(255,255,255,0.08)',
+                                        borderTop:
+                                            '1px solid rgba(255,255,255,0.08)',
                                     }}
                                 >
-                                    <p className="hero-trusted-label">{content.partners?.title}</p>
+                                    <p className="hero-trusted-label">
+                                        {content.partners?.title}
+                                    </p>
                                     <div className="hero-trusted-track">
-                                        {(content.partners?.items ?? []).filter((p): p is string => !!p?.trim()).map((name, i) => (
-                                            <span key={`${name}-${i}`} className="hero-trusted-name">
-                                                {name}
-                                            </span>
-                                        ))}
+                                        {(content.partners?.items ?? [])
+                                            .filter(
+                                                (p): p is string => !!p?.trim(),
+                                            )
+                                            .map((name, i) => (
+                                                <span
+                                                    key={`${name}-${i}`}
+                                                    className="hero-trusted-name"
+                                                >
+                                                    {name}
+                                                </span>
+                                            ))}
                                     </div>
                                 </div>
                             )}
-
                         </div>
                     </div>
                 </section>
@@ -776,71 +1277,328 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                     PRODUCTS — Light mist bg
                 ══════════════════════════════════════════════════════════════ */}
                 <section id="products" className="section bg-mist">
-                    <LeafOrb size={260} opacity={0.07} top="-30px" right="-20px" rotate={15} color={P.mint} />
-                    <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: 20, marginBottom: 52 }}>
+                    <LeafOrb
+                        size={260}
+                        opacity={0.07}
+                        top="-30px"
+                        right="-20px"
+                        rotate={15}
+                        color={P.mint}
+                    />
+                    <div
+                        className="container"
+                        style={{ position: 'relative', zIndex: 1 }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-end',
+                                gap: 20,
+                                marginBottom: 52,
+                            }}
+                        >
                             <div>
-                                <div className="badge badge-light">{content.products.badge}</div>
-                                <h2 className="section-title" style={{ color: P.textDark }}>
-                                    {content.products.title?.replace(/\s*Products\s*$/, '')}
-                                    <span className="grad-text-dark"> Products</span>
+                                <div className="badge badge-light">
+                                    {content.products.badge}
+                                </div>
+                                <h2
+                                    className="section-title"
+                                    style={{ color: P.textDark }}
+                                >
+                                    {content.products.title?.replace(
+                                        /\s*Products\s*$/,
+                                        '',
+                                    )}
+                                    <span className="grad-text-dark">
+                                        {' '}
+                                        Products
+                                    </span>
                                 </h2>
-                                <p className="section-sub" style={{ color: P.textMuted, maxWidth: 480 }}>{content.products.subtitle}</p>
+                                <p
+                                    className="section-sub"
+                                    style={{
+                                        color: P.textMuted,
+                                        maxWidth: 480,
+                                    }}
+                                >
+                                    {content.products.subtitle}
+                                </p>
                             </div>
-                            <Link href="/shop" className="btn-ghost-dark" style={{ whiteSpace: 'nowrap' }}>
+                            <Link
+                                href="/shop"
+                                className="btn-ghost-dark"
+                                style={{ whiteSpace: 'nowrap' }}
+                            >
                                 {content.products.catalogueLabel}
                             </Link>
                         </div>
 
                         <div className="grid-products">
                             {featuredProducts && featuredProducts.length > 0
-                                ? featuredProducts.map(p => {
-                                    const minPrice = p.variants?.length ? Math.min(...p.variants.map(v => Number(v.price))) : null;
-                                    const firstVariant = p.variants?.[0];
-                                    const canAdd = !!(firstVariant && firstVariant.stock_quantity > 0);
-                                    const addToCart = (e: React.MouseEvent) => {
-                                        e.preventDefault(); e.stopPropagation();
-                                        if (!canAdd) return;
-                                        router.post('/cart', { variant_id: firstVariant!.id, quantity: 1 });
-                                    };
-                                    const inner = (
-                                        <>
-                                            <div className="product-img" style={{ background: '#ecfdf5' }}>
-                                                {p.image_url ? <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '🛒'}
-                                            </div>
-                                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                                                {p.category && <div style={{ fontSize: 11, color: P.textMuted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 6 }}>{p.category}</div>}
-                                                <h3 style={{ fontSize: 16, fontWeight: 700, color: P.textDark, marginBottom: 8, lineHeight: 1.4 }}>{p.name}</h3>
-                                                {p.description && <p style={{ fontSize: 13, color: P.textMuted, lineHeight: 1.6, marginBottom: 12, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.description}</p>}
-                                                <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
-                                                    <div>{minPrice != null && <><span style={{ fontSize: 13, color: P.textMuted }}>From </span><span className="display" style={{ fontSize: 22, fontWeight: 700, color: P.emerald }}>₱{minPrice.toFixed(2)}</span></>}</div>
-                                                    <button className="add-btn" onClick={addToCart} disabled={!canAdd} aria-label={canAdd ? `Add ${p.name} to cart` : `${p.name} out of stock`}>+</button>
-                                                </div>
-                                            </div>
-                                        </>
-                                    );
-                                    return p.slug
-                                        ? <Link key={p.id} href={`/shop/product/${p.slug}`} className="product-card glass-light">{inner}</Link>
-                                        : <div key={p.id} className="product-card glass-light">{inner}</div>;
+                                ? featuredProducts.map((p) => {
+                                      const minPrice = p.variants?.length
+                                          ? Math.min(
+                                                ...p.variants.map((v) =>
+                                                    Number(v.price),
+                                                ),
+                                            )
+                                          : null;
+                                      const firstVariant = p.variants?.[0];
+                                      const canAdd = !!(
+                                          firstVariant &&
+                                          firstVariant.stock_quantity > 0
+                                      );
+                                      const addToCart = (
+                                          e: React.MouseEvent,
+                                      ) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          if (!canAdd) return;
+                                          router.post('/cart', {
+                                              variant_id: firstVariant!.id,
+                                              quantity: 1,
+                                          });
+                                      };
+                                      const inner = (
+                                          <>
+                                              <div
+                                                  className="product-img"
+                                                  style={{
+                                                      background: '#ecfdf5',
+                                                  }}
+                                              >
+                                                  {p.image_url ? (
+                                                      <img
+                                                          src={p.image_url}
+                                                          alt={p.name}
+                                                          style={{
+                                                              width: '100%',
+                                                              height: '100%',
+                                                              objectFit:
+                                                                  'cover',
+                                                          }}
+                                                      />
+                                                  ) : (
+                                                      '🛒'
+                                                  )}
+                                              </div>
+                                              <div
+                                                  style={{
+                                                      flex: 1,
+                                                      display: 'flex',
+                                                      flexDirection: 'column',
+                                                  }}
+                                              >
+                                                  {p.category && (
+                                                      <div
+                                                          style={{
+                                                              fontSize: 11,
+                                                              color: P.textMuted,
+                                                              fontWeight: 700,
+                                                              textTransform:
+                                                                  'uppercase',
+                                                              letterSpacing:
+                                                                  '0.6px',
+                                                              marginBottom: 6,
+                                                          }}
+                                                      >
+                                                          {p.category}
+                                                      </div>
+                                                  )}
+                                                  <h3
+                                                      style={{
+                                                          fontSize: 16,
+                                                          fontWeight: 700,
+                                                          color: P.textDark,
+                                                          marginBottom: 8,
+                                                          lineHeight: 1.4,
+                                                      }}
+                                                  >
+                                                      {p.name}
+                                                  </h3>
+                                                  {p.description && (
+                                                      <p
+                                                          style={{
+                                                              fontSize: 13,
+                                                              color: P.textMuted,
+                                                              lineHeight: 1.6,
+                                                              marginBottom: 12,
+                                                              display:
+                                                                  '-webkit-box',
+                                                              WebkitLineClamp: 2,
+                                                              WebkitBoxOrient:
+                                                                  'vertical',
+                                                              overflow:
+                                                                  'hidden',
+                                                          }}
+                                                      >
+                                                          {p.description}
+                                                      </p>
+                                                  )}
+                                                  <div
+                                                      style={{
+                                                          marginTop: 'auto',
+                                                          display: 'flex',
+                                                          alignItems:
+                                                              'flex-end',
+                                                          justifyContent:
+                                                              'space-between',
+                                                          gap: 12,
+                                                      }}
+                                                  >
+                                                      <div>
+                                                          {minPrice != null && (
+                                                              <>
+                                                                  <span
+                                                                      style={{
+                                                                          fontSize: 13,
+                                                                          color: P.textMuted,
+                                                                      }}
+                                                                  >
+                                                                      From{' '}
+                                                                  </span>
+                                                                  <span
+                                                                      className="display"
+                                                                      style={{
+                                                                          fontSize: 22,
+                                                                          fontWeight: 700,
+                                                                          color: P.emerald,
+                                                                      }}
+                                                                  >
+                                                                      ₱
+                                                                      {minPrice.toFixed(
+                                                                          2,
+                                                                      )}
+                                                                  </span>
+                                                              </>
+                                                          )}
+                                                      </div>
+                                                      <button
+                                                          className="add-btn"
+                                                          onClick={addToCart}
+                                                          disabled={!canAdd}
+                                                          aria-label={
+                                                              canAdd
+                                                                  ? `Add ${p.name} to cart`
+                                                                  : `${p.name} out of stock`
+                                                          }
+                                                      >
+                                                          +
+                                                      </button>
+                                                  </div>
+                                              </div>
+                                          </>
+                                      );
+                                      return p.slug ? (
+                                          <Link
+                                              key={p.id}
+                                              href={`/shop/product/${p.slug}`}
+                                              className="product-card glass-light"
+                                          >
+                                              {inner}
+                                          </Link>
+                                      ) : (
+                                          <div
+                                              key={p.id}
+                                              className="product-card glass-light"
+                                          >
+                                              {inner}
+                                          </div>
+                                      );
                                   })
-                                : (content.products.items ?? []).map(p => (
-                                    <div key={p.name} className="product-card glass-light" style={{ cursor: 'default' }}>
-                                        <div style={{ position: 'absolute', top: 16, right: 16, background: P.white, color: P.jade, fontSize: 10, fontWeight: 700, padding: '4px 12px', borderRadius: '50px', boxShadow: '0 2px 10px rgba(3,26,12,0.08)' }}>
-                                            {p.badge}
-                                        </div>
-                                        <div className="product-img" style={{ background: p.color }}>{p.icon}</div>
-                                        <div style={{ fontSize: 11, color: P.textMuted, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 6 }}>{p.category}</div>
-                                        <h3 style={{ fontSize: 16, fontWeight: 700, color: P.textDark, marginBottom: 12, lineHeight: 1.4 }}>{p.name}</h3>
-                                        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
-                                            <div>
-                                                <span className="display" style={{ fontSize: 22, fontWeight: 700, color: P.emerald }}>{p.price}</span>
-                                                <span style={{ fontSize: 13, color: P.textMuted }}>{p.unit}</span>
-                                            </div>
-                                            <button className="add-btn" aria-label={`Add ${p.name} to cart`}>+</button>
-                                        </div>
-                                    </div>
-                                ))
-                            }
+                                : (content.products.items ?? []).map((p) => (
+                                      <div
+                                          key={p.name}
+                                          className="product-card glass-light"
+                                          style={{ cursor: 'default' }}
+                                      >
+                                          <div
+                                              style={{
+                                                  position: 'absolute',
+                                                  top: 16,
+                                                  right: 16,
+                                                  background: P.white,
+                                                  color: P.jade,
+                                                  fontSize: 10,
+                                                  fontWeight: 700,
+                                                  padding: '4px 12px',
+                                                  borderRadius: '50px',
+                                                  boxShadow:
+                                                      '0 2px 10px rgba(3,26,12,0.08)',
+                                              }}
+                                          >
+                                              {p.badge}
+                                          </div>
+                                          <div
+                                              className="product-img"
+                                              style={{ background: p.color }}
+                                          >
+                                              {p.icon}
+                                          </div>
+                                          <div
+                                              style={{
+                                                  fontSize: 11,
+                                                  color: P.textMuted,
+                                                  fontWeight: 700,
+                                                  textTransform: 'uppercase',
+                                                  letterSpacing: '0.6px',
+                                                  marginBottom: 6,
+                                              }}
+                                          >
+                                              {p.category}
+                                          </div>
+                                          <h3
+                                              style={{
+                                                  fontSize: 16,
+                                                  fontWeight: 700,
+                                                  color: P.textDark,
+                                                  marginBottom: 12,
+                                                  lineHeight: 1.4,
+                                              }}
+                                          >
+                                              {p.name}
+                                          </h3>
+                                          <div
+                                              style={{
+                                                  marginTop: 'auto',
+                                                  display: 'flex',
+                                                  alignItems: 'flex-end',
+                                                  justifyContent:
+                                                      'space-between',
+                                                  gap: 12,
+                                              }}
+                                          >
+                                              <div>
+                                                  <span
+                                                      className="display"
+                                                      style={{
+                                                          fontSize: 22,
+                                                          fontWeight: 700,
+                                                          color: P.emerald,
+                                                      }}
+                                                  >
+                                                      {p.price}
+                                                  </span>
+                                                  <span
+                                                      style={{
+                                                          fontSize: 13,
+                                                          color: P.textMuted,
+                                                      }}
+                                                  >
+                                                      {p.unit}
+                                                  </span>
+                                              </div>
+                                              <button
+                                                  className="add-btn"
+                                                  aria-label={`Add ${p.name} to cart`}
+                                              >
+                                                  +
+                                              </button>
+                                          </div>
+                                      </div>
+                                  ))}
                         </div>
                     </div>
                 </section>
@@ -848,23 +1606,93 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                 {/* ══════════════════════════════════════════════════════════════
                     BENEFITS — Dark Forest
                 ══════════════════════════════════════════════════════════════ */}
-                <section id="services" className="section bg-forest noise-overlay">
-                    <LeafOrb size={350} opacity={0.06} bottom="-60px" right="-40px" rotate={-40} color={P.sage} />
-                    <LeafOrb size={200} opacity={0.05} top="10%"   left="5%"    rotate={20}  color={P.mint} />
-                    <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+                <section
+                    id="services"
+                    className="section bg-forest noise-overlay"
+                >
+                    <LeafOrb
+                        size={350}
+                        opacity={0.06}
+                        bottom="-60px"
+                        right="-40px"
+                        rotate={-40}
+                        color={P.sage}
+                    />
+                    <LeafOrb
+                        size={200}
+                        opacity={0.05}
+                        top="10%"
+                        left="5%"
+                        rotate={20}
+                        color={P.mint}
+                    />
+                    <div
+                        className="container"
+                        style={{ position: 'relative', zIndex: 2 }}
+                    >
                         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-                            <div className="badge badge-dark">{content.benefits.badge}</div>
-                            <h2 className="section-title" style={{ color: P.white }}>{content.benefits.title}</h2>
-                            <p className="section-sub" style={{ color: P.onDarkMuted, maxWidth: 520, margin: '0 auto' }}>{content.benefits.subtitle}</p>
+                            <div className="badge badge-dark">
+                                {content.benefits.badge}
+                            </div>
+                            <h2
+                                className="section-title"
+                                style={{ color: P.white }}
+                            >
+                                {content.benefits.title}
+                            </h2>
+                            <p
+                                className="section-sub"
+                                style={{
+                                    color: P.onDarkMuted,
+                                    maxWidth: 520,
+                                    margin: '0 auto',
+                                }}
+                            >
+                                {content.benefits.subtitle}
+                            </p>
                         </div>
                         <div className="grid-benefits">
                             {(content.benefits.items ?? []).map((b, i) => (
-                                <div key={b.title} className="benefit-card glass-dark" style={{ animationDelay: `${i * 0.08}s` }}>
-                                    <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(52,211,153,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, marginBottom: 18 }}>
+                                <div
+                                    key={b.title}
+                                    className="benefit-card glass-dark"
+                                    style={{ animationDelay: `${i * 0.08}s` }}
+                                >
+                                    <div
+                                        style={{
+                                            width: 52,
+                                            height: 52,
+                                            borderRadius: 16,
+                                            background: 'rgba(16,185,129,0.15)',
+                                            border: '1px solid rgba(52,211,153,0.20)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: 26,
+                                            marginBottom: 18,
+                                        }}
+                                    >
                                         {b.icon}
                                     </div>
-                                    <h3 style={{ fontSize: 17, fontWeight: 700, color: P.white, marginBottom: 10 }}>{b.title}</h3>
-                                    <p style={{ fontSize: 14, color: P.onDarkMuted, lineHeight: 1.75 }}>{b.desc}</p>
+                                    <h3
+                                        style={{
+                                            fontSize: 17,
+                                            fontWeight: 700,
+                                            color: P.white,
+                                            marginBottom: 10,
+                                        }}
+                                    >
+                                        {b.title}
+                                    </h3>
+                                    <p
+                                        style={{
+                                            fontSize: 14,
+                                            color: P.onDarkMuted,
+                                            lineHeight: 1.75,
+                                        }}
+                                    >
+                                        {b.desc}
+                                    </p>
                                 </div>
                             ))}
                         </div>
@@ -877,22 +1705,108 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                 <section id="how-it-works" className="section bg-white">
                     <div className="container">
                         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-                            <div className="badge badge-light">{content.howItWorks.badge}</div>
-                            <h2 className="section-title" style={{ color: P.textDark }}>{content.howItWorks.title}</h2>
-                            <p className="section-sub" style={{ color: P.textMuted, maxWidth: 480, margin: '0 auto' }}>{content.howItWorks.subtitle}</p>
+                            <div className="badge badge-light">
+                                {content.howItWorks.badge}
+                            </div>
+                            <h2
+                                className="section-title"
+                                style={{ color: P.textDark }}
+                            >
+                                {content.howItWorks.title}
+                            </h2>
+                            <p
+                                className="section-sub"
+                                style={{
+                                    color: P.textMuted,
+                                    maxWidth: 480,
+                                    margin: '0 auto',
+                                }}
+                            >
+                                {content.howItWorks.subtitle}
+                            </p>
                         </div>
-                        <div className="grid-steps" style={{ position: 'relative' }}>
+                        <div
+                            className="grid-steps"
+                            style={{ position: 'relative' }}
+                        >
                             {/* Connector line — desktop only */}
-                            <div style={{ position: 'absolute', top: 56, left: '17%', right: '17%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.25), rgba(16,185,129,0.25), transparent)', pointerEvents: 'none' }} />
-                            {(content.howItWorks.steps ?? []).map((s, i) => (
-                                <div key={s.step} className="step-card glass-light">
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 56,
+                                    left: '17%',
+                                    right: '17%',
+                                    height: 1,
+                                    background:
+                                        'linear-gradient(90deg, transparent, rgba(16,185,129,0.25), rgba(16,185,129,0.25), transparent)',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                            {(content.howItWorks.steps ?? []).map((s) => (
+                                <div
+                                    key={s.step}
+                                    className="step-card glass-light"
+                                >
                                     {/* Glow behind step number */}
-                                    <div style={{ position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', width: 80, height: 80, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                                    <div style={{ width: 56, height: 56, borderRadius: 18, background: `linear-gradient(135deg, ${P.mint} 0%, ${P.emerald} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: '0 8px 24px rgba(16,185,129,0.35)', position: 'relative' }}>
-                                        <span className="display" style={{ fontSize: 20, fontWeight: 800, color: P.white }}>{s.step}</span>
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            top: 20,
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            width: 80,
+                                            height: 80,
+                                            borderRadius: '50%',
+                                            background:
+                                                'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)',
+                                            pointerEvents: 'none',
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            width: 56,
+                                            height: 56,
+                                            borderRadius: 18,
+                                            background: `linear-gradient(135deg, ${P.mint} 0%, ${P.emerald} 100%)`,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            margin: '0 auto 24px',
+                                            boxShadow:
+                                                '0 8px 24px rgba(16,185,129,0.35)',
+                                            position: 'relative',
+                                        }}
+                                    >
+                                        <span
+                                            className="display"
+                                            style={{
+                                                fontSize: 20,
+                                                fontWeight: 800,
+                                                color: P.white,
+                                            }}
+                                        >
+                                            {s.step}
+                                        </span>
                                     </div>
-                                    <h3 style={{ fontSize: 18, fontWeight: 700, color: P.textDark, marginBottom: 12 }}>{s.title}</h3>
-                                    <p style={{ fontSize: 14, color: P.textMuted, lineHeight: 1.75 }}>{s.desc}</p>
+                                    <h3
+                                        style={{
+                                            fontSize: 18,
+                                            fontWeight: 700,
+                                            color: P.textDark,
+                                            marginBottom: 12,
+                                        }}
+                                    >
+                                        {s.title}
+                                    </h3>
+                                    <p
+                                        style={{
+                                            fontSize: 14,
+                                            color: P.textMuted,
+                                            lineHeight: 1.75,
+                                        }}
+                                    >
+                                        {s.desc}
+                                    </p>
                                 </div>
                             ))}
                         </div>
@@ -903,33 +1817,159 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                     LOCATIONS — Foam bg
                 ══════════════════════════════════════════════════════════════ */}
                 <section id="our-locations" className="section bg-foam">
-                    <LeafOrb size={300} opacity={0.08} top="-20px" left="-30px" rotate={10} color={P.emerald} />
-                    <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+                    <LeafOrb
+                        size={300}
+                        opacity={0.08}
+                        top="-20px"
+                        left="-30px"
+                        rotate={10}
+                        color={P.emerald}
+                    />
+                    <div
+                        className="container"
+                        style={{ position: 'relative', zIndex: 1 }}
+                    >
                         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-                            <div className="badge badge-light">{content.locations.badge}</div>
-                            <h2 className="section-title" style={{ color: P.textDark }}>{content.locations.title}</h2>
-                            <p className="section-sub" style={{ color: P.textMuted, maxWidth: 520, margin: '0 auto' }}>{content.locations.subtitle}</p>
+                            <div className="badge badge-light">
+                                {content.locations.badge}
+                            </div>
+                            <h2
+                                className="section-title"
+                                style={{ color: P.textDark }}
+                            >
+                                {content.locations.title}
+                            </h2>
+                            <p
+                                className="section-sub"
+                                style={{
+                                    color: P.textMuted,
+                                    maxWidth: 520,
+                                    margin: '0 auto',
+                                }}
+                            >
+                                {content.locations.subtitle}
+                            </p>
                         </div>
                         <div className="grid-locs">
                             {(content.locations.items ?? []).map((loc, idx) => (
-                                <div key={idx} className="benefit-card glass-light" style={{ textAlign: 'left', padding: '28px 24px' }}>
+                                <div
+                                    key={idx}
+                                    className="benefit-card glass-light"
+                                    style={{
+                                        textAlign: 'left',
+                                        padding: '28px 24px',
+                                    }}
+                                >
                                     {loc.tag && (
-                                        <span style={{ position: 'absolute', top: 20, right: 20, fontSize: 10, fontWeight: 700, color: P.jade, background: 'rgba(16,185,129,0.10)', padding: '5px 12px', borderRadius: '50px', border: '1px solid rgba(16,185,129,0.20)' }}>
+                                        <span
+                                            style={{
+                                                position: 'absolute',
+                                                top: 20,
+                                                right: 20,
+                                                fontSize: 10,
+                                                fontWeight: 700,
+                                                color: P.jade,
+                                                background:
+                                                    'rgba(16,185,129,0.10)',
+                                                padding: '5px 12px',
+                                                borderRadius: '50px',
+                                                border: '1px solid rgba(16,185,129,0.20)',
+                                            }}
+                                        >
                                             {loc.tag}
                                         </span>
                                     )}
                                     {loc.image_url?.trim() ? (
-                                        <div style={{ width: '100%', aspectRatio: '16/10', borderRadius: 16, overflow: 'hidden', marginBottom: 20 }}>
-                                            <img src={loc.image_url.trim()} alt={loc.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <div
+                                            style={{
+                                                width: '100%',
+                                                aspectRatio: '16/10',
+                                                borderRadius: 16,
+                                                overflow: 'hidden',
+                                                marginBottom: 20,
+                                            }}
+                                        >
+                                            <img
+                                                src={loc.image_url.trim()}
+                                                alt={loc.name}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                }}
+                                            />
                                         </div>
                                     ) : (
-                                        <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 20 }}>📍</div>
+                                        <div
+                                            style={{
+                                                width: 52,
+                                                height: 52,
+                                                borderRadius: 16,
+                                                background:
+                                                    'rgba(16,185,129,0.12)',
+                                                border: '1px solid rgba(16,185,129,0.20)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: 24,
+                                                marginBottom: 20,
+                                            }}
+                                        >
+                                            📍
+                                        </div>
                                     )}
-                                    <h3 style={{ fontSize: 18, fontWeight: 700, color: P.textDark, marginBottom: 10 }}>{loc.name}</h3>
-                                    <p style={{ fontSize: 14, color: P.textDark, lineHeight: 1.65, marginBottom: 6 }}>{loc.address}</p>
-                                    <p style={{ fontSize: 13, color: P.textMuted, fontWeight: 600, marginBottom: 14 }}>{loc.city}</p>
-                                    <a href={`tel:${loc.phone.replace(/\s/g,'')}`} style={{ fontSize: 14, color: P.mint, fontWeight: 600, textDecoration: 'none', display: 'block', marginBottom: 8 }}>{loc.phone}</a>
-                                    <p style={{ fontSize: 13, color: P.textMuted, lineHeight: 1.5 }}>{loc.hours}</p>
+                                    <h3
+                                        style={{
+                                            fontSize: 18,
+                                            fontWeight: 700,
+                                            color: P.textDark,
+                                            marginBottom: 10,
+                                        }}
+                                    >
+                                        {loc.name}
+                                    </h3>
+                                    <p
+                                        style={{
+                                            fontSize: 14,
+                                            color: P.textDark,
+                                            lineHeight: 1.65,
+                                            marginBottom: 6,
+                                        }}
+                                    >
+                                        {loc.address}
+                                    </p>
+                                    <p
+                                        style={{
+                                            fontSize: 13,
+                                            color: P.textMuted,
+                                            fontWeight: 600,
+                                            marginBottom: 14,
+                                        }}
+                                    >
+                                        {loc.city}
+                                    </p>
+                                    <a
+                                        href={`tel:${loc.phone.replace(/\s/g, '')}`}
+                                        style={{
+                                            fontSize: 14,
+                                            color: P.mint,
+                                            fontWeight: 600,
+                                            textDecoration: 'none',
+                                            display: 'block',
+                                            marginBottom: 8,
+                                        }}
+                                    >
+                                        {loc.phone}
+                                    </a>
+                                    <p
+                                        style={{
+                                            fontSize: 13,
+                                            color: P.textMuted,
+                                            lineHeight: 1.5,
+                                        }}
+                                    >
+                                        {loc.hours}
+                                    </p>
                                 </div>
                             ))}
                         </div>
@@ -942,37 +1982,188 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                 <section id="about-us" className="section bg-white">
                     <div className="container">
                         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-                            <div className="badge badge-light">{content.aboutUs.badge}</div>
-                            <h2 className="section-title" style={{ color: P.textDark }}>
-                                About <span className="grad-text-dark">Lynsi Food Products</span>
+                            <div className="badge badge-light">
+                                {content.aboutUs.badge}
+                            </div>
+                            <h2
+                                className="section-title"
+                                style={{ color: P.textDark }}
+                            >
+                                About{' '}
+                                <span className="grad-text-dark">
+                                    Lynsi Food Products
+                                </span>
                             </h2>
-                            <p className="section-sub" style={{ color: P.textMuted, maxWidth: 560, margin: '0 auto' }}>{content.aboutUs.subtitle}</p>
+                            <p
+                                className="section-sub"
+                                style={{
+                                    color: P.textMuted,
+                                    maxWidth: 560,
+                                    margin: '0 auto',
+                                }}
+                            >
+                                {content.aboutUs.subtitle}
+                            </p>
                         </div>
                         <div className="about-inner">
                             <div>
-                                <p style={{ fontSize: 16, color: P.textDark, lineHeight: 1.85, marginBottom: 20 }}>{content.aboutUs.paragraph1}</p>
-                                <p style={{ fontSize: 16, color: P.textDark, lineHeight: 1.85, marginBottom: 36 }}>{content.aboutUs.paragraph2}</p>
-                                <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+                                <p
+                                    style={{
+                                        fontSize: 16,
+                                        color: P.textDark,
+                                        lineHeight: 1.85,
+                                        marginBottom: 20,
+                                    }}
+                                >
+                                    {content.aboutUs.paragraph1}
+                                </p>
+                                <p
+                                    style={{
+                                        fontSize: 16,
+                                        color: P.textDark,
+                                        lineHeight: 1.85,
+                                        marginBottom: 36,
+                                    }}
+                                >
+                                    {content.aboutUs.paragraph2}
+                                </p>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        gap: 32,
+                                        flexWrap: 'wrap',
+                                    }}
+                                >
                                     {[
-                                        { num: content.aboutUs.stat1Num, label: content.aboutUs.stat1Label },
-                                        { num: content.aboutUs.stat2Num, label: content.aboutUs.stat2Label },
-                                        { num: content.aboutUs.stat3Num, label: content.aboutUs.stat3Label },
-                                    ].map(s => (
-                                        <div key={s.label} style={{ padding: '20px 24px', borderRadius: 16, background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.15)', minWidth: 110 }}>
-                                            <div className="display" style={{ fontSize: 28, fontWeight: 700, color: P.emerald }}>{s.num}</div>
-                                            <div style={{ fontSize: 12, color: P.textMuted, fontWeight: 600, marginTop: 4 }}>{s.label}</div>
+                                        {
+                                            num: content.aboutUs.stat1Num,
+                                            label: content.aboutUs.stat1Label,
+                                        },
+                                        {
+                                            num: content.aboutUs.stat2Num,
+                                            label: content.aboutUs.stat2Label,
+                                        },
+                                        {
+                                            num: content.aboutUs.stat3Num,
+                                            label: content.aboutUs.stat3Label,
+                                        },
+                                    ].map((s) => (
+                                        <div
+                                            key={s.label}
+                                            style={{
+                                                padding: '20px 24px',
+                                                borderRadius: 16,
+                                                background:
+                                                    'rgba(16,185,129,0.07)',
+                                                border: '1px solid rgba(16,185,129,0.15)',
+                                                minWidth: 110,
+                                            }}
+                                        >
+                                            <div
+                                                className="display"
+                                                style={{
+                                                    fontSize: 28,
+                                                    fontWeight: 700,
+                                                    color: P.emerald,
+                                                }}
+                                            >
+                                                {s.num}
+                                            </div>
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: P.textMuted,
+                                                    fontWeight: 600,
+                                                    marginTop: 4,
+                                                }}
+                                            >
+                                                {s.label}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <div className="glass-mint" style={{ borderRadius: 28, padding: 'clamp(36px,5vw,56px) 32px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-                                <div style={{ position: 'absolute', top: -30, right: -30, width: 160, height: 160, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.20) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                                <div style={{ fontSize: 72, marginBottom: 16, lineHeight: 1 }}>🌱</div>
-                                <h3 className="display" style={{ fontSize: 22, fontWeight: 700, color: P.emerald, marginBottom: 12 }}>{content.aboutUs.farmToTableTitle}</h3>
-                                <p style={{ fontSize: 15, color: P.jade, lineHeight: 1.75 }}>{content.aboutUs.farmToTableDesc}</p>
-                                <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-                                    {['🇵🇭 PH Sourced', '♻️ Zero Waste', '✓ Certified'].map(tag => (
-                                        <span key={tag} style={{ fontSize: 12, fontWeight: 600, color: P.jade, background: 'rgba(255,255,255,0.6)', padding: '6px 14px', borderRadius: '50px', border: '1px solid rgba(16,185,129,0.20)' }}>{tag}</span>
+                            <div
+                                className="glass-mint"
+                                style={{
+                                    borderRadius: 28,
+                                    padding: 'clamp(36px,5vw,56px) 32px',
+                                    textAlign: 'center',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: -30,
+                                        right: -30,
+                                        width: 160,
+                                        height: 160,
+                                        borderRadius: '50%',
+                                        background:
+                                            'radial-gradient(circle, rgba(16,185,129,0.20) 0%, transparent 70%)',
+                                        pointerEvents: 'none',
+                                    }}
+                                />
+                                <div
+                                    style={{
+                                        fontSize: 72,
+                                        marginBottom: 16,
+                                        lineHeight: 1,
+                                    }}
+                                >
+                                    🌱
+                                </div>
+                                <h3
+                                    className="display"
+                                    style={{
+                                        fontSize: 22,
+                                        fontWeight: 700,
+                                        color: P.emerald,
+                                        marginBottom: 12,
+                                    }}
+                                >
+                                    {content.aboutUs.farmToTableTitle}
+                                </h3>
+                                <p
+                                    style={{
+                                        fontSize: 15,
+                                        color: P.jade,
+                                        lineHeight: 1.75,
+                                    }}
+                                >
+                                    {content.aboutUs.farmToTableDesc}
+                                </p>
+                                <div
+                                    style={{
+                                        marginTop: 28,
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        gap: 10,
+                                        flexWrap: 'wrap',
+                                    }}
+                                >
+                                    {[
+                                        '🇵🇭 PH Sourced',
+                                        '♻️ Zero Waste',
+                                        '✓ Certified',
+                                    ].map((tag) => (
+                                        <span
+                                            key={tag}
+                                            style={{
+                                                fontSize: 12,
+                                                fontWeight: 600,
+                                                color: P.jade,
+                                                background:
+                                                    'rgba(255,255,255,0.6)',
+                                                padding: '6px 14px',
+                                                borderRadius: '50px',
+                                                border: '1px solid rgba(16,185,129,0.20)',
+                                            }}
+                                        >
+                                            {tag}
+                                        </span>
                                     ))}
                                 </div>
                             </div>
@@ -984,27 +2175,105 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                     TESTIMONIALS — Dark Forest
                 ══════════════════════════════════════════════════════════════ */}
                 <section className="section bg-forest noise-overlay">
-                    <LeafOrb size={380} opacity={0.06} top="-50px" left="-60px" rotate={25} color={P.mint} />
-                    <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+                    <LeafOrb
+                        size={380}
+                        opacity={0.06}
+                        top="-50px"
+                        left="-60px"
+                        rotate={25}
+                        color={P.mint}
+                    />
+                    <div
+                        className="container"
+                        style={{ position: 'relative', zIndex: 2 }}
+                    >
                         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-                            <div className="badge badge-dark">💬 Customer Stories</div>
-                            <h2 className="section-title" style={{ color: P.white }}>
-                                Loved by <span className="grad-text">People Worldwide</span>
+                            <div className="badge badge-dark">
+                                💬 Customer Stories
+                            </div>
+                            <h2
+                                className="section-title"
+                                style={{ color: P.white }}
+                            >
+                                Loved by{' '}
+                                <span className="grad-text">
+                                    People Worldwide
+                                </span>
                             </h2>
-                            <p className="section-sub" style={{ color: P.onDarkMuted, maxWidth: 440, margin: '0 auto' }}>
-                                Real people, real results. See what our customers say.
+                            <p
+                                className="section-sub"
+                                style={{
+                                    color: P.onDarkMuted,
+                                    maxWidth: 440,
+                                    margin: '0 auto',
+                                }}
+                            >
+                                Real people, real results. See what our
+                                customers say.
                             </p>
                         </div>
                         <div className="grid-testi">
-                            {TESTIMONIALS.map(t => (
-                                <div key={t.name} className="testimonial-card glass-dark">
+                            {TESTIMONIALS.map((t) => (
+                                <div
+                                    key={t.name}
+                                    className="testimonial-card glass-dark"
+                                >
                                     <Stars count={t.stars} />
-                                    <p style={{ fontSize: 15, color: P.onDark, lineHeight: 1.85, marginBottom: 24, fontStyle: 'italic' }}>"{t.text}"</p>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(52,211,153,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{t.avatar}</div>
+                                    <p
+                                        style={{
+                                            fontSize: 15,
+                                            color: P.onDark,
+                                            lineHeight: 1.85,
+                                            marginBottom: 24,
+                                            fontStyle: 'italic',
+                                        }}
+                                    >
+                                        "{t.text}"
+                                    </p>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 14,
+                                            paddingTop: 18,
+                                            borderTop:
+                                                '1px solid rgba(255,255,255,0.07)',
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                width: 48,
+                                                height: 48,
+                                                borderRadius: '50%',
+                                                background:
+                                                    'rgba(16,185,129,0.15)',
+                                                border: '1px solid rgba(52,211,153,0.20)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: 24,
+                                            }}
+                                        >
+                                            {t.avatar}
+                                        </div>
                                         <div>
-                                            <div style={{ fontWeight: 700, color: P.white, fontSize: 15 }}>{t.name}</div>
-                                            <div style={{ fontSize: 13, color: P.onDarkMuted }}>{t.role}</div>
+                                            <div
+                                                style={{
+                                                    fontWeight: 700,
+                                                    color: P.white,
+                                                    fontSize: 15,
+                                                }}
+                                            >
+                                                {t.name}
+                                            </div>
+                                            <div
+                                                style={{
+                                                    fontSize: 13,
+                                                    color: P.onDarkMuted,
+                                                }}
+                                            >
+                                                {t.role}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1017,35 +2286,167 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                     CONTACT US — Foam light
                 ══════════════════════════════════════════════════════════════ */}
                 <section id="contact-us" className="section bg-foam">
-                    <div className="container" style={{ maxWidth: 900, position: 'relative', zIndex: 1 }}>
+                    <div
+                        className="container"
+                        style={{
+                            maxWidth: 900,
+                            position: 'relative',
+                            zIndex: 1,
+                        }}
+                    >
                         <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                            <div className="badge badge-light">{content.contactUs.badge}</div>
-                            <h2 className="section-title" style={{ color: P.textDark }}>
-                                Reach <span className="grad-text-dark">Us</span> Out
+                            <div className="badge badge-light">
+                                {content.contactUs.badge}
+                            </div>
+                            <h2
+                                className="section-title"
+                                style={{ color: P.textDark }}
+                            >
+                                Reach <span className="grad-text-dark">Us</span>{' '}
+                                Out
                             </h2>
-                            <p className="section-sub" style={{ color: P.textMuted }}>{content.contactUs.subtitle}</p>
+                            <p
+                                className="section-sub"
+                                style={{ color: P.textMuted }}
+                            >
+                                {content.contactUs.subtitle}
+                            </p>
                         </div>
-                        <div className="grid-contact" style={{ marginBottom: 28 }}>
+                        <div
+                            className="grid-contact"
+                            style={{ marginBottom: 28 }}
+                        >
                             {[
-                                { href: `mailto:${content.contactUs.email}`, icon: '✉️', label: 'Email', value: content.contactUs.email },
-                                { href: `tel:${(content.contactUs.phone ?? '').replace(/\s/g,'')}`, icon: '📞', label: 'Phone', value: content.contactUs.phone },
-                                { href: undefined, icon: '📍', label: 'Address', value: content.contactUs.address },
-                            ].map(c => (
-                                c.href
-                                    ? <a key={c.label} href={c.href} className="contact-card glass-light">
-                                        <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(16,185,129,0.10)', border: '1px solid rgba(16,185,129,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>{c.icon}</div>
-                                        <div><div style={{ fontSize: 11, fontWeight: 700, color: P.textMuted, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 4 }}>{c.label}</div><div style={{ fontSize: 15, fontWeight: 600, color: P.textDark }}>{c.value}</div></div>
-                                      </a>
-                                    : <div key={c.label} className="contact-card glass-light">
-                                        <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(16,185,129,0.10)', border: '1px solid rgba(16,185,129,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>{c.icon}</div>
-                                        <div><div style={{ fontSize: 11, fontWeight: 700, color: P.textMuted, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 4 }}>{c.label}</div><div style={{ fontSize: 15, fontWeight: 600, color: P.textDark }}>{c.value}</div></div>
-                                      </div>
-                            ))}
+                                {
+                                    href: `mailto:${content.contactUs.email}`,
+                                    icon: '✉️',
+                                    label: 'Email',
+                                    value: content.contactUs.email,
+                                },
+                                {
+                                    href: `tel:${(content.contactUs.phone ?? '').replace(/\s/g, '')}`,
+                                    icon: '📞',
+                                    label: 'Phone',
+                                    value: content.contactUs.phone,
+                                },
+                                {
+                                    href: undefined,
+                                    icon: '📍',
+                                    label: 'Address',
+                                    value: content.contactUs.address,
+                                },
+                            ].map((c) =>
+                                c.href ? (
+                                    <a
+                                        key={c.label}
+                                        href={c.href}
+                                        className="contact-card glass-light"
+                                    >
+                                        <div
+                                            style={{
+                                                width: 52,
+                                                height: 52,
+                                                borderRadius: 16,
+                                                background:
+                                                    'rgba(16,185,129,0.10)',
+                                                border: '1px solid rgba(16,185,129,0.18)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: 24,
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            {c.icon}
+                                        </div>
+                                        <div>
+                                            <div
+                                                style={{
+                                                    fontSize: 11,
+                                                    fontWeight: 700,
+                                                    color: P.textMuted,
+                                                    letterSpacing: '0.5px',
+                                                    textTransform: 'uppercase',
+                                                    marginBottom: 4,
+                                                }}
+                                            >
+                                                {c.label}
+                                            </div>
+                                            <div
+                                                style={{
+                                                    fontSize: 15,
+                                                    fontWeight: 600,
+                                                    color: P.textDark,
+                                                }}
+                                            >
+                                                {c.value}
+                                            </div>
+                                        </div>
+                                    </a>
+                                ) : (
+                                    <div
+                                        key={c.label}
+                                        className="contact-card glass-light"
+                                    >
+                                        <div
+                                            style={{
+                                                width: 52,
+                                                height: 52,
+                                                borderRadius: 16,
+                                                background:
+                                                    'rgba(16,185,129,0.10)',
+                                                border: '1px solid rgba(16,185,129,0.18)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: 24,
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            {c.icon}
+                                        </div>
+                                        <div>
+                                            <div
+                                                style={{
+                                                    fontSize: 11,
+                                                    fontWeight: 700,
+                                                    color: P.textMuted,
+                                                    letterSpacing: '0.5px',
+                                                    textTransform: 'uppercase',
+                                                    marginBottom: 4,
+                                                }}
+                                            >
+                                                {c.label}
+                                            </div>
+                                            <div
+                                                style={{
+                                                    fontSize: 15,
+                                                    fontWeight: 600,
+                                                    color: P.textDark,
+                                                }}
+                                            >
+                                                {c.value}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ),
+                            )}
                         </div>
                         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                            <Link href="/contact" className="btn-primary">✉️ Send a message or query</Link>
+                            <Link href="/contact" className="btn-primary">
+                                ✉️ Send a message or query
+                            </Link>
                         </div>
-                        <p style={{ textAlign: 'center', fontSize: 14, color: P.textMuted, lineHeight: 1.75 }}>{content.contactUs.footerNote}</p>
+                        <p
+                            style={{
+                                textAlign: 'center',
+                                fontSize: 14,
+                                color: P.textMuted,
+                                lineHeight: 1.75,
+                            }}
+                        >
+                            {content.contactUs.footerNote}
+                        </p>
                     </div>
                 </section>
 
@@ -1056,92 +2457,341 @@ export default function Welcome({ canRegister = true, landingContent, featuredPr
                 {/* ══════════════════════════════════════════════════════════════
                     FOOTER — Deepest forest
                 ══════════════════════════════════════════════════════════════ */}
-                <footer style={{ background: P.forest, color: P.onDark, padding: 'clamp(56px,8vw,80px) 20px 32px', borderTop: '1px solid rgba(52,211,153,0.10)' }}>
+                <footer
+                    style={{
+                        background: P.forest,
+                        color: P.onDark,
+                        padding: 'clamp(56px,8vw,80px) 20px 32px',
+                        borderTop: '1px solid rgba(52,211,153,0.10)',
+                    }}
+                >
                     <div className="container">
-                        <div className="footer-grid" style={{ marginBottom: 56 }}>
+                        <div
+                            className="footer-grid"
+                            style={{ marginBottom: 56 }}
+                        >
                             {/* Brand */}
                             <div>
-                                <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginBottom: 16, textDecoration: 'none' }}>
-                                    <img src={LOGO_URL} alt="" style={{ height: 40, width: 'auto', maxWidth: 140, objectFit: 'contain' }} />
-                                    <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 18, color: P.white }}>
-                                        Lynsi<span style={{ color: P.mint }}>Foods</span>
+                                <Link
+                                    href="/"
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 12,
+                                        marginBottom: 16,
+                                        textDecoration: 'none',
+                                    }}
+                                >
+                                    <img
+                                        src={LOGO_URL}
+                                        alt=""
+                                        style={{
+                                            height: 40,
+                                            width: 'auto',
+                                            maxWidth: 140,
+                                            objectFit: 'contain',
+                                        }}
+                                    />
+                                    <span
+                                        style={{
+                                            fontFamily:
+                                                "'Playfair Display', serif",
+                                            fontWeight: 700,
+                                            fontSize: 18,
+                                            color: P.white,
+                                        }}
+                                    >
+                                        Lynsi
+                                        <span style={{ color: P.mint }}>
+                                            Foods
+                                        </span>
                                     </span>
                                 </Link>
-                                <p style={{ fontSize: 14, lineHeight: 1.8, color: P.onDarkMuted, maxWidth: 240 }}>
-                                    Philippines' leading organic food delivery platform. Fresh, healthy, sustainably sourced.
+                                <p
+                                    style={{
+                                        fontSize: 14,
+                                        lineHeight: 1.8,
+                                        color: P.onDarkMuted,
+                                        maxWidth: 240,
+                                    }}
+                                >
+                                    Philippines' leading organic food delivery
+                                    platform. Fresh, healthy, sustainably
+                                    sourced.
                                 </p>
-                                <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-                                    {['📘','📷','🐦','▶️'].map((icon, i) => (
-                                        <a key={i} href="#" style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, textDecoration: 'none', transition: 'all 0.2s' }}
-                                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.15)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.30)'; }}
-                                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
-                                        >{icon}</a>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        gap: 10,
+                                        marginTop: 24,
+                                    }}
+                                >
+                                    {['📘', '📷', '🐦', '▶️'].map((icon, i) => (
+                                        <a
+                                            key={i}
+                                            href="#"
+                                            style={{
+                                                width: 44,
+                                                height: 44,
+                                                borderRadius: 12,
+                                                background:
+                                                    'rgba(255,255,255,0.06)',
+                                                border: '1px solid rgba(255,255,255,0.08)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: 18,
+                                                textDecoration: 'none',
+                                                transition: 'all 0.2s',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background =
+                                                    'rgba(16,185,129,0.15)';
+                                                e.currentTarget.style.borderColor =
+                                                    'rgba(52,211,153,0.30)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background =
+                                                    'rgba(255,255,255,0.06)';
+                                                e.currentTarget.style.borderColor =
+                                                    'rgba(255,255,255,0.08)';
+                                            }}
+                                        >
+                                            {icon}
+                                        </a>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Menu */}
                             <div>
-                                <h4 style={{ fontWeight: 700, color: P.white, fontSize: 13, marginBottom: 20, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Menu</h4>
-                                {['Fresh Produce','Dairy & Eggs','Meat & Seafood','Pantry Staples','Beverages','Snacks'].map(item => (
-                                    <a key={item} href="#" style={{ display: 'block', fontSize: 14, color: P.onDarkMuted, marginBottom: 12, textDecoration: 'none', transition: 'color 0.2s' }}
-                                        onMouseEnter={e => { e.currentTarget.style.color = P.sage; }}
-                                        onMouseLeave={e => { e.currentTarget.style.color = P.onDarkMuted; }}
-                                    >{item}</a>
+                                <h4
+                                    style={{
+                                        fontWeight: 700,
+                                        color: P.white,
+                                        fontSize: 13,
+                                        marginBottom: 20,
+                                        letterSpacing: '0.5px',
+                                        textTransform: 'uppercase',
+                                    }}
+                                >
+                                    Menu
+                                </h4>
+                                {[
+                                    'Fresh Produce',
+                                    'Dairy & Eggs',
+                                    'Meat & Seafood',
+                                    'Pantry Staples',
+                                    'Beverages',
+                                    'Snacks',
+                                ].map((item) => (
+                                    <a
+                                        key={item}
+                                        href="#"
+                                        style={{
+                                            display: 'block',
+                                            fontSize: 14,
+                                            color: P.onDarkMuted,
+                                            marginBottom: 12,
+                                            textDecoration: 'none',
+                                            transition: 'color 0.2s',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.color =
+                                                P.sage;
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.color =
+                                                P.onDarkMuted;
+                                        }}
+                                    >
+                                        {item}
+                                    </a>
                                 ))}
                             </div>
 
                             {/* Legal */}
                             <div>
-                                <h4 style={{ fontWeight: 700, color: P.white, fontSize: 13, marginBottom: 20, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Legal</h4>
-                                {['Privacy Policy','Terms of Service','Cookie Policy','Refund Policy'].map(item => (
-                                    <a key={item} href="#" style={{ display: 'block', fontSize: 14, color: P.onDarkMuted, marginBottom: 12, textDecoration: 'none', transition: 'color 0.2s' }}
-                                        onMouseEnter={e => { e.currentTarget.style.color = P.sage; }}
-                                        onMouseLeave={e => { e.currentTarget.style.color = P.onDarkMuted; }}
-                                    >{item}</a>
+                                <h4
+                                    style={{
+                                        fontWeight: 700,
+                                        color: P.white,
+                                        fontSize: 13,
+                                        marginBottom: 20,
+                                        letterSpacing: '0.5px',
+                                        textTransform: 'uppercase',
+                                    }}
+                                >
+                                    Legal
+                                </h4>
+                                {[
+                                    'Privacy Policy',
+                                    'Terms of Service',
+                                    'Cookie Policy',
+                                    'Refund Policy',
+                                ].map((item) => (
+                                    <a
+                                        key={item}
+                                        href="#"
+                                        style={{
+                                            display: 'block',
+                                            fontSize: 14,
+                                            color: P.onDarkMuted,
+                                            marginBottom: 12,
+                                            textDecoration: 'none',
+                                            transition: 'color 0.2s',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.color =
+                                                P.sage;
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.color =
+                                                P.onDarkMuted;
+                                        }}
+                                    >
+                                        {item}
+                                    </a>
                                 ))}
                             </div>
 
                             {/* Newsletter */}
                             <div>
-                                <h4 style={{ fontWeight: 700, color: P.white, fontSize: 13, marginBottom: 12, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Newsletter</h4>
-                                <p style={{ fontSize: 13, color: P.onDarkMuted, marginBottom: 20, lineHeight: 1.65 }}>
-                                    Get healthy recipes &amp; exclusive deals in your inbox.
+                                <h4
+                                    style={{
+                                        fontWeight: 700,
+                                        color: P.white,
+                                        fontSize: 13,
+                                        marginBottom: 12,
+                                        letterSpacing: '0.5px',
+                                        textTransform: 'uppercase',
+                                    }}
+                                >
+                                    Newsletter
+                                </h4>
+                                <p
+                                    style={{
+                                        fontSize: 13,
+                                        color: P.onDarkMuted,
+                                        marginBottom: 20,
+                                        lineHeight: 1.65,
+                                    }}
+                                >
+                                    Get healthy recipes &amp; exclusive deals in
+                                    your inbox.
                                 </p>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 10,
+                                    }}
+                                >
                                     <input
-                                        type="email" placeholder="Enter your email"
-                                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12, padding: '12px 16px', minHeight: 48, color: P.white, fontSize: 14, outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s' }}
-                                        onFocus={e => { e.currentTarget.style.borderColor = 'rgba(52,211,153,0.40)'; }}
-                                        onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.10)'; }}
+                                        type="email"
+                                        placeholder="Enter your email"
+                                        style={{
+                                            background:
+                                                'rgba(255,255,255,0.06)',
+                                            border: '1px solid rgba(255,255,255,0.10)',
+                                            borderRadius: 12,
+                                            padding: '12px 16px',
+                                            minHeight: 48,
+                                            color: P.white,
+                                            fontSize: 14,
+                                            outline: 'none',
+                                            fontFamily: 'inherit',
+                                            transition: 'border-color 0.2s',
+                                        }}
+                                        onFocus={(e) => {
+                                            e.currentTarget.style.borderColor =
+                                                'rgba(52,211,153,0.40)';
+                                        }}
+                                        onBlur={(e) => {
+                                            e.currentTarget.style.borderColor =
+                                                'rgba(255,255,255,0.10)';
+                                        }}
                                     />
-                                    <button type="button" className="btn-primary" style={{ minHeight: 48 }}>Subscribe</button>
+                                    <button
+                                        type="button"
+                                        className="btn-primary"
+                                        style={{ minHeight: 48 }}
+                                    >
+                                        Subscribe
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         {/* Footer bottom */}
-                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 28, display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
-                            <p style={{ fontSize: 13, color: P.onDarkMuted }}>© 2026 Lynsi Food Products. All rights reserved.</p>
+                        <div
+                            style={{
+                                borderTop: '1px solid rgba(255,255,255,0.06)',
+                                paddingTop: 28,
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: 16,
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <p style={{ fontSize: 13, color: P.onDarkMuted }}>
+                                © 2026 Lynsi Food Products. All rights reserved.
+                            </p>
                             <div style={{ display: 'flex', gap: 20 }}>
-                                {['Privacy','Terms','Sitemap'].map(item => (
-                                    <a key={item} href="#" style={{ fontSize: 13, color: P.onDarkMuted, textDecoration: 'none', transition: 'color 0.2s' }}
-                                        onMouseEnter={e => { e.currentTarget.style.color = P.sage; }}
-                                        onMouseLeave={e => { e.currentTarget.style.color = P.onDarkMuted; }}
-                                    >{item}</a>
+                                {['Privacy', 'Terms', 'Sitemap'].map((item) => (
+                                    <a
+                                        key={item}
+                                        href="#"
+                                        style={{
+                                            fontSize: 13,
+                                            color: P.onDarkMuted,
+                                            textDecoration: 'none',
+                                            transition: 'color 0.2s',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.color =
+                                                P.sage;
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.color =
+                                                P.onDarkMuted;
+                                        }}
+                                    >
+                                        {item}
+                                    </a>
                                 ))}
                             </div>
-                            <a href="https://treebyte.vercel.app/" target="_blank" rel="noopener noreferrer"
-                                style={{ fontSize: 13, color: P.onDarkMuted, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 5, transition: 'color 0.2s', whiteSpace: 'nowrap' }}
-                                onMouseEnter={e => { e.currentTarget.style.color = P.sage; }}
-                                onMouseLeave={e => { e.currentTarget.style.color = P.onDarkMuted; }}
+                            <a
+                                href="https://treebyte.vercel.app/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    fontSize: 13,
+                                    color: P.onDarkMuted,
+                                    textDecoration: 'none',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 5,
+                                    transition: 'color 0.2s',
+                                    whiteSpace: 'nowrap',
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.color = P.sage;
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.color = P.onDarkMuted;
+                                }}
                             >
-                                Powered by <strong style={{ color: P.onDark }}>TreeByte</strong> Software
+                                Powered by{' '}
+                                <strong style={{ color: P.onDark }}>
+                                    TreeByte
+                                </strong>{' '}
+                                Software
                             </a>
                         </div>
                     </div>
                 </footer>
-
             </div>
         </>
     );

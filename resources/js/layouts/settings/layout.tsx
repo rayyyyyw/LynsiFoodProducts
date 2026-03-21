@@ -26,9 +26,12 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                     <Settings className="size-5 text-foreground" />
                 </div>
                 <div>
-                    <h1 className="text-xl font-bold tracking-tight text-foreground">Settings</h1>
+                    <h1 className="text-xl font-bold tracking-tight text-foreground">
+                        Settings
+                    </h1>
                     <p className="text-sm text-muted-foreground">
-                        Manage your application preferences, profile, password, and appearance.
+                        Manage your application preferences, profile, password,
+                        and appearance.
                     </p>
                 </div>
             </div>
@@ -39,7 +42,10 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 aria-label="Settings sections"
             >
                 {tabs.map((tab) => {
-                    const href = typeof tab.href === 'string' ? tab.href : toUrl(tab.href);
+                    const href =
+                        typeof tab.href === 'string'
+                            ? tab.href
+                            : toUrl(tab.href);
                     const active = isCurrentUrl(href);
                     const Icon = tab.icon;
                     return (
@@ -49,7 +55,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                             className={cn(
                                 'flex items-center gap-2 rounded-t-md border-b-2 px-3 py-2 text-sm font-medium transition-colors',
                                 active
-                                    ? 'border-foreground text-foreground bg-muted'
+                                    ? 'border-foreground bg-muted text-foreground'
                                     : 'border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                             )}
                         >

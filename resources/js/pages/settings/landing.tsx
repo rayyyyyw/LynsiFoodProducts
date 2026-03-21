@@ -1,9 +1,23 @@
 import { Head, useForm } from '@inertiajs/react';
-import { CheckCircle2, ChevronDown, ChevronUp, ImagePlus, Loader2, Plus, Trash2 } from 'lucide-react';
+import {
+    CheckCircle2,
+    ChevronDown,
+    ChevronUp,
+    ImagePlus,
+    Loader2,
+    Plus,
+    Trash2,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
@@ -31,17 +45,54 @@ type HeroContent = {
     stat3Label?: string;
 };
 
-type ProductItem = { name: string; price: string; unit: string; category: string; icon: string; badge: string; color: string };
+type ProductItem = {
+    name: string;
+    price: string;
+    unit: string;
+    category: string;
+    icon: string;
+    badge: string;
+    color: string;
+};
 type BenefitItem = { icon: string; title: string; desc: string };
 type StepItem = { step: string; title: string; desc: string };
-type LocationItem = { name: string; address: string; city: string; phone: string; hours: string; tag: string; image_url?: string };
+type LocationItem = {
+    name: string;
+    address: string;
+    city: string;
+    phone: string;
+    hours: string;
+    tag: string;
+    image_url?: string;
+};
 
 type LandingContent = {
     hero?: HeroContent;
-    products?: { badge?: string; title?: string; subtitle?: string; catalogueLabel?: string; items?: ProductItem[] };
-    benefits?: { badge?: string; title?: string; subtitle?: string; items?: BenefitItem[] };
-    howItWorks?: { badge?: string; title?: string; subtitle?: string; steps?: StepItem[] };
-    locations?: { badge?: string; title?: string; subtitle?: string; items?: LocationItem[] };
+    products?: {
+        badge?: string;
+        title?: string;
+        subtitle?: string;
+        catalogueLabel?: string;
+        items?: ProductItem[];
+    };
+    benefits?: {
+        badge?: string;
+        title?: string;
+        subtitle?: string;
+        items?: BenefitItem[];
+    };
+    howItWorks?: {
+        badge?: string;
+        title?: string;
+        subtitle?: string;
+        steps?: StepItem[];
+    };
+    locations?: {
+        badge?: string;
+        title?: string;
+        subtitle?: string;
+        items?: LocationItem[];
+    };
     aboutUs?: {
         badge?: string;
         title?: string;
@@ -57,7 +108,16 @@ type LandingContent = {
         farmToTableTitle?: string;
         farmToTableDesc?: string;
     };
-    contactUs?: { badge?: string; title?: string; subtitle?: string; email?: string; phone?: string; address?: string; facebook?: string; footerNote?: string };
+    contactUs?: {
+        badge?: string;
+        title?: string;
+        subtitle?: string;
+        email?: string;
+        phone?: string;
+        address?: string;
+        facebook?: string;
+        footerNote?: string;
+    };
     partners?: { title?: string; items?: string[] };
 };
 
@@ -76,23 +136,39 @@ function SectionCard({
     return (
         <Card className="border-border shadow-sm">
             <CardHeader
-                className="cursor-pointer select-none py-3"
+                className="cursor-pointer py-3 select-none"
                 onClick={() => setOpen((o) => !o)}
             >
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-                        <CardDescription className="text-xs">{description}</CardDescription>
+                        <CardTitle className="text-sm font-medium">
+                            {title}
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            {description}
+                        </CardDescription>
                     </div>
-                    {open ? <ChevronUp className="size-4 shrink-0" /> : <ChevronDown className="size-4 shrink-0" />}
+                    {open ? (
+                        <ChevronUp className="size-4 shrink-0" />
+                    ) : (
+                        <ChevronDown className="size-4 shrink-0" />
+                    )}
                 </div>
             </CardHeader>
-            {open && <CardContent className="space-y-3 border-t border-border pt-3">{children}</CardContent>}
+            {open && (
+                <CardContent className="space-y-3 border-t border-border pt-3">
+                    {children}
+                </CardContent>
+            )}
         </Card>
     );
 }
 
-const defaultBenefitItem = (): BenefitItem => ({ icon: '🍃', title: '', desc: '' });
+const defaultBenefitItem = (): BenefitItem => ({
+    icon: '🍃',
+    title: '',
+    desc: '',
+});
 const defaultStepItem = (): StepItem => ({ step: '01', title: '', desc: '' });
 const defaultLocationItem = (): LocationItem => ({
     name: '',
@@ -104,9 +180,19 @@ const defaultLocationItem = (): LocationItem => ({
     image_url: '',
 });
 
-export default function Landing({ content, status }: { content: LandingContent; status?: string | null }) {
-    const [successMessage, setSuccessMessage] = useState<string | null>(status ?? null);
-    const { data, setData, put, processing, errors } = useForm<{ content: LandingContent }>({
+export default function Landing({
+    content,
+    status,
+}: {
+    content: LandingContent;
+    status?: string | null;
+}) {
+    const [successMessage, setSuccessMessage] = useState<string | null>(
+        status ?? null,
+    );
+    const { data, setData, put, processing, errors } = useForm<{
+        content: LandingContent;
+    }>({
         content: content ?? {},
     });
 
@@ -124,7 +210,10 @@ export default function Landing({ content, status }: { content: LandingContent; 
         setData((prev) => {
             const next = JSON.parse(JSON.stringify(prev));
             const keys = path.split('.');
-            let cur: Record<string, unknown> = next.content as Record<string, unknown>;
+            let cur: Record<string, unknown> = next.content as Record<
+                string,
+                unknown
+            >;
             for (let i = 0; i < keys.length - 1; i++) {
                 const k = keys[i];
                 if (!(k in cur)) cur[k] = {};
@@ -144,8 +233,16 @@ export default function Landing({ content, status }: { content: LandingContent; 
         return cur;
     };
 
-    const updateArray = (section: string, key: string, index: number, field: string, value: string) => {
-        const base = (data.content as Record<string, unknown>)[section] as Record<string, unknown> | undefined;
+    const updateArray = (
+        section: string,
+        key: string,
+        index: number,
+        field: string,
+        value: string,
+    ) => {
+        const base = (data.content as Record<string, unknown>)[section] as
+            | Record<string, unknown>
+            | undefined;
         const arr = (base?.[key] as unknown[]) ?? [];
         const copy = [...arr];
         if (!copy[index]) return;
@@ -153,14 +250,22 @@ export default function Landing({ content, status }: { content: LandingContent; 
         update(section, { ...base, [key]: copy });
     };
 
-    const addArrayItem = (section: string, key: string, defaultItem: () => unknown) => {
-        const base = (data.content as Record<string, unknown>)[section] as Record<string, unknown> | undefined;
+    const addArrayItem = (
+        section: string,
+        key: string,
+        defaultItem: () => unknown,
+    ) => {
+        const base = (data.content as Record<string, unknown>)[section] as
+            | Record<string, unknown>
+            | undefined;
         const arr = (base?.[key] as unknown[]) ?? [];
         update(section, { ...base, [key]: [...arr, defaultItem()] });
     };
 
     const removeArrayItem = (section: string, key: string, index: number) => {
-        const base = (data.content as Record<string, unknown>)[section] as Record<string, unknown> | undefined;
+        const base = (data.content as Record<string, unknown>)[section] as
+            | Record<string, unknown>
+            | undefined;
         const arr = (base?.[key] as unknown[]) ?? [];
         const copy = arr.filter((_, i) => i !== index);
         update(section, { ...base, [key]: copy });
@@ -175,12 +280,20 @@ export default function Landing({ content, status }: { content: LandingContent; 
     const steps = (data.content?.howItWorks?.steps ?? []) as StepItem[];
     const locations = (data.content?.locations?.items ?? []) as LocationItem[];
     const partnerNames = (data.content?.partners?.items ?? []) as string[];
-    const [expandedLocationIndex, setExpandedLocationIndex] = useState<number | null>(null);
-    const [uploadingLocationIndex, setUploadingLocationIndex] = useState<number | null>(null);
-    const locationFileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+    const [expandedLocationIndex, setExpandedLocationIndex] = useState<
+        number | null
+    >(null);
+    const [uploadingLocationIndex, setUploadingLocationIndex] = useState<
+        number | null
+    >(null);
+    const locationFileInputRefs = useRef<
+        Record<number, HTMLInputElement | null>
+    >({});
 
     function getCsrfToken(): string | null {
-        const match = typeof document !== 'undefined' && document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+        const match =
+            typeof document !== 'undefined' &&
+            document.cookie.match(/XSRF-TOKEN=([^;]+)/);
         return match ? decodeURIComponent(match[1]) : null;
     }
 
@@ -195,14 +308,16 @@ export default function Landing({ content, status }: { content: LandingContent; 
                 body: formData,
                 headers: {
                     ...(token ? { 'X-XSRF-TOKEN': token } : {}),
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                 },
                 credentials: 'same-origin',
             });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
-                throw new Error((err as { message?: string }).message || 'Upload failed');
+                throw new Error(
+                    (err as { message?: string }).message || 'Upload failed',
+                );
             }
             const { url } = (await res.json()) as { url: string };
             updateArray('locations', 'items', index, 'image_url', url);
@@ -219,31 +334,49 @@ export default function Landing({ content, status }: { content: LandingContent; 
                     {successMessage && (
                         <Alert className="border-green-500/50 bg-green-50 text-green-800 dark:border-green-500/30 dark:bg-green-950/30 dark:text-green-200">
                             <CheckCircle2 className="size-4" />
-                            <AlertDescription>{successMessage}</AlertDescription>
+                            <AlertDescription>
+                                {successMessage}
+                            </AlertDescription>
                         </Alert>
                     )}
                     {errors.content && (
-                        <p className="text-sm text-destructive">{errors.content}</p>
+                        <p className="text-sm text-destructive">
+                            {errors.content}
+                        </p>
                     )}
                     <div className="flex justify-end pb-1">
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Saving...' : 'Save landing page content'}
+                            {processing
+                                ? 'Saving...'
+                                : 'Save landing page content'}
                         </Button>
                     </div>
 
                     {/* Trusted By / Partners */}
-                    <SectionCard title="Partnerships" description="Brand names shown in the trusted-by section.">
+                    <SectionCard
+                        title="Partnerships"
+                        description="Brand names shown in the trusted-by section."
+                    >
                         <div className="space-y-3">
                             <div>
                                 <Label>Section heading</Label>
                                 <Input
-                                    value={(get('partners.title') as string) ?? ''}
-                                    onChange={(e) => update('partners', { ...data.content?.partners, title: e.target.value })}
+                                    value={
+                                        (get('partners.title') as string) ?? ''
+                                    }
+                                    onChange={(e) =>
+                                        update('partners', {
+                                            ...data.content?.partners,
+                                            title: e.target.value,
+                                        })
+                                    }
                                     placeholder="Trusted by leading food brands & retailers"
                                 />
                             </div>
                             <div>
-                                <Label className="mb-2 block">Partner / brand names</Label>
+                                <Label className="mb-2 block">
+                                    Partner / brand names
+                                </Label>
                                 {partnerNames.map((name, i) => (
                                     <div key={i} className="mb-2 flex gap-2">
                                         <Input
@@ -253,7 +386,10 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                             onChange={(e) => {
                                                 const next = [...partnerNames];
                                                 next[i] = e.target.value;
-                                                update('partners', { ...data.content?.partners, items: next });
+                                                update('partners', {
+                                                    ...data.content?.partners,
+                                                    items: next,
+                                                });
                                             }}
                                         />
                                         <Button
@@ -262,8 +398,14 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                             size="icon"
                                             className="shrink-0"
                                             onClick={() => {
-                                                const next = partnerNames.filter((_, idx) => idx !== i);
-                                                update('partners', { ...data.content?.partners, items: next });
+                                                const next =
+                                                    partnerNames.filter(
+                                                        (_, idx) => idx !== i,
+                                                    );
+                                                update('partners', {
+                                                    ...data.content?.partners,
+                                                    items: next,
+                                                });
                                             }}
                                         >
                                             <Trash2 className="size-4 text-destructive" />
@@ -274,7 +416,12 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => update('partners', { ...data.content?.partners, items: [...partnerNames, ''] })}
+                                    onClick={() =>
+                                        update('partners', {
+                                            ...data.content?.partners,
+                                            items: [...partnerNames, ''],
+                                        })
+                                    }
                                 >
                                     <Plus className="mr-1 size-4" /> Add brand
                                 </Button>
@@ -283,59 +430,121 @@ export default function Landing({ content, status }: { content: LandingContent; 
                     </SectionCard>
 
                     {/* Benefits */}
-                    <SectionCard title="Benefits" description="Why Choose Lynsi section.">
+                    <SectionCard
+                        title="Benefits"
+                        description="Why Choose Lynsi section."
+                    >
                         <div className="space-y-3">
                             <div className="grid gap-2 sm:grid-cols-2">
                                 <div>
                                     <Label>Section badge</Label>
                                     <Input
-                                        value={(get('benefits.badge') as string) ?? ''}
-                                        onChange={(e) => update('benefits', { ...data.content?.benefits, badge: e.target.value })}
+                                        value={
+                                            (get('benefits.badge') as string) ??
+                                            ''
+                                        }
+                                        onChange={(e) =>
+                                            update('benefits', {
+                                                ...data.content?.benefits,
+                                                badge: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                                 <div>
                                     <Label>Section title</Label>
                                     <Input
-                                        value={(get('benefits.title') as string) ?? ''}
-                                        onChange={(e) => update('benefits', { ...data.content?.benefits, title: e.target.value })}
+                                        value={
+                                            (get('benefits.title') as string) ??
+                                            ''
+                                        }
+                                        onChange={(e) =>
+                                            update('benefits', {
+                                                ...data.content?.benefits,
+                                                title: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                             </div>
                             <div>
                                 <Label>Subtitle</Label>
                                 <Input
-                                    value={(get('benefits.subtitle') as string) ?? ''}
-                                    onChange={(e) => update('benefits', { ...data.content?.benefits, subtitle: e.target.value })}
+                                    value={
+                                        (get('benefits.subtitle') as string) ??
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        update('benefits', {
+                                            ...data.content?.benefits,
+                                            subtitle: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                             <div>
-                                <Label className="mb-2 block">Benefit items</Label>
+                                <Label className="mb-2 block">
+                                    Benefit items
+                                </Label>
                                 {benefits.map((b, i) => (
-                                    <div key={i} className="mb-4 flex flex-wrap gap-2 rounded-lg border p-3">
+                                    <div
+                                        key={i}
+                                        className="mb-4 flex flex-wrap gap-2 rounded-lg border p-3"
+                                    >
                                         <Input
                                             className="w-14"
                                             placeholder="Icon"
                                             value={b.icon}
-                                            onChange={(e) => updateArray('benefits', 'items', i, 'icon', e.target.value)}
+                                            onChange={(e) =>
+                                                updateArray(
+                                                    'benefits',
+                                                    'items',
+                                                    i,
+                                                    'icon',
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
                                         <Input
-                                            className="flex-1 min-w-[140px]"
+                                            className="min-w-[140px] flex-1"
                                             placeholder="Title"
                                             value={b.title}
-                                            onChange={(e) => updateArray('benefits', 'items', i, 'title', e.target.value)}
+                                            onChange={(e) =>
+                                                updateArray(
+                                                    'benefits',
+                                                    'items',
+                                                    i,
+                                                    'title',
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
                                         <Input
-                                            className="flex-2 min-w-[200px]"
+                                            className="min-w-[200px] flex-2"
                                             placeholder="Description"
                                             value={b.desc}
-                                            onChange={(e) => updateArray('benefits', 'items', i, 'desc', e.target.value)}
+                                            onChange={(e) =>
+                                                updateArray(
+                                                    'benefits',
+                                                    'items',
+                                                    i,
+                                                    'desc',
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
                                             className="shrink-0"
-                                            onClick={() => removeArrayItem('benefits', 'items', i)}
+                                            onClick={() =>
+                                                removeArrayItem(
+                                                    'benefits',
+                                                    'items',
+                                                    i,
+                                                )
+                                            }
                                         >
                                             <Trash2 className="size-4 text-destructive" />
                                         </Button>
@@ -345,7 +554,13 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => addArrayItem('benefits', 'items', defaultBenefitItem)}
+                                    onClick={() =>
+                                        addArrayItem(
+                                            'benefits',
+                                            'items',
+                                            defaultBenefitItem,
+                                        )
+                                    }
                                 >
                                     <Plus className="mr-1 size-4" /> Add benefit
                                 </Button>
@@ -354,59 +569,122 @@ export default function Landing({ content, status }: { content: LandingContent; 
                     </SectionCard>
 
                     {/* How it works */}
-                    <SectionCard title="How It Works" description="Process steps section.">
+                    <SectionCard
+                        title="How It Works"
+                        description="Process steps section."
+                    >
                         <div className="space-y-3">
                             <div className="grid gap-2 sm:grid-cols-2">
                                 <div>
                                     <Label>Section badge</Label>
                                     <Input
-                                        value={(get('howItWorks.badge') as string) ?? ''}
-                                        onChange={(e) => update('howItWorks', { ...data.content?.howItWorks, badge: e.target.value })}
+                                        value={
+                                            (get(
+                                                'howItWorks.badge',
+                                            ) as string) ?? ''
+                                        }
+                                        onChange={(e) =>
+                                            update('howItWorks', {
+                                                ...data.content?.howItWorks,
+                                                badge: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                                 <div>
                                     <Label>Section title</Label>
                                     <Input
-                                        value={(get('howItWorks.title') as string) ?? ''}
-                                        onChange={(e) => update('howItWorks', { ...data.content?.howItWorks, title: e.target.value })}
+                                        value={
+                                            (get(
+                                                'howItWorks.title',
+                                            ) as string) ?? ''
+                                        }
+                                        onChange={(e) =>
+                                            update('howItWorks', {
+                                                ...data.content?.howItWorks,
+                                                title: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                             </div>
                             <div>
                                 <Label>Subtitle</Label>
                                 <Input
-                                    value={(get('howItWorks.subtitle') as string) ?? ''}
-                                    onChange={(e) => update('howItWorks', { ...data.content?.howItWorks, subtitle: e.target.value })}
+                                    value={
+                                        (get(
+                                            'howItWorks.subtitle',
+                                        ) as string) ?? ''
+                                    }
+                                    onChange={(e) =>
+                                        update('howItWorks', {
+                                            ...data.content?.howItWorks,
+                                            subtitle: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                             <div>
                                 <Label className="mb-2 block">Steps</Label>
                                 {steps.map((s, i) => (
-                                    <div key={i} className="mb-4 flex flex-wrap gap-2 rounded-lg border p-3">
+                                    <div
+                                        key={i}
+                                        className="mb-4 flex flex-wrap gap-2 rounded-lg border p-3"
+                                    >
                                         <Input
                                             className="w-14"
                                             placeholder="Step #"
                                             value={s.step}
-                                            onChange={(e) => updateArray('howItWorks', 'steps', i, 'step', e.target.value)}
+                                            onChange={(e) =>
+                                                updateArray(
+                                                    'howItWorks',
+                                                    'steps',
+                                                    i,
+                                                    'step',
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
                                         <Input
-                                            className="flex-1 min-w-[160px]"
+                                            className="min-w-[160px] flex-1"
                                             placeholder="Step title"
                                             value={s.title}
-                                            onChange={(e) => updateArray('howItWorks', 'steps', i, 'title', e.target.value)}
+                                            onChange={(e) =>
+                                                updateArray(
+                                                    'howItWorks',
+                                                    'steps',
+                                                    i,
+                                                    'title',
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
                                         <Input
-                                            className="flex-2 min-w-[200px]"
+                                            className="min-w-[200px] flex-2"
                                             placeholder="Description"
                                             value={s.desc}
-                                            onChange={(e) => updateArray('howItWorks', 'steps', i, 'desc', e.target.value)}
+                                            onChange={(e) =>
+                                                updateArray(
+                                                    'howItWorks',
+                                                    'steps',
+                                                    i,
+                                                    'desc',
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="icon"
                                             className="shrink-0"
-                                            onClick={() => removeArrayItem('howItWorks', 'steps', i)}
+                                            onClick={() =>
+                                                removeArrayItem(
+                                                    'howItWorks',
+                                                    'steps',
+                                                    i,
+                                                )
+                                            }
                                         >
                                             <Trash2 className="size-4 text-destructive" />
                                         </Button>
@@ -416,7 +694,13 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => addArrayItem('howItWorks', 'steps', defaultStepItem)}
+                                    onClick={() =>
+                                        addArrayItem(
+                                            'howItWorks',
+                                            'steps',
+                                            defaultStepItem,
+                                        )
+                                    }
                                 >
                                     <Plus className="mr-1 size-4" /> Add step
                                 </Button>
@@ -425,58 +709,114 @@ export default function Landing({ content, status }: { content: LandingContent; 
                     </SectionCard>
 
                     {/* Our Locations */}
-                    <SectionCard title="Our Locations" description="Store locations section.">
+                    <SectionCard
+                        title="Our Locations"
+                        description="Store locations section."
+                    >
                         <div className="space-y-3">
                             <div className="grid gap-2 sm:grid-cols-2">
                                 <div>
                                     <Label>Section badge</Label>
                                     <Input
-                                        value={(get('locations.badge') as string) ?? ''}
-                                        onChange={(e) => update('locations', { ...data.content?.locations, badge: e.target.value })}
+                                        value={
+                                            (get(
+                                                'locations.badge',
+                                            ) as string) ?? ''
+                                        }
+                                        onChange={(e) =>
+                                            update('locations', {
+                                                ...data.content?.locations,
+                                                badge: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                                 <div>
                                     <Label>Section title</Label>
                                     <Input
-                                        value={(get('locations.title') as string) ?? ''}
-                                        onChange={(e) => update('locations', { ...data.content?.locations, title: e.target.value })}
+                                        value={
+                                            (get(
+                                                'locations.title',
+                                            ) as string) ?? ''
+                                        }
+                                        onChange={(e) =>
+                                            update('locations', {
+                                                ...data.content?.locations,
+                                                title: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                             </div>
                             <div>
                                 <Label>Subtitle</Label>
                                 <Input
-                                    value={(get('locations.subtitle') as string) ?? ''}
-                                    onChange={(e) => update('locations', { ...data.content?.locations, subtitle: e.target.value })}
+                                    value={
+                                        (get('locations.subtitle') as string) ??
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        update('locations', {
+                                            ...data.content?.locations,
+                                            subtitle: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                             <div>
-                                <Label className="mb-2 block">Location items</Label>
+                                <Label className="mb-2 block">
+                                    Location items
+                                </Label>
                                 <div className="space-y-1">
                                     {locations.map((loc, i) => (
-                                        <div key={i} className="rounded-lg border border-border">
+                                        <div
+                                            key={i}
+                                            className="rounded-lg border border-border"
+                                        >
                                             <button
                                                 type="button"
                                                 className="flex w-full items-center gap-2 rounded-lg p-2 text-left hover:bg-muted/50"
-                                                onClick={() => setExpandedLocationIndex((prev) => (prev === i ? null : i))}
+                                                onClick={() =>
+                                                    setExpandedLocationIndex(
+                                                        (prev) =>
+                                                            prev === i
+                                                                ? null
+                                                                : i,
+                                                    )
+                                                }
                                             >
                                                 <div className="h-10 w-14 shrink-0 overflow-hidden rounded bg-muted">
-                                                    {(loc.image_url ?? '').trim() ? (
+                                                    {(
+                                                        loc.image_url ?? ''
+                                                    ).trim() ? (
                                                         <img
-                                                            src={(loc.image_url ?? '').trim()}
+                                                            src={(
+                                                                loc.image_url ??
+                                                                ''
+                                                            ).trim()}
                                                             alt=""
                                                             className="h-full w-full object-cover"
-                                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                                            onError={(e) => {
+                                                                (
+                                                                    e.target as HTMLImageElement
+                                                                ).style.display =
+                                                                    'none';
+                                                            }}
                                                         />
                                                     ) : (
-                                                        <span className="flex h-full w-full items-center justify-center text-muted-foreground text-xs">📷</span>
+                                                        <span className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                                                            📷
+                                                        </span>
                                                     )}
                                                 </div>
                                                 <span className="min-w-0 flex-1 truncate font-medium">
-                                                    {loc.name || `Location ${i + 1}`}
+                                                    {loc.name ||
+                                                        `Location ${i + 1}`}
                                                 </span>
                                                 {loc.tag && (
-                                                    <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs">{loc.tag}</span>
+                                                    <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs">
+                                                        {loc.tag}
+                                                    </span>
                                                 )}
                                                 {expandedLocationIndex === i ? (
                                                     <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
@@ -490,46 +830,96 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                                         <Input
                                                             placeholder="Location name"
                                                             value={loc.name}
-                                                            onChange={(e) => updateArray('locations', 'items', i, 'name', e.target.value)}
+                                                            onChange={(e) =>
+                                                                updateArray(
+                                                                    'locations',
+                                                                    'items',
+                                                                    i,
+                                                                    'name',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                         />
                                                         <Input
                                                             placeholder="Tag"
                                                             value={loc.tag}
-                                                            onChange={(e) => updateArray('locations', 'items', i, 'tag', e.target.value)}
+                                                            onChange={(e) =>
+                                                                updateArray(
+                                                                    'locations',
+                                                                    'items',
+                                                                    i,
+                                                                    'tag',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                         />
                                                     </div>
                                                     <div className="mt-2">
-                                                        <Label className="text-xs text-muted-foreground">Image (file)</Label>
+                                                        <Label className="text-xs text-muted-foreground">
+                                                            Image (file)
+                                                        </Label>
                                                         <div className="mt-1 flex items-center gap-2">
                                                             <input
-                                                                ref={(el) => { locationFileInputRefs.current[i] = el; }}
+                                                                ref={(el) => {
+                                                                    locationFileInputRefs.current[
+                                                                        i
+                                                                    ] = el;
+                                                                }}
                                                                 type="file"
                                                                 accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
                                                                 className="hidden"
-                                                                onChange={(e) => {
-                                                                    const f = e.target.files?.[0];
-                                                                    if (f) uploadLocationImage(i, f);
-                                                                    e.target.value = '';
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    const f =
+                                                                        e.target
+                                                                            .files?.[0];
+                                                                    if (f)
+                                                                        uploadLocationImage(
+                                                                            i,
+                                                                            f,
+                                                                        );
+                                                                    e.target.value =
+                                                                        '';
                                                                 }}
                                                             />
                                                             <Button
                                                                 type="button"
                                                                 variant="outline"
                                                                 size="sm"
-                                                                disabled={uploadingLocationIndex === i}
-                                                                onClick={() => locationFileInputRefs.current[i]?.click()}
+                                                                disabled={
+                                                                    uploadingLocationIndex ===
+                                                                    i
+                                                                }
+                                                                onClick={() =>
+                                                                    locationFileInputRefs.current[
+                                                                        i
+                                                                    ]?.click()
+                                                                }
                                                             >
-                                                                {uploadingLocationIndex === i ? (
+                                                                {uploadingLocationIndex ===
+                                                                i ? (
                                                                     <Loader2 className="mr-1 size-4 animate-spin" />
                                                                 ) : (
                                                                     <ImagePlus className="mr-1 size-4" />
                                                                 )}
-                                                                {uploadingLocationIndex === i ? 'Uploading...' : 'Choose image'}
+                                                                {uploadingLocationIndex ===
+                                                                i
+                                                                    ? 'Uploading...'
+                                                                    : 'Choose image'}
                                                             </Button>
-                                                            {(loc.image_url ?? '').trim() && (
+                                                            {(
+                                                                loc.image_url ??
+                                                                ''
+                                                            ).trim() && (
                                                                 <div className="h-12 w-16 overflow-hidden rounded border bg-muted">
                                                                     <img
-                                                                        src={(loc.image_url ?? '').trim()}
+                                                                        src={(
+                                                                            loc.image_url ??
+                                                                            ''
+                                                                        ).trim()}
                                                                         alt=""
                                                                         className="h-full w-full object-cover"
                                                                     />
@@ -541,22 +931,58 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                                         <Input
                                                             placeholder="Address"
                                                             value={loc.address}
-                                                            onChange={(e) => updateArray('locations', 'items', i, 'address', e.target.value)}
+                                                            onChange={(e) =>
+                                                                updateArray(
+                                                                    'locations',
+                                                                    'items',
+                                                                    i,
+                                                                    'address',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                         />
                                                         <Input
                                                             placeholder="City"
                                                             value={loc.city}
-                                                            onChange={(e) => updateArray('locations', 'items', i, 'city', e.target.value)}
+                                                            onChange={(e) =>
+                                                                updateArray(
+                                                                    'locations',
+                                                                    'items',
+                                                                    i,
+                                                                    'city',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                         />
                                                         <Input
                                                             placeholder="Phone"
                                                             value={loc.phone}
-                                                            onChange={(e) => updateArray('locations', 'items', i, 'phone', e.target.value)}
+                                                            onChange={(e) =>
+                                                                updateArray(
+                                                                    'locations',
+                                                                    'items',
+                                                                    i,
+                                                                    'phone',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                         />
                                                         <Input
                                                             placeholder="Hours"
                                                             value={loc.hours}
-                                                            onChange={(e) => updateArray('locations', 'items', i, 'hours', e.target.value)}
+                                                            onChange={(e) =>
+                                                                updateArray(
+                                                                    'locations',
+                                                                    'items',
+                                                                    i,
+                                                                    'hours',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                         />
                                                     </div>
                                                     <div className="mt-2 flex justify-end">
@@ -565,9 +991,19 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                                             variant="ghost"
                                                             size="sm"
                                                             className="text-destructive hover:text-destructive"
-                                                            onClick={() => { removeArrayItem('locations', 'items', i); setExpandedLocationIndex(null); }}
+                                                            onClick={() => {
+                                                                removeArrayItem(
+                                                                    'locations',
+                                                                    'items',
+                                                                    i,
+                                                                );
+                                                                setExpandedLocationIndex(
+                                                                    null,
+                                                                );
+                                                            }}
                                                         >
-                                                            <Trash2 className="mr-1 size-4" /> Remove location
+                                                            <Trash2 className="mr-1 size-4" />{' '}
+                                                            Remove location
                                                         </Button>
                                                     </div>
                                                 </div>
@@ -580,48 +1016,90 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                     variant="outline"
                                     size="sm"
                                     className="mt-2"
-                                    onClick={() => addArrayItem('locations', 'items', defaultLocationItem)}
+                                    onClick={() =>
+                                        addArrayItem(
+                                            'locations',
+                                            'items',
+                                            defaultLocationItem,
+                                        )
+                                    }
                                 >
-                                    <Plus className="mr-1 size-4" /> Add location
+                                    <Plus className="mr-1 size-4" /> Add
+                                    location
                                 </Button>
                             </div>
                         </div>
                     </SectionCard>
 
                     {/* About Us */}
-                    <SectionCard title="About Us" description="Our story and values.">
+                    <SectionCard
+                        title="About Us"
+                        description="Our story and values."
+                    >
                         <div className="space-y-3">
                             <div className="grid gap-2 sm:grid-cols-2">
                                 <div>
                                     <Label>Section badge</Label>
                                     <Input
-                                        value={(get('aboutUs.badge') as string) ?? ''}
-                                        onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, badge: e.target.value })}
+                                        value={
+                                            (get('aboutUs.badge') as string) ??
+                                            ''
+                                        }
+                                        onChange={(e) =>
+                                            update('aboutUs', {
+                                                ...data.content?.aboutUs,
+                                                badge: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                                 <div>
                                     <Label>Section title</Label>
                                     <Input
-                                        value={(get('aboutUs.title') as string) ?? ''}
-                                        onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, title: e.target.value })}
+                                        value={
+                                            (get('aboutUs.title') as string) ??
+                                            ''
+                                        }
+                                        onChange={(e) =>
+                                            update('aboutUs', {
+                                                ...data.content?.aboutUs,
+                                                title: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                             </div>
                             <div>
                                 <Label>Subtitle</Label>
                                 <Input
-                                    value={(get('aboutUs.subtitle') as string) ?? ''}
-                                    onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, subtitle: e.target.value })}
+                                    value={
+                                        (get('aboutUs.subtitle') as string) ??
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        update('aboutUs', {
+                                            ...data.content?.aboutUs,
+                                            subtitle: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                             <div>
                                 <Label>Paragraph 1</Label>
                                 <textarea
                                     className={cn(
-                                        'border-input flex min-h-[80px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                        'flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                     )}
-                                    value={(get('aboutUs.paragraph1') as string) ?? ''}
-                                    onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, paragraph1: e.target.value })}
+                                    value={
+                                        (get('aboutUs.paragraph1') as string) ??
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        update('aboutUs', {
+                                            ...data.content?.aboutUs,
+                                            paragraph1: e.target.value,
+                                        })
+                                    }
                                     rows={3}
                                 />
                             </div>
@@ -629,70 +1107,149 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                 <Label>Paragraph 2</Label>
                                 <textarea
                                     className={cn(
-                                        'border-input flex min-h-[80px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                        'flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                     )}
-                                    value={(get('aboutUs.paragraph2') as string) ?? ''}
-                                    onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, paragraph2: e.target.value })}
+                                    value={
+                                        (get('aboutUs.paragraph2') as string) ??
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        update('aboutUs', {
+                                            ...data.content?.aboutUs,
+                                            paragraph2: e.target.value,
+                                        })
+                                    }
                                     rows={3}
                                 />
                             </div>
                             <div className="grid gap-2 sm:grid-cols-3">
-                                {(['stat1', 'stat2', 'stat3'] as const).map((s) => (
-                                    <div key={s} className="flex gap-2">
-                                        <Input
-                                            placeholder="Number"
-                                            value={(get(`aboutUs.${s}Num`) as string) ?? ''}
-                                            onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, [`${s}Num`]: e.target.value })}
-                                        />
-                                        <Input
-                                            placeholder="Label"
-                                            value={(get(`aboutUs.${s}Label`) as string) ?? ''}
-                                            onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, [`${s}Label`]: e.target.value })}
-                                        />
-                                    </div>
-                                ))}
+                                {(['stat1', 'stat2', 'stat3'] as const).map(
+                                    (s) => (
+                                        <div key={s} className="flex gap-2">
+                                            <Input
+                                                placeholder="Number"
+                                                value={
+                                                    (get(
+                                                        `aboutUs.${s}Num`,
+                                                    ) as string) ?? ''
+                                                }
+                                                onChange={(e) =>
+                                                    update('aboutUs', {
+                                                        ...data.content
+                                                            ?.aboutUs,
+                                                        [`${s}Num`]:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                            />
+                                            <Input
+                                                placeholder="Label"
+                                                value={
+                                                    (get(
+                                                        `aboutUs.${s}Label`,
+                                                    ) as string) ?? ''
+                                                }
+                                                onChange={(e) =>
+                                                    update('aboutUs', {
+                                                        ...data.content
+                                                            ?.aboutUs,
+                                                        [`${s}Label`]:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                    ),
+                                )}
                             </div>
                             <div>
                                 <Label>Farm to Table title</Label>
                                 <Input
-                                    value={(get('aboutUs.farmToTableTitle') as string) ?? ''}
-                                    onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, farmToTableTitle: e.target.value })}
+                                    value={
+                                        (get(
+                                            'aboutUs.farmToTableTitle',
+                                        ) as string) ?? ''
+                                    }
+                                    onChange={(e) =>
+                                        update('aboutUs', {
+                                            ...data.content?.aboutUs,
+                                            farmToTableTitle: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                             <div>
                                 <Label>Farm to Table description</Label>
                                 <Input
-                                    value={(get('aboutUs.farmToTableDesc') as string) ?? ''}
-                                    onChange={(e) => update('aboutUs', { ...data.content?.aboutUs, farmToTableDesc: e.target.value })}
+                                    value={
+                                        (get(
+                                            'aboutUs.farmToTableDesc',
+                                        ) as string) ?? ''
+                                    }
+                                    onChange={(e) =>
+                                        update('aboutUs', {
+                                            ...data.content?.aboutUs,
+                                            farmToTableDesc: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                         </div>
                     </SectionCard>
 
                     {/* Contact Us */}
-                    <SectionCard title="Contact Us" description="Contact section and details.">
+                    <SectionCard
+                        title="Contact Us"
+                        description="Contact section and details."
+                    >
                         <div className="space-y-3">
                             <div className="grid gap-2 sm:grid-cols-2">
                                 <div>
                                     <Label>Section badge</Label>
                                     <Input
-                                        value={(get('contactUs.badge') as string) ?? ''}
-                                        onChange={(e) => update('contactUs', { ...data.content?.contactUs, badge: e.target.value })}
+                                        value={
+                                            (get(
+                                                'contactUs.badge',
+                                            ) as string) ?? ''
+                                        }
+                                        onChange={(e) =>
+                                            update('contactUs', {
+                                                ...data.content?.contactUs,
+                                                badge: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                                 <div>
                                     <Label>Section title</Label>
                                     <Input
-                                        value={(get('contactUs.title') as string) ?? ''}
-                                        onChange={(e) => update('contactUs', { ...data.content?.contactUs, title: e.target.value })}
+                                        value={
+                                            (get(
+                                                'contactUs.title',
+                                            ) as string) ?? ''
+                                        }
+                                        onChange={(e) =>
+                                            update('contactUs', {
+                                                ...data.content?.contactUs,
+                                                title: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                             </div>
                             <div>
                                 <Label>Subtitle</Label>
                                 <Input
-                                    value={(get('contactUs.subtitle') as string) ?? ''}
-                                    onChange={(e) => update('contactUs', { ...data.content?.contactUs, subtitle: e.target.value })}
+                                    value={
+                                        (get('contactUs.subtitle') as string) ??
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        update('contactUs', {
+                                            ...data.content?.contactUs,
+                                            subtitle: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                             <div className="grid gap-2 sm:grid-cols-2">
@@ -700,23 +1257,49 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                     <Label>Email</Label>
                                     <Input
                                         type="email"
-                                        value={(get('contactUs.email') as string) ?? ''}
-                                        onChange={(e) => update('contactUs', { ...data.content?.contactUs, email: e.target.value })}
+                                        value={
+                                            (get(
+                                                'contactUs.email',
+                                            ) as string) ?? ''
+                                        }
+                                        onChange={(e) =>
+                                            update('contactUs', {
+                                                ...data.content?.contactUs,
+                                                email: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                                 <div>
                                     <Label>Phone</Label>
                                     <Input
-                                        value={(get('contactUs.phone') as string) ?? ''}
-                                        onChange={(e) => update('contactUs', { ...data.content?.contactUs, phone: e.target.value })}
+                                        value={
+                                            (get(
+                                                'contactUs.phone',
+                                            ) as string) ?? ''
+                                        }
+                                        onChange={(e) =>
+                                            update('contactUs', {
+                                                ...data.content?.contactUs,
+                                                phone: e.target.value,
+                                            })
+                                        }
                                     />
                                 </div>
                             </div>
                             <div>
                                 <Label>Address</Label>
                                 <Input
-                                    value={(get('contactUs.address') as string) ?? ''}
-                                    onChange={(e) => update('contactUs', { ...data.content?.contactUs, address: e.target.value })}
+                                    value={
+                                        (get('contactUs.address') as string) ??
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        update('contactUs', {
+                                            ...data.content?.contactUs,
+                                            address: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                             <div>
@@ -724,24 +1307,40 @@ export default function Landing({ content, status }: { content: LandingContent; 
                                 <Input
                                     type="url"
                                     placeholder="https://facebook.com/yourpage or yourpage"
-                                    value={(get('contactUs.facebook') as string) ?? ''}
-                                    onChange={(e) => update('contactUs', { ...data.content?.contactUs, facebook: e.target.value })}
+                                    value={
+                                        (get('contactUs.facebook') as string) ??
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        update('contactUs', {
+                                            ...data.content?.contactUs,
+                                            facebook: e.target.value,
+                                        })
+                                    }
                                 />
                             </div>
                             <div>
                                 <Label>Footer note (below contact cards)</Label>
                                 <textarea
                                     className={cn(
-                                        'border-input flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                        'flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                     )}
-                                    value={(get('contactUs.footerNote') as string) ?? ''}
-                                    onChange={(e) => update('contactUs', { ...data.content?.contactUs, footerNote: e.target.value })}
+                                    value={
+                                        (get(
+                                            'contactUs.footerNote',
+                                        ) as string) ?? ''
+                                    }
+                                    onChange={(e) =>
+                                        update('contactUs', {
+                                            ...data.content?.contactUs,
+                                            footerNote: e.target.value,
+                                        })
+                                    }
                                     rows={2}
                                 />
                             </div>
                         </div>
                     </SectionCard>
-
                 </form>
             </SettingsLayout>
         </AppLayout>
