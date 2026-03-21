@@ -33,6 +33,20 @@ type OrdersPaginated = {
     data: OrderRow[];
     links?: { url: string | null; label: string; active: boolean }[];
 };
+type DashboardSummary = {
+    total_orders: number;
+    revenue: number;
+    products: number;
+    customers: number;
+    order_change_pct: number;
+    revenue_change_pct: number;
+};
+type DashboardRecentOrder = {
+    order_number: string;
+    item: string;
+    amount: number;
+    status: string;
+};
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -77,55 +91,57 @@ const sectionLabels: Record<string, string> = {
     'email-templates': 'Email templates',
 };
 
-const stats = [
-    {
-        title: 'Total Orders',
-        value: '24',
-        change: '+12% from last month',
-        icon: ShoppingCart,
-        className: 'text-emerald-600 dark:text-emerald-400',
-    },
-    {
-        title: 'Revenue',
-        value: '₱124,500',
-        change: '+8% from last month',
-        icon: TrendingUp,
-        className: 'text-blue-600 dark:text-blue-400',
-    },
-    {
-        title: 'Products',
-        value: '500+',
-        change: 'Certified organic',
-        icon: Package,
-        className: 'text-amber-600 dark:text-amber-400',
-    },
-    {
-        title: 'Customers',
-        value: '50k+',
-        change: 'Happy customers',
-        icon: Users,
-        className: 'text-violet-600 dark:text-violet-400',
-    },
-];
-
-const recentOrders = [
-    { id: '#1024', item: 'Organic Hass Avocados', amount: '₱350', status: 'Delivered' },
-    { id: '#1023', item: 'Farm-Fresh Tomatoes', amount: '₱120', status: 'Shipped' },
-    { id: '#1022', item: 'Free-Range Brown Eggs', amount: '₱240', status: 'Processing' },
-    { id: '#1021', item: 'Artisan Sourdough', amount: '₱180', status: 'Delivered' },
-    { id: '#1020', item: 'Organic Veggie Bundle', amount: '₱420', status: 'Shipped' },
-];
-
 export default function Dashboard() {
-    const { section, orders, orderCounts } = usePage().props as {
+    const { section, orders, orderCounts, dashboardSummary, dashboardRecentOrders } = usePage().props as {
         section?: string | null;
         orders?: OrdersPaginated;
         orderCounts?: { pending: number; processing: number; delivered: number; cancelled: number };
+        dashboardSummary?: DashboardSummary;
+        dashboardRecentOrders?: DashboardRecentOrder[];
     };
     const sectionTitle = section ? sectionLabels[section] ?? section : null;
     const isSubSection = Boolean(section);
     const isOrdersSection = section === 'orders' && orders;
     const [selectedOrder, setSelectedOrder] = useState<OrderRow | null>(null);
+    const summary = dashboardSummary ?? {
+        total_orders: 0,
+        revenue: 0,
+        products: 0,
+        customers: 0,
+        order_change_pct: 0,
+        revenue_change_pct: 0,
+    };
+    const recentOrders = dashboardRecentOrders ?? [];
+    const stats = [
+        {
+            title: 'Total Orders',
+            value: `${summary.total_orders}`,
+            change: `${summary.order_change_pct >= 0 ? '+' : ''}${summary.order_change_pct.toFixed(1)}% from last month`,
+            icon: ShoppingCart,
+            className: 'text-emerald-600 dark:text-emerald-400',
+        },
+        {
+            title: 'Revenue',
+            value: `₱${summary.revenue.toLocaleString('en-PH', { maximumFractionDigits: 0 })}`,
+            change: `${summary.revenue_change_pct >= 0 ? '+' : ''}${summary.revenue_change_pct.toFixed(1)}% from last month`,
+            icon: TrendingUp,
+            className: 'text-blue-600 dark:text-blue-400',
+        },
+        {
+            title: 'Products',
+            value: `${summary.products}`,
+            change: 'Listed products',
+            icon: Package,
+            className: 'text-amber-600 dark:text-amber-400',
+        },
+        {
+            title: 'Customers',
+            value: `${summary.customers}`,
+            change: 'Registered buyers',
+            icon: Users,
+            className: 'text-violet-600 dark:text-violet-400',
+        },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -520,14 +536,14 @@ export default function Dashboard() {
                                             <tbody>
                                                 {recentOrders.map((order) => (
                                                     <tr
-                                                        key={order.id}
+                                                        key={order.order_number}
                                                         className="border-b last:border-0 hover:bg-muted/30"
                                                     >
                                                         <td className="px-4 py-3 font-mono text-muted-foreground">
-                                                            {order.id}
+                                                            {order.order_number}
                                                         </td>
                                                         <td className="px-4 py-3">{order.item}</td>
-                                                        <td className="px-4 py-3">{order.amount}</td>
+                                                        <td className="px-4 py-3">₱{order.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
                                                         <td className="px-4 py-3">
                                                             <span
                                                                 className={cn(

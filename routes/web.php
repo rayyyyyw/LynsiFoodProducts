@@ -253,7 +253,52 @@ Route::get('/contact', function () {
 Route::post('/contact', [ContactController::class, 'store'])->middleware('auth')->name('contact.store');
 
 Route::get('dashboard', function () {
-    return Inertia::render('dashboard', ['section' => null]);
+    $ordersBase = Order::query()->where('status', '!=', 'cancelled');
+    $now = now();
+    $currentMonthStart = $now->copy()->startOfMonth();
+    $currentMonthEnd = $now->copy()->endOfMonth();
+    $previousMonthStart = $now->copy()->subMonth()->startOfMonth();
+    $previousMonthEnd = $now->copy()->subMonth()->endOfMonth();
+
+    $ordersCurrent = (clone $ordersBase)->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])->count();
+    $ordersPrevious = (clone $ordersBase)->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])->count();
+
+    $revenueCurrent = (float) (clone $ordersBase)->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])->sum('total');
+    $revenuePrevious = (float) (clone $ordersBase)->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])->sum('total');
+
+    $orderChange = $ordersPrevious > 0
+        ? (($ordersCurrent - $ordersPrevious) / $ordersPrevious) * 100
+        : ($ordersCurrent > 0 ? 100.0 : 0.0);
+    $revenueChange = $revenuePrevious > 0
+        ? (($revenueCurrent - $revenuePrevious) / $revenuePrevious) * 100
+        : ($revenueCurrent > 0 ? 100.0 : 0.0);
+
+    $dashboardSummary = [
+        'total_orders' => (int) (clone $ordersBase)->count(),
+        'revenue' => (float) (clone $ordersBase)->sum('total'),
+        'products' => (int) Product::count(),
+        'customers' => (int) User::where('role', '!=', 'admin')->count(),
+        'order_change_pct' => (float) $orderChange,
+        'revenue_change_pct' => (float) $revenueChange,
+    ];
+
+    $dashboardRecentOrders = Order::with('items')
+        ->latest()
+        ->limit(5)
+        ->get()
+        ->map(fn ($order) => [
+            'order_number' => $order->order_number,
+            'item' => $order->items->first()?->product_name ?? 'Order items',
+            'amount' => (float) $order->total,
+            'status' => ucfirst($order->status),
+        ])
+        ->values();
+
+    return Inertia::render('dashboard', [
+        'section' => null,
+        'dashboardSummary' => $dashboardSummary,
+        'dashboardRecentOrders' => $dashboardRecentOrders,
+    ]);
 })->middleware(['auth', 'verified', 'admin'])->name('dashboard');
 
 Route::get('/account', function (\Illuminate\Http\Request $request) {
