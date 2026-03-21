@@ -8,7 +8,9 @@ import {
     Layers,
     RotateCcw,
     ClipboardList,
+    HelpCircle,
     TrendingUp,
+    MessageSquare,
 } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -69,6 +71,14 @@ const mainNavGroups: NavGroup[] = [
         items: [
             { title: 'Sales', href: base('sales'), icon: TrendingUp },
             { title: 'Analytics', href: base('analytics'), icon: BarChart3 },
+        ],
+    },
+    {
+        label: 'Support and Queries',
+        icon: HelpCircle,
+        items: [
+            { title: 'Queries', href: base('queries'), icon: HelpCircle },
+            { title: 'Feedbacks', href: base('feedbacks'), icon: MessageSquare },
         ],
     },
 ];
