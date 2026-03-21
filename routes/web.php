@@ -365,7 +365,7 @@ Route::get('dashboard/{section}', function (string $section) {
             'delivered' => Order::where('status', 'delivered')->count(),
             'cancelled' => Order::where('status', 'cancelled')->count(),
         ];
-        $orders = Order::with(['user:id,name,email', 'items'])->latest()->paginate(20);
+        $orders = Order::with(['user:id,name,email,profile_photo_path', 'items'])->latest()->paginate(20);
         $orders->getCollection()->transform(function ($order) {
             return [
                 'id' => $order->id,
@@ -383,7 +383,12 @@ Route::get('dashboard/{section}', function (string $section) {
                 'subtotal' => (float) $order->subtotal,
                 'notes' => $order->notes,
                 'created_at' => $order->created_at->toDateTimeString(),
-                'user' => $order->user ? ['id' => $order->user->id, 'name' => $order->user->name, 'email' => $order->user->email] : null,
+                'user' => $order->user ? [
+                    'id' => $order->user->id,
+                    'name' => $order->user->name,
+                    'email' => $order->user->email,
+                    'profile_photo_url' => $order->user->profile_photo_url,
+                ] : null,
                 'items' => $order->items->map(fn ($item) => [
                     'product_name' => $item->product_name,
                     'variant_display_name' => $item->variant_display_name,

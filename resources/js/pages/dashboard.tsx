@@ -1,4 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import { Package, ShoppingCart, Users, TrendingUp, Clock, Truck, CheckCircle, XCircle } from 'lucide-react';
 type OrderItemRow = {
     product_name: string;
@@ -24,7 +25,7 @@ type OrderRow = {
     subtotal: number;
     notes: string | null;
     created_at: string;
-    user: { id: number; name: string; email: string } | null;
+    user: { id: number; name: string; email: string; profile_photo_url?: string | null } | null;
     items: OrderItemRow[];
 };
 
@@ -33,6 +34,8 @@ type OrdersPaginated = {
     links?: { url: string | null; label: string; active: boolean }[];
 };
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
     Select,
     SelectContent,
@@ -122,6 +125,7 @@ export default function Dashboard() {
     const sectionTitle = section ? sectionLabels[section] ?? section : null;
     const isSubSection = Boolean(section);
     const isOrdersSection = section === 'orders' && orders;
+    const [selectedOrder, setSelectedOrder] = useState<OrderRow | null>(null);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -200,10 +204,10 @@ export default function Dashboard() {
                                             <th className="px-4 py-3 text-left font-medium">Customer</th>
                                             <th className="px-4 py-3 text-left font-medium">Items</th>
                                             <th className="px-4 py-3 text-left font-medium">Ship to</th>
-                                            <th className="px-4 py-3 text-left font-medium">Payment</th>
                                             <th className="px-4 py-3 text-right font-medium">Total</th>
                                             <th className="px-4 py-3 text-left font-medium">Status</th>
                                             <th className="px-4 py-3 text-left font-medium">Date</th>
+                                            <th className="px-4 py-3 text-left font-medium">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -223,13 +227,28 @@ export default function Dashboard() {
                                                         {order.order_number}
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        <div className="font-medium">{order.user?.name ?? order.shipping_name ?? '—'}</div>
-                                                        {order.user?.email && (
-                                                            <span className="block text-xs text-muted-foreground">{order.user.email}</span>
-                                                        )}
-                                                        {order.shipping_phone && (
-                                                            <span className="block text-xs text-muted-foreground">{order.shipping_phone}</span>
-                                                        )}
+                                                        <div className="flex items-center gap-2">
+                                                            {order.user?.profile_photo_url ? (
+                                                                <img
+                                                                    src={order.user.profile_photo_url}
+                                                                    alt={order.user?.name ?? 'Buyer'}
+                                                                    className="size-9 rounded-full border object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="flex size-9 items-center justify-center rounded-full border bg-muted text-xs font-semibold text-muted-foreground">
+                                                                    {(order.user?.name ?? order.shipping_name ?? 'U').charAt(0).toUpperCase()}
+                                                                </div>
+                                                            )}
+                                                            <div className="min-w-0">
+                                                                <div className="font-medium">{order.user?.name ?? order.shipping_name ?? '—'}</div>
+                                                                {order.user?.email && (
+                                                                    <span className="block truncate text-xs text-muted-foreground">{order.user.email}</span>
+                                                                )}
+                                                                {order.shipping_phone && (
+                                                                    <span className="block text-xs text-muted-foreground">{order.shipping_phone}</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                     <td className="px-4 py-3 max-w-[200px]">
                                                         <div className="space-y-0.5">
@@ -258,16 +277,6 @@ export default function Dashboard() {
                                                                 </span>
                                                             )}
                                                         </div>
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <span className="capitalize text-muted-foreground">
-                                                            {order.payment_method.replace('_', ' ')}
-                                                        </span>
-                                                        {order.payment_status && (
-                                                            <span className="ml-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-muted">
-                                                                {order.payment_status}
-                                                            </span>
-                                                        )}
                                                     </td>
                                                     <td className="px-4 py-3 text-right font-semibold whitespace-nowrap">
                                                         ₱{Number(order.total).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
@@ -316,6 +325,11 @@ export default function Dashboard() {
                                                             timeStyle: 'short',
                                                         })}
                                                     </td>
+                                                    <td className="px-4 py-3">
+                                                        <Button type="button" variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
+                                                            View
+                                                        </Button>
+                                                    </td>
                                                 </tr>
                                             ))
                                         )}
@@ -342,6 +356,128 @@ export default function Dashboard() {
                             )}
                                 </CardContent>
                             </Card>
+
+                            <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+                                <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+                                    <DialogHeader>
+                                        <DialogTitle>Order details</DialogTitle>
+                                    </DialogHeader>
+                                    {selectedOrder && (
+                                        <div className="space-y-4 text-sm">
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                <div className="rounded-lg border p-3">
+                                                    <p className="text-xs text-muted-foreground">Order #</p>
+                                                    <p className="font-medium">{selectedOrder.order_number}</p>
+                                                </div>
+                                                <div className="rounded-lg border p-3">
+                                                    <p className="text-xs text-muted-foreground">Placed</p>
+                                                    <p className="font-medium">
+                                                        {new Date(selectedOrder.created_at).toLocaleString(undefined, {
+                                                            dateStyle: 'medium',
+                                                            timeStyle: 'short',
+                                                        })}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="rounded-lg border p-3">
+                                                <p className="text-xs text-muted-foreground">Customer</p>
+                                                <div className="mt-2 flex items-center gap-3">
+                                                    {selectedOrder.user?.profile_photo_url ? (
+                                                        <img
+                                                            src={selectedOrder.user.profile_photo_url}
+                                                            alt={selectedOrder.user?.name ?? 'Buyer'}
+                                                            className="size-10 rounded-full border object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex size-10 items-center justify-center rounded-full border bg-muted text-xs font-semibold text-muted-foreground">
+                                                            {(selectedOrder.user?.name ?? selectedOrder.shipping_name ?? 'U').charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                    <div className="min-w-0">
+                                                        <p className="font-medium">{selectedOrder.user?.name ?? selectedOrder.shipping_name}</p>
+                                                        {selectedOrder.user?.email && <p className="truncate text-muted-foreground">{selectedOrder.user.email}</p>}
+                                                        {selectedOrder.shipping_phone && <p className="text-muted-foreground">{selectedOrder.shipping_phone}</p>}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="rounded-lg border p-3">
+                                                <p className="text-xs text-muted-foreground">Shipping address</p>
+                                                <p className="font-medium">{selectedOrder.shipping_name}</p>
+                                                <p className="text-muted-foreground">
+                                                    {[selectedOrder.shipping_address, selectedOrder.shipping_city, selectedOrder.shipping_province, selectedOrder.shipping_zip]
+                                                        .filter(Boolean)
+                                                        .join(', ') || '—'}
+                                                </p>
+                                            </div>
+
+                                            <div className="rounded-lg border p-3">
+                                                <p className="mb-2 text-xs text-muted-foreground">Items</p>
+                                                <div className="space-y-2">
+                                                    {selectedOrder.items.map((item, i) => (
+                                                        <div key={i} className="flex items-start justify-between gap-3 border-b pb-2 last:border-0 last:pb-0">
+                                                            <div>
+                                                                <p className="font-medium">
+                                                                    {item.quantity}x {item.product_name}
+                                                                    {item.variant_display_name ? ` (${item.variant_display_name})` : ''}
+                                                                </p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    Unit: ₱{Number(item.unit_price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                                                                </p>
+                                                            </div>
+                                                            <p className="font-semibold">
+                                                                ₱{Number(item.line_total).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="grid gap-3 sm:grid-cols-3">
+                                                <div className="rounded-lg border p-3">
+                                                    <p className="text-xs text-muted-foreground">Payment</p>
+                                                    <p className="font-medium capitalize">{selectedOrder.payment_method.replace('_', ' ')}</p>
+                                                    {selectedOrder.payment_status && (
+                                                        <p className="text-xs text-muted-foreground">{selectedOrder.payment_status}</p>
+                                                    )}
+                                                </div>
+                                                <div className="rounded-lg border p-3">
+                                                    <p className="text-xs text-muted-foreground">Status</p>
+                                                    <span
+                                                        className={cn(
+                                                            'mt-1 inline-flex rounded-full border px-2 py-0.5 text-xs font-medium capitalize',
+                                                            selectedOrder.status === 'pending' &&
+                                                                'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
+                                                            (selectedOrder.status === 'processing' || selectedOrder.status === 'shipped') &&
+                                                                'border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
+                                                            selectedOrder.status === 'delivered' &&
+                                                                'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+                                                            selectedOrder.status === 'cancelled' &&
+                                                                'border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950/40 dark:text-red-300',
+                                                        )}
+                                                    >
+                                                        {selectedOrder.status === 'shipped' ? 'processing' : selectedOrder.status}
+                                                    </span>
+                                                </div>
+                                                <div className="rounded-lg border p-3">
+                                                    <p className="text-xs text-muted-foreground">Total</p>
+                                                    <p className="font-semibold">
+                                                        ₱{Number(selectedOrder.total).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {selectedOrder.notes && (
+                                                <div className="rounded-lg border border-amber-300 bg-amber-50/80 p-3 dark:border-amber-700 dark:bg-amber-950/30">
+                                                    <p className="text-xs font-medium text-amber-800 dark:text-amber-300">Notes</p>
+                                                    <p className="mt-1 text-amber-900 dark:text-amber-200">{selectedOrder.notes}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </DialogContent>
+                            </Dialog>
                         </>
                 ) : (
                     <>

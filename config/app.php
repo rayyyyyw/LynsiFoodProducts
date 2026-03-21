@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Favicon (browser tab icon)
+    |--------------------------------------------------------------------------
+    |
+    | Public URL path to your logo image (PNG/SVG/ICO). Defaults to the same
+    | asset used in the app header. Override with APP_FAVICON in .env if needed.
+    |
+    */
+
+    'favicon' => env('APP_FAVICON', '/mylogo/logopng%20(1).png'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
