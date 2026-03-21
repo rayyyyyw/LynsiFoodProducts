@@ -129,13 +129,6 @@ export default function Favorites() {
         });
     }
 
-    function handleQuickAdd(product: ProductItem) {
-        if (!product.variants?.length) return;
-        const variant = product.variants[0];
-        if (!auth.user) { router.visit('/login'); return; }
-        addToCart(variant.id, product.id, 1);
-    }
-
     function handleOpenPicker(e: React.MouseEvent, product: ProductItem) {
         e.preventDefault();
         e.stopPropagation();
@@ -160,7 +153,7 @@ export default function Favorites() {
                                     Favorites
                                 </h1>
                                 <p className="text-xs text-neutral-500 sm:text-sm">
-                                    Quick access to products you love. Add them to your cart in one tap.
+                                    Quick access to products you love. Review variant options, then add to cart.
                                 </p>
                             </div>
                             {favoriteProducts.length > 0 && (
@@ -259,15 +252,6 @@ export default function Favorites() {
 
                                             {/* Add to Cart button */}
                                             <div className="px-3 pb-3 pt-1 sm:px-3 sm:pb-3 sm:pt-2" style={{ marginTop: 'auto' }}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleQuickAdd(product)}
-                                                    disabled={isAdding}
-                                                    className="mb-1 w-full rounded-lg border px-3 py-2.5 text-xs font-semibold text-emerald-700 sm:text-sm"
-                                                    style={{ borderColor: PALETTE.border, background: '#ecfdf5' }}
-                                                >
-                                                    Quick add to cart
-                                                </button>
                                                 <button
                                                     type="button"
                                                     onClick={(e) => handleOpenPicker(e, product)}
