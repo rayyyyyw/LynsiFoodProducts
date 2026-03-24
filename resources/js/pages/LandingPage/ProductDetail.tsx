@@ -79,8 +79,12 @@ export default function ProductDetail() {
             } | null;
         } | null;
     };
-    const { product, relatedProducts = [], reviews = [], canRegister = true } =
-        page.props as {
+    const {
+        product,
+        relatedProducts = [],
+        reviews = [],
+        canRegister = true,
+    } = page.props as {
         product: ProductData;
         relatedProducts?: RelatedProduct[];
         reviews?: ProductReview[];
@@ -153,8 +157,10 @@ export default function ProductDetail() {
                       (id): id is number => typeof id === 'number',
                   )
                 : [];
-            const next = [product.id, ...ids.filter((id) => id !== product.id)]
-                .slice(0, 12);
+            const next = [
+                product.id,
+                ...ids.filter((id) => id !== product.id),
+            ].slice(0, 12);
             window.localStorage.setItem(key, JSON.stringify(next));
         } catch {
             // ignore

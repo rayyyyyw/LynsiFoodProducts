@@ -448,7 +448,10 @@ export default function CartIndex({
         notes: '',
     });
     const shippingFee = estimateShippingFee(data.shipping_province ?? '');
-    const discountAmount = estimateCouponDiscount(data.coupon_code ?? '', subtotal);
+    const discountAmount = estimateCouponDiscount(
+        data.coupon_code ?? '',
+        subtotal,
+    );
     const total = Math.max(0, subtotal + shippingFee - discountAmount);
 
     function goStep(next: 1 | 2) {

@@ -113,7 +113,11 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
             label: 'Shipped',
             done: ['shipped', 'delivered'].includes(order.status),
         },
-        { key: 'delivered', label: 'Delivered', done: order.status === 'delivered' },
+        {
+            key: 'delivered',
+            label: 'Delivered',
+            done: order.status === 'delivered',
+        },
     ];
 
     return (
@@ -536,7 +540,8 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                                         marginTop: 2,
                                     }}
                                 >
-                                    {t.date ?? (t.done ? 'Completed' : 'Pending')}
+                                    {t.date ??
+                                        (t.done ? 'Completed' : 'Pending')}
                                 </div>
                             </div>
                         ))}
@@ -877,7 +882,10 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                                                 color: P.accent,
                                             }}
                                         >
-                                            -{formatPrice(order.discount_amount ?? 0)}
+                                            -
+                                            {formatPrice(
+                                                order.discount_amount ?? 0,
+                                            )}
                                         </span>
                                     </div>
                                 )}

@@ -26,7 +26,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Discounts', href: '/dashboard/discounts' },
 ];
 
-export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> }) {
+export default function DiscountsPage({
+    coupons,
+}: {
+    coupons: Paginated<Coupon>;
+}) {
     const { data, setData, post, processing, reset } = useForm({
         code: '',
         type: 'percent',
@@ -65,7 +69,12 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                     <select
                         className="rounded border px-3 py-2 text-sm"
                         value={data.type}
-                        onChange={(e) => setData('type', e.target.value as 'percent' | 'fixed')}
+                        onChange={(e) =>
+                            setData(
+                                'type',
+                                e.target.value as 'percent' | 'fixed',
+                            )
+                        }
                     >
                         <option value="percent">Percent</option>
                         <option value="fixed">Fixed amount</option>
@@ -82,7 +91,9 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                         placeholder="Min subtotal"
                         type="number"
                         value={data.min_subtotal}
-                        onChange={(e) => setData('min_subtotal', e.target.value)}
+                        onChange={(e) =>
+                            setData('min_subtotal', e.target.value)
+                        }
                     />
                     <input
                         className="rounded border px-3 py-2 text-sm"
@@ -107,7 +118,9 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                                 <th className="px-3 py-2 text-left">Code</th>
                                 <th className="px-3 py-2 text-left">Type</th>
                                 <th className="px-3 py-2 text-left">Value</th>
-                                <th className="px-3 py-2 text-left">Min subtotal</th>
+                                <th className="px-3 py-2 text-left">
+                                    Min subtotal
+                                </th>
                                 <th className="px-3 py-2 text-left">Used</th>
                                 <th className="px-3 py-2 text-left">Active</th>
                                 <th className="px-3 py-2 text-right">Action</th>
@@ -116,17 +129,29 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                         <tbody>
                             {coupons.data.map((c) => (
                                 <tr key={c.id} className="border-t">
-                                    <td className="px-3 py-2 font-mono font-semibold">{c.code}</td>
-                                    <td className="px-3 py-2 capitalize">{c.type}</td>
+                                    <td className="px-3 py-2 font-mono font-semibold">
+                                        {c.code}
+                                    </td>
+                                    <td className="px-3 py-2 capitalize">
+                                        {c.type}
+                                    </td>
                                     <td className="px-3 py-2">
                                         {c.type === 'percent'
                                             ? `${c.value}%`
                                             : `₱${c.value.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`}
                                     </td>
-                                    <td className="px-3 py-2">₱{c.min_subtotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+                                    <td className="px-3 py-2">
+                                        ₱
+                                        {c.min_subtotal.toLocaleString(
+                                            'en-PH',
+                                            { minimumFractionDigits: 2 },
+                                        )}
+                                    </td>
                                     <td className="px-3 py-2">
                                         {c.used_count}
-                                        {c.usage_limit ? ` / ${c.usage_limit}` : ''}
+                                        {c.usage_limit
+                                            ? ` / ${c.usage_limit}`
+                                            : ''}
                                     </td>
                                     <td className="px-3 py-2">
                                         <button
@@ -140,7 +165,9 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                                                 )
                                             }
                                         >
-                                            {c.is_active ? 'Active' : 'Inactive'}
+                                            {c.is_active
+                                                ? 'Active'
+                                                : 'Inactive'}
                                         </button>
                                     </td>
                                     <td className="px-3 py-2 text-right">
@@ -150,9 +177,19 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                                                 className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700"
                                                 onClick={() => {
                                                     setEditingId(c.id);
-                                                    setEditValue(String(c.value));
-                                                    setEditMinSubtotal(String(c.min_subtotal));
-                                                    setEditUsageLimit(c.usage_limit ? String(c.usage_limit) : '');
+                                                    setEditValue(
+                                                        String(c.value),
+                                                    );
+                                                    setEditMinSubtotal(
+                                                        String(c.min_subtotal),
+                                                    );
+                                                    setEditUsageLimit(
+                                                        c.usage_limit
+                                                            ? String(
+                                                                  c.usage_limit,
+                                                              )
+                                                            : '',
+                                                    );
                                                 }}
                                             >
                                                 Edit
@@ -161,7 +198,12 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                                                 type="button"
                                                 className="rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-700"
                                                 onClick={() =>
-                                                    router.delete(`/dashboard/discounts/${c.id}`, { preserveScroll: true })
+                                                    router.delete(
+                                                        `/dashboard/discounts/${c.id}`,
+                                                        {
+                                                            preserveScroll: true,
+                                                        },
+                                                    )
                                                 }
                                             >
                                                 Delete
@@ -172,7 +214,10 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                             ))}
                             {coupons.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">
+                                    <td
+                                        colSpan={7}
+                                        className="px-3 py-8 text-center text-muted-foreground"
+                                    >
                                         No coupons yet.
                                     </td>
                                 </tr>
@@ -191,7 +236,9 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                                 {
                                     value: Number(editValue || 0),
                                     min_subtotal: Number(editMinSubtotal || 0),
-                                    usage_limit: editUsageLimit ? Number(editUsageLimit) : null,
+                                    usage_limit: editUsageLimit
+                                        ? Number(editUsageLimit)
+                                        : null,
                                 },
                                 {
                                     preserveScroll: true,
@@ -221,7 +268,10 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
                             value={editUsageLimit}
                             onChange={(e) => setEditUsageLimit(e.target.value)}
                         />
-                        <button className="rounded bg-emerald-700 px-3 py-2 text-sm font-semibold text-white" type="submit">
+                        <button
+                            className="rounded bg-emerald-700 px-3 py-2 text-sm font-semibold text-white"
+                            type="submit"
+                        >
                             Save changes
                         </button>
                         <button
@@ -237,4 +287,3 @@ export default function DiscountsPage({ coupons }: { coupons: Paginated<Coupon> 
         </AppLayout>
     );
 }
-

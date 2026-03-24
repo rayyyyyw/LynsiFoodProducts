@@ -117,7 +117,9 @@ export default function Inventory({ variants = [] }: { variants: Variant[] }) {
         const details = [flavor, grams !== '—' ? grams : null]
             .filter(Boolean)
             .join(' / ');
-        return details ? `${v.product?.name ?? 'Product'} (${details})` : (v.product?.name ?? 'Product');
+        return details
+            ? `${v.product?.name ?? 'Product'} (${details})`
+            : (v.product?.name ?? 'Product');
     };
 
     const filteredVariants = useMemo(() => {
@@ -203,12 +205,16 @@ export default function Inventory({ variants = [] }: { variants: Variant[] }) {
                                         <ul className="mt-1 list-inside list-disc text-xs opacity-95">
                                             {lowStockItems.map((v) => (
                                                 <li key={`low-${v.id}`}>
-                                                    {variantDisplayName(v)} — {v.stock_quantity} left
+                                                    {variantDisplayName(v)} —{' '}
+                                                    {v.stock_quantity} left
                                                 </li>
                                             ))}
-                                            {lowStockCount > lowStockItems.length && (
+                                            {lowStockCount >
+                                                lowStockItems.length && (
                                                 <li>
-                                                    ...and {lowStockCount - lowStockItems.length}{' '}
+                                                    ...and{' '}
+                                                    {lowStockCount -
+                                                        lowStockItems.length}{' '}
                                                     more
                                                 </li>
                                             )}
@@ -219,7 +225,8 @@ export default function Inventory({ variants = [] }: { variants: Variant[] }) {
                                 {outOfStockCount > 0 && (
                                     <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900 dark:border-red-700/40 dark:bg-red-900/20 dark:text-red-200">
                                         <div className="font-medium">
-                                            Out of stock - danger ({outOfStockCount})
+                                            Out of stock - danger (
+                                            {outOfStockCount})
                                         </div>
                                         <ul className="mt-1 list-inside list-disc text-xs opacity-95">
                                             {outOfStockItems.map((v) => (
@@ -227,10 +234,12 @@ export default function Inventory({ variants = [] }: { variants: Variant[] }) {
                                                     {variantDisplayName(v)}
                                                 </li>
                                             ))}
-                                            {outOfStockCount > outOfStockItems.length && (
+                                            {outOfStockCount >
+                                                outOfStockItems.length && (
                                                 <li>
                                                     ...and{' '}
-                                                    {outOfStockCount - outOfStockItems.length}{' '}
+                                                    {outOfStockCount -
+                                                        outOfStockItems.length}{' '}
                                                     more
                                                 </li>
                                             )}

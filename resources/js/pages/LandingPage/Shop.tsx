@@ -150,7 +150,6 @@ export default function Shop() {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setRecentlyViewedIds(ids);
         } catch {
-             
             setRecentlyViewedIds([]);
         }
     }, []);

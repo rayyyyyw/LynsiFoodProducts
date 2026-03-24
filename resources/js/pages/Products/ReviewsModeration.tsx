@@ -24,14 +24,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Reviews', href: '/dashboard/reviews' },
 ];
 
-export default function ReviewsModeration({ reviews }: { reviews: Paginated<ReviewRow> }) {
+export default function ReviewsModeration({
+    reviews,
+}: {
+    reviews: Paginated<ReviewRow>;
+}) {
     const [query, setQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+    const [statusFilter, setStatusFilter] = useState<
+        'all' | 'pending' | 'approved' | 'rejected'
+    >('all');
 
     const filteredReviews = useMemo(
         () =>
             reviews.data.filter((r) => {
-                const statusOk = statusFilter === 'all' || r.status === statusFilter;
+                const statusOk =
+                    statusFilter === 'all' || r.status === statusFilter;
                 const q = query.trim().toLowerCase();
                 const qOk =
                     q.length === 0 ||
@@ -59,7 +66,15 @@ export default function ReviewsModeration({ reviews }: { reviews: Paginated<Revi
                     <select
                         className="rounded border px-3 py-2 text-sm"
                         value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as 'all' | 'pending' | 'approved' | 'rejected')}
+                        onChange={(e) =>
+                            setStatusFilter(
+                                e.target.value as
+                                    | 'all'
+                                    | 'pending'
+                                    | 'approved'
+                                    | 'rejected',
+                            )
+                        }
                     >
                         <option value="all">All statuses</option>
                         <option value="pending">Pending</option>
@@ -67,7 +82,8 @@ export default function ReviewsModeration({ reviews }: { reviews: Paginated<Revi
                         <option value="rejected">Rejected</option>
                     </select>
                     <div className="flex items-center text-sm text-muted-foreground">
-                        Showing {filteredReviews.length} of {reviews.data.length}
+                        Showing {filteredReviews.length} of{' '}
+                        {reviews.data.length}
                     </div>
                 </div>
                 <div className="overflow-x-auto rounded-xl border bg-white">
@@ -86,21 +102,42 @@ export default function ReviewsModeration({ reviews }: { reviews: Paginated<Revi
                             {filteredReviews.map((r) => (
                                 <tr key={r.id} className="border-t">
                                     <td className="px-3 py-2">
-                                        <div className="font-medium">{r.product?.name ?? 'Unknown product'}</div>
+                                        <div className="font-medium">
+                                            {r.product?.name ??
+                                                'Unknown product'}
+                                        </div>
                                         {r.product?.slug && (
-                                            <div className="text-xs text-muted-foreground">{r.product.slug}</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {r.product.slug}
+                                            </div>
                                         )}
                                     </td>
                                     <td className="px-3 py-2">
-                                        <div className="font-medium">{r.user?.name ?? 'Anonymous'}</div>
-                                        <div className="text-xs text-muted-foreground">{r.user?.email ?? ''}</div>
+                                        <div className="font-medium">
+                                            {r.user?.name ?? 'Anonymous'}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            {r.user?.email ?? ''}
+                                        </div>
                                     </td>
-                                    <td className="px-3 py-2">{'★'.repeat(r.rating)}</td>
-                                    <td className="px-3 py-2 text-muted-foreground">{r.comment ?? '—'}</td>
-                                    <td className="px-3 py-2 capitalize">{r.status}</td>
+                                    <td className="px-3 py-2">
+                                        {'★'.repeat(r.rating)}
+                                    </td>
+                                    <td className="px-3 py-2 text-muted-foreground">
+                                        {r.comment ?? '—'}
+                                    </td>
+                                    <td className="px-3 py-2 capitalize">
+                                        {r.status}
+                                    </td>
                                     <td className="px-3 py-2 text-right">
                                         <div className="inline-flex gap-2">
-                                            {(['approved', 'rejected', 'pending'] as const).map((s) => (
+                                            {(
+                                                [
+                                                    'approved',
+                                                    'rejected',
+                                                    'pending',
+                                                ] as const
+                                            ).map((s) => (
                                                 <button
                                                     key={s}
                                                     type="button"
@@ -115,7 +152,9 @@ export default function ReviewsModeration({ reviews }: { reviews: Paginated<Revi
                                                         router.patch(
                                                             `/dashboard/reviews/${r.id}/status`,
                                                             { status: s },
-                                                            { preserveScroll: true },
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
                                                         )
                                                     }
                                                 >
@@ -128,7 +167,10 @@ export default function ReviewsModeration({ reviews }: { reviews: Paginated<Revi
                             ))}
                             {filteredReviews.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">
+                                    <td
+                                        colSpan={6}
+                                        className="px-3 py-8 text-center text-muted-foreground"
+                                    >
                                         No reviews match your filter.
                                     </td>
                                 </tr>
@@ -140,4 +182,3 @@ export default function ReviewsModeration({ reviews }: { reviews: Paginated<Revi
         </AppLayout>
     );
 }
-

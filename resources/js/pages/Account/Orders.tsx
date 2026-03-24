@@ -425,8 +425,12 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                                             onClick={(e) => {
                                                                 e.preventDefault();
                                                                 e.stopPropagation();
-                                                                setReturnOrderId(order.id);
-                                                                setReturnReason('');
+                                                                setReturnOrderId(
+                                                                    order.id,
+                                                                );
+                                                                setReturnReason(
+                                                                    '',
+                                                                );
                                                             }}
                                                             style={{
                                                                 border: `1px solid #fecaca`,
@@ -543,7 +547,13 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                             padding: 16,
                         }}
                     >
-                        <h3 style={{ fontSize: 16, fontWeight: 800, color: P.text }}>
+                        <h3
+                            style={{
+                                fontSize: 16,
+                                fontWeight: 800,
+                                color: P.text,
+                            }}
+                        >
                             Request return
                         </h3>
                         <p
@@ -610,9 +620,12 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                 onClick={() => {
                                     const reason = returnReason.trim();
                                     if (!reason) return;
-                                    router.post(`/my-purchases/${returnOrderId}/return-request`, {
-                                        return_reason: reason,
-                                    });
+                                    router.post(
+                                        `/my-purchases/${returnOrderId}/return-request`,
+                                        {
+                                            return_reason: reason,
+                                        },
+                                    );
                                     setReturnOrderId(null);
                                 }}
                             >

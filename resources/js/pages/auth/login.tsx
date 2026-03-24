@@ -347,153 +347,89 @@ export default function Login({
                                 border: `1px solid ${P.border}`,
                             }}
                         >
-                        <div style={{ marginBottom: 20 }}>
-                            <h1
-                                style={{
-                                    fontSize: 24,
-                                    fontWeight: 800,
-                                    color: P.primary,
-                                    marginBottom: 4,
-                                    letterSpacing: '-0.3px',
-                                }}
-                            >
-                                Sign in
-                            </h1>
-                            <p style={{ fontSize: 14, color: P.muted }}>
-                                Enter your email and password to access your
-                                account
-                            </p>
-                        </div>
-
-                        {status && (
-                            <div
-                                style={{
-                                    marginBottom: 16,
-                                    padding: '10px 14px',
-                                    background: '#dcfce7',
-                                    border: '1px solid #86efac',
-                                    borderRadius: 10,
-                                    fontSize: 13,
-                                    color: '#166534',
-                                    fontWeight: 500,
-                                }}
-                            >
-                                {status}
-                            </div>
-                        )}
-
-                        <Form
-                            {...store.form()}
-                            resetOnSuccess={['password']}
-                            className="flex flex-col"
-                            style={{ gap: 14 } as React.CSSProperties}
-                        >
-                            {({
-                                processing,
-                                errors,
-                            }: {
-                                processing: boolean;
-                                errors: Record<string, string>;
-                            }) => (
-                                <div
+                            <div style={{ marginBottom: 20 }}>
+                                <h1
                                     style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: 14,
+                                        fontSize: 24,
+                                        fontWeight: 800,
+                                        color: P.primary,
+                                        marginBottom: 4,
+                                        letterSpacing: '-0.3px',
                                     }}
                                 >
-                                    <div>
-                                        <label
-                                            htmlFor="email"
-                                            style={{
-                                                display: 'block',
-                                                fontSize: 13,
-                                                fontWeight: 600,
-                                                color: P.primary,
-                                                marginBottom: 5,
-                                            }}
-                                        >
-                                            Email Address
-                                        </label>
-                                        <input
-                                            id="email"
-                                            type="email"
-                                            name="email"
-                                            required
-                                            autoFocus
-                                            autoComplete="email"
-                                            placeholder="you@example.com"
-                                            tabIndex={1}
-                                            className="lynsi-field"
-                                            style={{
-                                                width: '100%',
-                                                padding: '10px 14px',
-                                                fontSize: 14,
-                                                border: `1.5px solid ${errors.email ? '#fca5a5' : P.border}`,
-                                                borderRadius: 10,
-                                                background: P.bg,
-                                                color: P.primary,
-                                                transition: 'all 0.2s',
-                                                fontFamily:
-                                                    "'Inter', sans-serif",
-                                            }}
-                                        />
-                                        <InputError message={errors.email} />
-                                    </div>
+                                    Sign in
+                                </h1>
+                                <p style={{ fontSize: 14, color: P.muted }}>
+                                    Enter your email and password to access your
+                                    account
+                                </p>
+                            </div>
 
-                                    <div>
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                marginBottom: 5,
-                                            }}
-                                        >
+                            {status && (
+                                <div
+                                    style={{
+                                        marginBottom: 16,
+                                        padding: '10px 14px',
+                                        background: '#dcfce7',
+                                        border: '1px solid #86efac',
+                                        borderRadius: 10,
+                                        fontSize: 13,
+                                        color: '#166534',
+                                        fontWeight: 500,
+                                    }}
+                                >
+                                    {status}
+                                </div>
+                            )}
+
+                            <Form
+                                {...store.form()}
+                                resetOnSuccess={['password']}
+                                className="flex flex-col"
+                                style={{ gap: 14 } as React.CSSProperties}
+                            >
+                                {({
+                                    processing,
+                                    errors,
+                                }: {
+                                    processing: boolean;
+                                    errors: Record<string, string>;
+                                }) => (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 14,
+                                        }}
+                                    >
+                                        <div>
                                             <label
-                                                htmlFor="password"
+                                                htmlFor="email"
                                                 style={{
+                                                    display: 'block',
                                                     fontSize: 13,
                                                     fontWeight: 600,
                                                     color: P.primary,
+                                                    marginBottom: 5,
                                                 }}
                                             >
-                                                Password
+                                                Email Address
                                             </label>
-                                            {canResetPassword && (
-                                                <Link
-                                                    href={request()}
-                                                    tabIndex={5}
-                                                    style={{
-                                                        fontSize: 12,
-                                                        color: P.accent,
-                                                        textDecoration: 'none',
-                                                        fontWeight: 500,
-                                                    }}
-                                                >
-                                                    Forgot password?
-                                                </Link>
-                                            )}
-                                        </div>
-                                        <div style={{ position: 'relative' }}>
                                             <input
-                                                id="password"
-                                                type={
-                                                    showPassword
-                                                        ? 'text'
-                                                        : 'password'
-                                                }
-                                                name="password"
+                                                id="email"
+                                                type="email"
+                                                name="email"
                                                 required
-                                                autoComplete="current-password"
-                                                placeholder="••••••••"
-                                                tabIndex={2}
+                                                autoFocus
+                                                autoComplete="email"
+                                                placeholder="you@example.com"
+                                                tabIndex={1}
                                                 className="lynsi-field"
                                                 style={{
                                                     width: '100%',
-                                                    padding: '10px 42px 10px 14px',
+                                                    padding: '10px 14px',
                                                     fontSize: 14,
-                                                    border: `1.5px solid ${errors.password ? '#fca5a5' : P.border}`,
+                                                    border: `1.5px solid ${errors.email ? '#fca5a5' : P.border}`,
                                                     borderRadius: 10,
                                                     background: P.bg,
                                                     color: P.primary,
@@ -502,241 +438,326 @@ export default function Login({
                                                         "'Inter', sans-serif",
                                                 }}
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setShowPassword((v) => !v)
-                                                }
-                                                aria-label={
-                                                    showPassword
-                                                        ? 'Hide password'
-                                                        : 'Show password'
-                                                }
+                                            <InputError
+                                                message={errors.email}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <div
                                                 style={{
-                                                    position: 'absolute',
-                                                    right: 10,
-                                                    top: '50%',
-                                                    transform:
-                                                        'translateY(-50%)',
-                                                    background: 'transparent',
-                                                    border: 'none',
-                                                    color: '#6b7280',
-                                                    cursor: 'pointer',
-                                                    width: 28,
-                                                    height: 28,
-                                                    borderRadius: 8,
-                                                    padding: 0,
-                                                    display: 'inline-flex',
+                                                    display: 'flex',
+                                                    justifyContent:
+                                                        'space-between',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center',
+                                                    marginBottom: 5,
                                                 }}
                                             >
-                                                {showPassword ? (
-                                                    <svg
-                                                        width="18"
-                                                        height="18"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="1.8"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
+                                                <label
+                                                    htmlFor="password"
+                                                    style={{
+                                                        fontSize: 13,
+                                                        fontWeight: 600,
+                                                        color: P.primary,
+                                                    }}
+                                                >
+                                                    Password
+                                                </label>
+                                                {canResetPassword && (
+                                                    <Link
+                                                        href={request()}
+                                                        tabIndex={5}
+                                                        style={{
+                                                            fontSize: 12,
+                                                            color: P.accent,
+                                                            textDecoration:
+                                                                'none',
+                                                            fontWeight: 500,
+                                                        }}
                                                     >
-                                                        <path d="M3 3l18 18" />
-                                                        <path d="M10.58 10.58a2 2 0 102.83 2.83" />
-                                                        <path d="M9.88 5.09A10.94 10.94 0 0112 4c5 0 9.27 3.11 11 8-1.04 2.94-3.1 5.15-5.78 6.39" />
-                                                        <path d="M6.61 6.61C4.62 8.04 3.07 9.92 2 12c1.04 2.94 3.1 5.15 5.78 6.39A10.94 10.94 0 0012 20c.73 0 1.45-.07 2.14-.2" />
-                                                    </svg>
-                                                ) : (
-                                                    <svg
-                                                        width="18"
-                                                        height="18"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="1.8"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    >
-                                                        <path d="M2 12s3.64-8 10-8 10 8 10 8-3.64 8-10 8-10-8-10-8z" />
-                                                        <circle cx="12" cy="12" r="3" />
-                                                    </svg>
+                                                        Forgot password?
+                                                    </Link>
                                                 )}
-                                            </button>
+                                            </div>
+                                            <div
+                                                style={{ position: 'relative' }}
+                                            >
+                                                <input
+                                                    id="password"
+                                                    type={
+                                                        showPassword
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
+                                                    name="password"
+                                                    required
+                                                    autoComplete="current-password"
+                                                    placeholder="••••••••"
+                                                    tabIndex={2}
+                                                    className="lynsi-field"
+                                                    style={{
+                                                        width: '100%',
+                                                        padding:
+                                                            '10px 42px 10px 14px',
+                                                        fontSize: 14,
+                                                        border: `1.5px solid ${errors.password ? '#fca5a5' : P.border}`,
+                                                        borderRadius: 10,
+                                                        background: P.bg,
+                                                        color: P.primary,
+                                                        transition: 'all 0.2s',
+                                                        fontFamily:
+                                                            "'Inter', sans-serif",
+                                                    }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setShowPassword(
+                                                            (v) => !v,
+                                                        )
+                                                    }
+                                                    aria-label={
+                                                        showPassword
+                                                            ? 'Hide password'
+                                                            : 'Show password'
+                                                    }
+                                                    style={{
+                                                        position: 'absolute',
+                                                        right: 10,
+                                                        top: '50%',
+                                                        transform:
+                                                            'translateY(-50%)',
+                                                        background:
+                                                            'transparent',
+                                                        border: 'none',
+                                                        color: '#6b7280',
+                                                        cursor: 'pointer',
+                                                        width: 28,
+                                                        height: 28,
+                                                        borderRadius: 8,
+                                                        padding: 0,
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent:
+                                                            'center',
+                                                    }}
+                                                >
+                                                    {showPassword ? (
+                                                        <svg
+                                                            width="18"
+                                                            height="18"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="1.8"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                        >
+                                                            <path d="M3 3l18 18" />
+                                                            <path d="M10.58 10.58a2 2 0 102.83 2.83" />
+                                                            <path d="M9.88 5.09A10.94 10.94 0 0112 4c5 0 9.27 3.11 11 8-1.04 2.94-3.1 5.15-5.78 6.39" />
+                                                            <path d="M6.61 6.61C4.62 8.04 3.07 9.92 2 12c1.04 2.94 3.1 5.15 5.78 6.39A10.94 10.94 0 0012 20c.73 0 1.45-.07 2.14-.2" />
+                                                        </svg>
+                                                    ) : (
+                                                        <svg
+                                                            width="18"
+                                                            height="18"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="1.8"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                        >
+                                                            <path d="M2 12s3.64-8 10-8 10 8 10 8-3.64 8-10 8-10-8-10-8z" />
+                                                            <circle
+                                                                cx="12"
+                                                                cy="12"
+                                                                r="3"
+                                                            />
+                                                        </svg>
+                                                    )}
+                                                </button>
+                                            </div>
+                                            <InputError
+                                                message={errors.password}
+                                            />
                                         </div>
-                                        <InputError message={errors.password} />
-                                    </div>
 
-                                    <button
-                                        type="submit"
-                                        tabIndex={4}
-                                        disabled={processing}
-                                        className="lynsi-submit-btn"
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px',
-                                            fontSize: 15,
-                                            fontWeight: 700,
-                                            background: `linear-gradient(135deg, ${P.secondary} 0%, ${P.primary} 100%)`,
-                                            color: P.white,
-                                            border: 'none',
-                                            borderRadius: 12,
-                                            cursor: processing
-                                                ? 'not-allowed'
-                                                : 'pointer',
-                                            opacity: processing ? 0.8 : 1,
-                                            boxShadow:
-                                                '0 4px 14px rgba(6,95,70,0.3)',
-                                            transition: 'all 0.25s',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: 8,
-                                            fontFamily: "'Inter', sans-serif",
-                                            minHeight: 44,
-                                        }}
-                                    >
-                                        {processing && (
-                                            <span
+                                        <button
+                                            type="submit"
+                                            tabIndex={4}
+                                            disabled={processing}
+                                            className="lynsi-submit-btn"
+                                            style={{
+                                                width: '100%',
+                                                padding: '12px',
+                                                fontSize: 15,
+                                                fontWeight: 700,
+                                                background: `linear-gradient(135deg, ${P.secondary} 0%, ${P.primary} 100%)`,
+                                                color: P.white,
+                                                border: 'none',
+                                                borderRadius: 12,
+                                                cursor: processing
+                                                    ? 'not-allowed'
+                                                    : 'pointer',
+                                                opacity: processing ? 0.8 : 1,
+                                                boxShadow:
+                                                    '0 4px 14px rgba(6,95,70,0.3)',
+                                                transition: 'all 0.25s',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: 8,
+                                                fontFamily:
+                                                    "'Inter', sans-serif",
+                                                minHeight: 44,
+                                            }}
+                                        >
+                                            {processing && (
+                                                <span
+                                                    style={{
+                                                        width: 16,
+                                                        height: 16,
+                                                        border: '2px solid rgba(255,255,255,0.35)',
+                                                        borderTopColor: '#fff',
+                                                        borderRadius: '50%',
+                                                        display: 'inline-block',
+                                                        animation:
+                                                            'lynsi-spin 0.8s linear infinite',
+                                                    }}
+                                                />
+                                            )}
+                                            {processing
+                                                ? 'Signing in…'
+                                                : 'Sign in to your account'}
+                                        </button>
+
+                                        <a
+                                            href="/auth/google"
+                                            className="lynsi-google-btn"
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: 10,
+                                                width: '100%',
+                                                minHeight: 44,
+                                                padding: '10px 14px',
+                                                borderRadius: 12,
+                                                border: '2px solid #e5e7eb',
+                                                background: P.white,
+                                                color: '#374151',
+                                                textDecoration: 'none',
+                                                fontSize: 14,
+                                                fontWeight: 600,
+                                                transition: 'all 0.2s',
+                                            }}
+                                        >
+                                            <svg
+                                                width="20"
+                                                height="20"
+                                                viewBox="0 0 24 24"
+                                                style={{ flexShrink: 0 }}
+                                            >
+                                                <path
+                                                    fill="#4285F4"
+                                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                                />
+                                                <path
+                                                    fill="#34A853"
+                                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                                />
+                                                <path
+                                                    fill="#FBBC05"
+                                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                                />
+                                                <path
+                                                    fill="#EA4335"
+                                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                                />
+                                            </svg>
+                                            Login using Google
+                                        </a>
+
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 10,
+                                            }}
+                                        >
+                                            <div
                                                 style={{
-                                                    width: 16,
-                                                    height: 16,
-                                                    border: '2px solid rgba(255,255,255,0.35)',
-                                                    borderTopColor: '#fff',
-                                                    borderRadius: '50%',
-                                                    display: 'inline-block',
-                                                    animation:
-                                                        'lynsi-spin 0.8s linear infinite',
+                                                    flex: 1,
+                                                    height: 1,
+                                                    background: P.border,
                                                 }}
                                             />
+                                            <span
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: '#94a3b8',
+                                                    whiteSpace: 'nowrap',
+                                                }}
+                                            >
+                                                New to Lynsi?
+                                            </span>
+                                            <div
+                                                style={{
+                                                    flex: 1,
+                                                    height: 1,
+                                                    background: P.border,
+                                                }}
+                                            />
+                                        </div>
+
+                                        {canRegister && (
+                                            <Link
+                                                href={register()}
+                                                tabIndex={6}
+                                                style={{
+                                                    display: 'block',
+                                                    width: '100%',
+                                                    padding: '10px',
+                                                    textAlign: 'center',
+                                                    fontSize: 14,
+                                                    fontWeight: 700,
+                                                    color: P.primary,
+                                                    border: `2px solid ${P.border}`,
+                                                    borderRadius: 12,
+                                                    textDecoration: 'none',
+                                                    background: P.bg,
+                                                    transition: 'all 0.2s',
+                                                    minHeight: 44,
+                                                    lineHeight: '24px',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    (
+                                                        e.currentTarget as HTMLAnchorElement
+                                                    ).style.borderColor =
+                                                        P.accent;
+                                                    (
+                                                        e.currentTarget as HTMLAnchorElement
+                                                    ).style.background =
+                                                        P.light;
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    (
+                                                        e.currentTarget as HTMLAnchorElement
+                                                    ).style.borderColor =
+                                                        P.border;
+                                                    (
+                                                        e.currentTarget as HTMLAnchorElement
+                                                    ).style.background = P.bg;
+                                                }}
+                                            >
+                                                Create Your Account Now →
+                                            </Link>
                                         )}
-                                        {processing
-                                            ? 'Signing in…'
-                                            : 'Sign in to your account'}
-                                    </button>
-
-                                    <a
-                                        href="/auth/google"
-                                        className="lynsi-google-btn"
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: 10,
-                                            width: '100%',
-                                            minHeight: 44,
-                                            padding: '10px 14px',
-                                            borderRadius: 12,
-                                            border: '2px solid #e5e7eb',
-                                            background: P.white,
-                                            color: '#374151',
-                                            textDecoration: 'none',
-                                            fontSize: 14,
-                                            fontWeight: 600,
-                                            transition: 'all 0.2s',
-                                        }}
-                                    >
-                                        <svg
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 24 24"
-                                            style={{ flexShrink: 0 }}
-                                        >
-                                            <path
-                                                fill="#4285F4"
-                                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                            />
-                                            <path
-                                                fill="#34A853"
-                                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                            />
-                                            <path
-                                                fill="#FBBC05"
-                                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                            />
-                                            <path
-                                                fill="#EA4335"
-                                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                            />
-                                        </svg>
-                                        Login using Google
-                                    </a>
-
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 10,
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                flex: 1,
-                                                height: 1,
-                                                background: P.border,
-                                            }}
-                                        />
-                                        <span
-                                            style={{
-                                                fontSize: 12,
-                                                color: '#94a3b8',
-                                                whiteSpace: 'nowrap',
-                                            }}
-                                        >
-                                            New to Lynsi?
-                                        </span>
-                                        <div
-                                            style={{
-                                                flex: 1,
-                                                height: 1,
-                                                background: P.border,
-                                            }}
-                                        />
                                     </div>
-
-                                    {canRegister && (
-                                        <Link
-                                            href={register()}
-                                            tabIndex={6}
-                                            style={{
-                                                display: 'block',
-                                                width: '100%',
-                                                padding: '10px',
-                                                textAlign: 'center',
-                                                fontSize: 14,
-                                                fontWeight: 700,
-                                                color: P.primary,
-                                                border: `2px solid ${P.border}`,
-                                                borderRadius: 12,
-                                                textDecoration: 'none',
-                                                background: P.bg,
-                                                transition: 'all 0.2s',
-                                                minHeight: 44,
-                                                lineHeight: '24px',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                (
-                                                    e.currentTarget as HTMLAnchorElement
-                                                ).style.borderColor = P.accent;
-                                                (
-                                                    e.currentTarget as HTMLAnchorElement
-                                                ).style.background = P.light;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                (
-                                                    e.currentTarget as HTMLAnchorElement
-                                                ).style.borderColor = P.border;
-                                                (
-                                                    e.currentTarget as HTMLAnchorElement
-                                                ).style.background = P.bg;
-                                            }}
-                                        >
-                                            Create Your Account Now →
-                                        </Link>
-                                    )}
-                                </div>
-                            )}
-                        </Form>
+                                )}
+                            </Form>
                         </div>
                     </div>
                 </div>

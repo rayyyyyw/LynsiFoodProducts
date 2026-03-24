@@ -18,7 +18,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Queries', href: '/dashboard/queries' },
 ];
 
-export default function QueriesPage({ queries }: { queries: Paginated<QueryRow> }) {
+export default function QueriesPage({
+    queries,
+}: {
+    queries: Paginated<QueryRow>;
+}) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Queries" />
@@ -34,27 +38,45 @@ export default function QueriesPage({ queries }: { queries: Paginated<QueryRow> 
                                 <th className="px-3 py-2 text-left">Sender</th>
                                 <th className="px-3 py-2 text-left">Subject</th>
                                 <th className="px-3 py-2 text-left">Message</th>
-                                <th className="px-3 py-2 text-left">Received</th>
+                                <th className="px-3 py-2 text-left">
+                                    Received
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             {queries.data.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="px-3 py-8 text-center text-muted-foreground">
+                                    <td
+                                        colSpan={4}
+                                        className="px-3 py-8 text-center text-muted-foreground"
+                                    >
                                         No queries yet.
                                     </td>
                                 </tr>
                             ) : (
                                 queries.data.map((q) => (
-                                    <tr key={q.id} className="border-t align-top">
+                                    <tr
+                                        key={q.id}
+                                        className="border-t align-top"
+                                    >
                                         <td className="px-3 py-2">
-                                            <div className="font-medium">{q.name}</div>
-                                            <div className="text-xs text-muted-foreground">{q.email}</div>
+                                            <div className="font-medium">
+                                                {q.name}
+                                            </div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {q.email}
+                                            </div>
                                         </td>
-                                        <td className="px-3 py-2">{q.subject ?? '—'}</td>
-                                        <td className="max-w-xl px-3 py-2 text-muted-foreground">{q.message}</td>
+                                        <td className="px-3 py-2">
+                                            {q.subject ?? '—'}
+                                        </td>
+                                        <td className="max-w-xl px-3 py-2 text-muted-foreground">
+                                            {q.message}
+                                        </td>
                                         <td className="px-3 py-2 text-xs text-muted-foreground">
-                                            {new Date(q.created_at).toLocaleString()}
+                                            {new Date(
+                                                q.created_at,
+                                            ).toLocaleString()}
                                         </td>
                                     </tr>
                                 ))
@@ -66,4 +88,3 @@ export default function QueriesPage({ queries }: { queries: Paginated<QueryRow> 
         </AppLayout>
     );
 }
-

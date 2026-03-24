@@ -80,7 +80,11 @@ const mainNavGroups: NavGroup[] = [
         items: [
             { title: 'Sales', href: base('sales'), icon: TrendingUp },
             { title: 'Analytics', href: base('analytics'), icon: BarChart3 },
-            { title: 'Discounts', href: base('discounts'), icon: TicketPercent },
+            {
+                title: 'Discounts',
+                href: base('discounts'),
+                icon: TicketPercent,
+            },
         ],
     },
     {
