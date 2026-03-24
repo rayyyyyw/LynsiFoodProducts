@@ -3,6 +3,7 @@ import InputError from '@/components/input-error';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
+import { useState } from 'react';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
@@ -29,6 +30,8 @@ export default function Login({
     canResetPassword,
     canRegister,
 }: Props) {
+    const [showPassword, setShowPassword] = useState(false);
+
     return (
         <>
             <Head title="Sign In – Lynsi Food Products">
@@ -317,18 +320,33 @@ export default function Login({
                         </Link>
                     </div>
 
-                    {/* Card */}
-                    <div
-                        style={{
-                            width: '100%',
-                            maxWidth: 420,
-                            background: P.white,
-                            borderRadius: 18,
-                            padding: '28px 24px',
-                            boxShadow: '0 8px 40px rgba(6,95,70,0.12)',
-                            border: `1px solid ${P.border}`,
-                        }}
-                    >
+                    <div style={{ width: '100%', maxWidth: 420 }}>
+                        <Link
+                            href="/"
+                            style={{
+                                marginBottom: 10,
+                                fontSize: 13,
+                                color: '#94a3b8',
+                                textDecoration: 'none',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                            }}
+                        >
+                            ← Back to Lynsi Food Products
+                        </Link>
+
+                        {/* Card */}
+                        <div
+                            style={{
+                                width: '100%',
+                                background: P.white,
+                                borderRadius: 18,
+                                padding: '28px 24px',
+                                boxShadow: '0 8px 40px rgba(6,95,70,0.12)',
+                                border: `1px solid ${P.border}`,
+                            }}
+                        >
                         <div style={{ marginBottom: 20 }}>
                             <h1
                                 style={{
@@ -457,28 +475,95 @@ export default function Login({
                                                 </Link>
                                             )}
                                         </div>
-                                        <input
-                                            id="password"
-                                            type="password"
-                                            name="password"
-                                            required
-                                            autoComplete="current-password"
-                                            placeholder="••••••••"
-                                            tabIndex={2}
-                                            className="lynsi-field"
-                                            style={{
-                                                width: '100%',
-                                                padding: '10px 14px',
-                                                fontSize: 14,
-                                                border: `1.5px solid ${errors.password ? '#fca5a5' : P.border}`,
-                                                borderRadius: 10,
-                                                background: P.bg,
-                                                color: P.primary,
-                                                transition: 'all 0.2s',
-                                                fontFamily:
-                                                    "'Inter', sans-serif",
-                                            }}
-                                        />
+                                        <div style={{ position: 'relative' }}>
+                                            <input
+                                                id="password"
+                                                type={
+                                                    showPassword
+                                                        ? 'text'
+                                                        : 'password'
+                                                }
+                                                name="password"
+                                                required
+                                                autoComplete="current-password"
+                                                placeholder="••••••••"
+                                                tabIndex={2}
+                                                className="lynsi-field"
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px 42px 10px 14px',
+                                                    fontSize: 14,
+                                                    border: `1.5px solid ${errors.password ? '#fca5a5' : P.border}`,
+                                                    borderRadius: 10,
+                                                    background: P.bg,
+                                                    color: P.primary,
+                                                    transition: 'all 0.2s',
+                                                    fontFamily:
+                                                        "'Inter', sans-serif",
+                                                }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setShowPassword((v) => !v)
+                                                }
+                                                aria-label={
+                                                    showPassword
+                                                        ? 'Hide password'
+                                                        : 'Show password'
+                                                }
+                                                style={{
+                                                    position: 'absolute',
+                                                    right: 10,
+                                                    top: '50%',
+                                                    transform:
+                                                        'translateY(-50%)',
+                                                    background: 'transparent',
+                                                    border: 'none',
+                                                    color: '#6b7280',
+                                                    cursor: 'pointer',
+                                                    width: 28,
+                                                    height: 28,
+                                                    borderRadius: 8,
+                                                    padding: 0,
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                }}
+                                            >
+                                                {showPassword ? (
+                                                    <svg
+                                                        width="18"
+                                                        height="18"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.8"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                    >
+                                                        <path d="M3 3l18 18" />
+                                                        <path d="M10.58 10.58a2 2 0 102.83 2.83" />
+                                                        <path d="M9.88 5.09A10.94 10.94 0 0112 4c5 0 9.27 3.11 11 8-1.04 2.94-3.1 5.15-5.78 6.39" />
+                                                        <path d="M6.61 6.61C4.62 8.04 3.07 9.92 2 12c1.04 2.94 3.1 5.15 5.78 6.39A10.94 10.94 0 0012 20c.73 0 1.45-.07 2.14-.2" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg
+                                                        width="18"
+                                                        height="18"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.8"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                    >
+                                                        <path d="M2 12s3.64-8 10-8 10 8 10 8-3.64 8-10 8-10-8-10-8z" />
+                                                        <circle cx="12" cy="12" r="3" />
+                                                    </svg>
+                                                )}
+                                            </button>
+                                        </div>
                                         <InputError message={errors.password} />
                                     </div>
 
@@ -652,22 +737,8 @@ export default function Login({
                                 </div>
                             )}
                         </Form>
+                        </div>
                     </div>
-
-                    <Link
-                        href="/"
-                        style={{
-                            marginTop: 16,
-                            fontSize: 13,
-                            color: '#94a3b8',
-                            textDecoration: 'none',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 4,
-                        }}
-                    >
-                        ← Back to Lynsi Food Products
-                    </Link>
                 </div>
             </div>
         </>
