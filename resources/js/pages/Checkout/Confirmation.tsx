@@ -31,6 +31,7 @@ type Order = {
     status: string;
     payment_method: string;
     payment_status: string;
+    return_status?: string;
     shipping_name: string;
     shipping_phone: string;
     shipping_address: string;
@@ -39,7 +40,9 @@ type Order = {
     shipping_zip: string | null;
     subtotal: number;
     shipping_fee: number;
+    discount_amount?: number;
     total: number;
+    coupon_code?: string | null;
     notes: string | null;
     created_at: string;
     items: OrderItem[];
@@ -98,6 +101,20 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
         hour: '2-digit',
         minute: '2-digit',
     });
+    const timeline = [
+        { key: 'placed', label: 'Order placed', done: true, date: placedDate },
+        {
+            key: 'processing',
+            label: 'Processing',
+            done: ['processing', 'shipped', 'delivered'].includes(order.status),
+        },
+        {
+            key: 'shipping',
+            label: 'Shipped',
+            done: ['shipped', 'delivered'].includes(order.status),
+        },
+        { key: 'delivered', label: 'Delivered', done: order.status === 'delivered' },
+    ];
 
     return (
         <>
@@ -475,6 +492,69 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                     in your account.
                 </p>
 
+                <section
+                    className="fade-up conf-section delay-1"
+                    style={{
+                        background: P.card,
+                        borderRadius: 18,
+                        border: `1px solid ${P.border}`,
+                        padding: 18,
+                        marginBottom: 16,
+                    }}
+                >
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns:
+                                'repeat(auto-fit, minmax(150px, 1fr))',
+                            gap: 10,
+                        }}
+                    >
+                        {timeline.map((t) => (
+                            <div
+                                key={t.key}
+                                style={{
+                                    borderRadius: 10,
+                                    border: `1px solid ${t.done ? '#86efac' : P.borderGray}`,
+                                    background: t.done ? '#ecfdf5' : '#fff',
+                                    padding: '10px 12px',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        fontSize: 12,
+                                        color: t.done ? P.primary : P.textLight,
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    {t.label}
+                                </div>
+                                <div
+                                    style={{
+                                        fontSize: 11,
+                                        color: P.textMuted,
+                                        marginTop: 2,
+                                    }}
+                                >
+                                    {t.date ?? (t.done ? 'Completed' : 'Pending')}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {order.return_status && order.return_status !== 'none' && (
+                        <div
+                            style={{
+                                marginTop: 10,
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: '#b45309',
+                            }}
+                        >
+                            Return workflow: {order.return_status}
+                        </div>
+                    )}
+                </section>
+
                 <div
                     style={{
                         display: 'flex',
@@ -780,6 +860,27 @@ export default function CheckoutConfirmation({ order }: { order: Order }) {
                                             : formatPrice(order.shipping_fee)}
                                     </span>
                                 </div>
+                                {order.coupon_code && (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            fontSize: 13,
+                                        }}
+                                    >
+                                        <span style={{ color: P.textMuted }}>
+                                            Coupon ({order.coupon_code})
+                                        </span>
+                                        <span
+                                            style={{
+                                                fontWeight: 600,
+                                                color: P.accent,
+                                            }}
+                                        >
+                                            -{formatPrice(order.discount_amount ?? 0)}
+                                        </span>
+                                    </div>
+                                )}
                                 <div
                                     style={{
                                         height: 1,

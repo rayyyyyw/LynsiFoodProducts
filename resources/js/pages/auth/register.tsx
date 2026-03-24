@@ -1,8 +1,8 @@
 import { Form, Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
-import { useState } from 'react';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 

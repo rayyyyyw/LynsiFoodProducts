@@ -154,6 +154,23 @@ function formatPrice(n: number) {
     return `₱${Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function estimateShippingFee(province: string): number {
+    const normalized = province.trim().toLowerCase();
+    if (!normalized || normalized === 'metro manila') return 0;
+    if (['cebu', 'iloilo', 'davao del sur', 'davao'].includes(normalized)) {
+        return 79;
+    }
+    return 129;
+}
+
+function estimateCouponDiscount(code: string, subtotal: number): number {
+    const normalized = code.trim().toUpperCase();
+    if (!normalized || subtotal <= 0) return 0;
+    if (normalized === 'WELCOME10') return Number((subtotal * 0.1).toFixed(2));
+    if (normalized === 'LYNSI50') return Math.min(50, subtotal);
+    return 0;
+}
+
 type CheckoutFormData = {
     shipping_name: string;
     shipping_phone: string;
@@ -162,6 +179,7 @@ type CheckoutFormData = {
     shipping_province: string;
     shipping_zip: string;
     payment_method: string;
+    coupon_code: string;
     notes: string;
 };
 
@@ -417,8 +435,6 @@ export default function CartIndex({
         0,
     );
     const totalQty = items.reduce((s, i) => s + i.quantity, 0);
-    const shippingFee = 0;
-    const total = subtotal + shippingFee;
 
     const { data, setData, post, processing, errors } = useForm({
         shipping_name: user?.name ?? '',
@@ -428,8 +444,12 @@ export default function CartIndex({
         shipping_province: user?.province ?? '',
         shipping_zip: user?.zip ?? '',
         payment_method: 'cod',
+        coupon_code: '',
         notes: '',
     });
+    const shippingFee = estimateShippingFee(data.shipping_province ?? '');
+    const discountAmount = estimateCouponDiscount(data.coupon_code ?? '', subtotal);
+    const total = Math.max(0, subtotal + shippingFee - discountAmount);
 
     function goStep(next: 1 | 2) {
         if (animating) return;
@@ -1797,6 +1817,23 @@ export default function CartIndex({
                                                     (optional)
                                                 </span>
                                             </h2>
+                                            <CheckoutField
+                                                data={data}
+                                                setData={setData}
+                                                errors={errors}
+                                                label="Coupon Code (optional)"
+                                                name="coupon_code"
+                                                placeholder="WELCOME10, LYNSI50"
+                                            />
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: P.textLight,
+                                                    marginBottom: 10,
+                                                }}
+                                            >
+                                                Try: WELCOME10 or LYNSI50
+                                            </div>
                                             <CheckoutField
                                                 data={data}
                                                 setData={setData}

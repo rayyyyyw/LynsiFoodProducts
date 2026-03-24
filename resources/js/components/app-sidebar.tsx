@@ -11,7 +11,10 @@ import {
     HelpCircle,
     TrendingUp,
     MessageSquare,
+    MessageCircle,
+    TicketPercent,
 } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -77,6 +80,7 @@ const mainNavGroups: NavGroup[] = [
         items: [
             { title: 'Sales', href: base('sales'), icon: TrendingUp },
             { title: 'Analytics', href: base('analytics'), icon: BarChart3 },
+            { title: 'Discounts', href: base('discounts'), icon: TicketPercent },
         ],
     },
     {
@@ -89,6 +93,7 @@ const mainNavGroups: NavGroup[] = [
                 href: base('feedbacks'),
                 icon: MessageSquare,
             },
+            { title: 'Reviews', href: base('reviews'), icon: MessageCircle },
         ],
     },
 ];
@@ -106,7 +111,34 @@ const footerNavItems: NavItem[] = [
     // },
 ];
 
+const SIDEBAR_SCROLL_KEY = 'lynsi:sidebar-scroll-top';
+
 export function AppSidebar() {
+    const contentRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const el = contentRef.current;
+        if (!el) return;
+
+        const saved = window.sessionStorage.getItem(SIDEBAR_SCROLL_KEY);
+        if (saved) {
+            const top = Number(saved);
+            if (Number.isFinite(top)) {
+                el.scrollTop = top;
+            }
+        }
+
+        const onScroll = () => {
+            window.sessionStorage.setItem(
+                SIDEBAR_SCROLL_KEY,
+                String(el.scrollTop),
+            );
+        };
+
+        el.addEventListener('scroll', onScroll, { passive: true });
+        return () => el.removeEventListener('scroll', onScroll);
+    }, []);
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -121,7 +153,7 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent ref={contentRef}>
                 <NavMain groups={mainNavGroups} />
             </SidebarContent>
 

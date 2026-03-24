@@ -36,13 +36,18 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class)->orderBy('id');
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class)->latest();
+    }
+
     public function getImageUrlAttribute(): ?string
     {
         if (! $this->image_path) {
             return null;
         }
 
-        return Storage::disk('public')->url($this->image_path);
+        return Storage::url($this->image_path);
     }
 
     protected static function boot()

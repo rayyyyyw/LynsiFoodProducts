@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\RedirectResponse;
@@ -30,6 +31,7 @@ class CheckoutController extends Controller
             'shipping_province' => ['required', 'string', 'max:100'],
             'shipping_zip' => ['nullable', 'string', 'max:10'],
             'payment_method' => ['required', 'in:cod,gcash,bank_transfer'],
+            'coupon_code' => ['nullable', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -43,10 +45,22 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $cartItems->reduce(fn ($carry, $item) => $carry + ($item->variant->price * $item->quantity), 0.0);
-        $shippingFee = 0.0;
-        $total = $subtotal + $shippingFee;
+        $shippingFee = $this->estimateShippingFee($data['shipping_province'] ?? '');
+        $appliedCouponCode = null;
+        $discountAmount = 0.0;
+        if (! empty($data['coupon_code'])) {
+            $code = strtoupper(trim((string) $data['coupon_code']));
+            $coupon = Coupon::where('code', $code)->first();
+            if ($coupon) {
+                $discountAmount = $coupon->computeDiscount($subtotal);
+                if ($discountAmount > 0) {
+                    $appliedCouponCode = $coupon->code;
+                }
+            }
+        }
+        $total = max(0, $subtotal + $shippingFee - $discountAmount);
 
-        $order = DB::transaction(function () use ($data, $userId, $cartItems, $subtotal, $shippingFee, $total) {
+        $order = DB::transaction(function () use ($data, $userId, $cartItems, $subtotal, $shippingFee, $discountAmount, $total, $appliedCouponCode) {
             $order = Order::create([
                 'user_id' => $userId,
                 'order_number' => Order::generateOrderNumber(),
@@ -61,9 +75,15 @@ class CheckoutController extends Controller
                 'shipping_zip' => $data['shipping_zip'] ?? null,
                 'subtotal' => $subtotal,
                 'shipping_fee' => $shippingFee,
+                'discount_amount' => $discountAmount,
                 'total' => $total,
+                'coupon_code' => $appliedCouponCode,
                 'notes' => $data['notes'] ?? null,
             ]);
+
+            if ($appliedCouponCode) {
+                Coupon::where('code', $appliedCouponCode)->increment('used_count');
+            }
 
             foreach ($cartItems as $item) {
                 OrderItem::create([
@@ -109,7 +129,9 @@ class CheckoutController extends Controller
                 'shipping_zip' => $order->shipping_zip,
                 'subtotal' => $order->subtotal,
                 'shipping_fee' => $order->shipping_fee,
+                'discount_amount' => $order->discount_amount,
                 'total' => $order->total,
+                'coupon_code' => $order->coupon_code,
                 'notes' => $order->notes,
                 'created_at' => $order->created_at->toDateTimeString(),
                 'items' => $order->items->map(fn ($item) => [
@@ -123,4 +145,19 @@ class CheckoutController extends Controller
             ],
         ]);
     }
+
+    private function estimateShippingFee(string $province): float
+    {
+        $normalized = strtolower(trim($province));
+        if ($normalized === '' || $normalized === 'metro manila') {
+            return 0.0;
+        }
+
+        if (in_array($normalized, ['cebu', 'iloilo', 'davao del sur', 'davao'], true)) {
+            return 79.0;
+        }
+
+        return 129.0;
+    }
+
 }

@@ -35,6 +35,23 @@ type ProductData = {
     variants: Variant[];
 };
 
+type RelatedProduct = {
+    id: number;
+    name: string;
+    slug: string;
+    image_url: string | null;
+    category: string | null;
+    price: number;
+};
+
+type ProductReview = {
+    id: number;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+    user: { name: string };
+};
+
 function formatPrice(price: number): string {
     return `₱${Number(price).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -62,8 +79,11 @@ export default function ProductDetail() {
             } | null;
         } | null;
     };
-    const { product, canRegister = true } = page.props as {
+    const { product, relatedProducts = [], reviews = [], canRegister = true } =
+        page.props as {
         product: ProductData;
+        relatedProducts?: RelatedProduct[];
+        reviews?: ProductReview[];
         canRegister?: boolean;
     };
 
@@ -73,6 +93,9 @@ export default function ProductDetail() {
     const [cartAdding, setCartAdding] = useState(false);
     const [cartAdded, setCartAdded] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [rating, setRating] = useState(5);
+    const [reviewComment, setReviewComment] = useState('');
+    const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
     const favoritesKey = `lynsi_favorites_${auth?.user?.id ?? 'guest'}`;
 
@@ -119,6 +142,25 @@ export default function ProductDetail() {
         }
     }, [product.id, favoritesKey]);
 
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const key = 'lynsi_recently_viewed';
+        try {
+            const raw = window.localStorage.getItem(key);
+            const arr = raw ? JSON.parse(raw) : [];
+            const ids = Array.isArray(arr)
+                ? (arr as unknown[]).filter(
+                      (id): id is number => typeof id === 'number',
+                  )
+                : [];
+            const next = [product.id, ...ids.filter((id) => id !== product.id)]
+                .slice(0, 12);
+            window.localStorage.setItem(key, JSON.stringify(next));
+        } catch {
+            // ignore
+        }
+    }, [product.id]);
+
     function toggleFavorite() {
         if (typeof window === 'undefined') return;
         try {
@@ -142,6 +184,29 @@ export default function ProductDetail() {
         } catch {
             // ignore
         }
+    }
+
+    const averageRating =
+        reviews.length > 0
+            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+            : 0;
+
+    function submitReview(e: React.FormEvent) {
+        e.preventDefault();
+        if (!auth?.user) {
+            router.visit('/login');
+            return;
+        }
+        setReviewSubmitting(true);
+        router.post(
+            `/shop/product/${product.slug}/reviews`,
+            { rating, comment: reviewComment.trim() || null },
+            {
+                preserveScroll: true,
+                onFinish: () => setReviewSubmitting(false),
+                onSuccess: () => setReviewComment(''),
+            },
+        );
     }
 
     return (
@@ -472,8 +537,143 @@ export default function ProductDetail() {
                                     </p>
                                 </div>
                             )}
+
+                            <div
+                                className="mt-8 border-t pt-6"
+                                style={{ borderColor: PALETTE.border }}
+                            >
+                                <div className="mb-3 flex items-center justify-between">
+                                    <h3 className="text-sm font-semibold text-neutral-700">
+                                        Reviews
+                                    </h3>
+                                    <span className="text-sm text-neutral-600">
+                                        {reviews.length > 0
+                                            ? `${averageRating.toFixed(1)} / 5 (${reviews.length})`
+                                            : 'No reviews yet'}
+                                    </span>
+                                </div>
+                                <form
+                                    onSubmit={submitReview}
+                                    className="mb-4 rounded-lg border p-3"
+                                    style={{ borderColor: PALETTE.border }}
+                                >
+                                    <div className="mb-2 flex items-center gap-2">
+                                        <label className="text-sm text-neutral-700">
+                                            Your rating
+                                        </label>
+                                        <select
+                                            value={rating}
+                                            onChange={(e) =>
+                                                setRating(
+                                                    Number(e.target.value),
+                                                )
+                                            }
+                                            className="rounded-md border px-2 py-1 text-sm"
+                                            style={{
+                                                borderColor: PALETTE.border,
+                                            }}
+                                        >
+                                            {[5, 4, 3, 2, 1].map((r) => (
+                                                <option key={r} value={r}>
+                                                    {r} star{r > 1 ? 's' : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <textarea
+                                        value={reviewComment}
+                                        onChange={(e) =>
+                                            setReviewComment(e.target.value)
+                                        }
+                                        placeholder="Share your experience with this product..."
+                                        className="mb-2 w-full rounded-md border p-2 text-sm"
+                                        style={{
+                                            borderColor: PALETTE.border,
+                                        }}
+                                        rows={3}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={reviewSubmitting}
+                                        className="rounded-md px-3 py-2 text-sm font-semibold text-white"
+                                        style={{
+                                            background: PALETTE.primary,
+                                            opacity: reviewSubmitting ? 0.7 : 1,
+                                        }}
+                                    >
+                                        {reviewSubmitting
+                                            ? 'Submitting...'
+                                            : 'Submit review'}
+                                    </button>
+                                </form>
+                                <div className="space-y-2">
+                                    {reviews.slice(0, 5).map((r) => (
+                                        <div
+                                            key={r.id}
+                                            className="rounded-md border p-3"
+                                            style={{
+                                                borderColor: PALETTE.border,
+                                            }}
+                                        >
+                                            <div className="mb-1 flex items-center justify-between">
+                                                <span className="text-sm font-semibold text-neutral-800">
+                                                    {r.user.name}
+                                                </span>
+                                                <span className="text-xs text-neutral-500">
+                                                    {'★'.repeat(r.rating)}
+                                                </span>
+                                            </div>
+                                            {r.comment && (
+                                                <p className="text-sm text-neutral-600">
+                                                    {r.comment}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    {relatedProducts.length > 0 && (
+                        <section className="mt-10">
+                            <h2 className="mb-3 text-xl font-bold text-neutral-900">
+                                Related products
+                            </h2>
+                            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                                {relatedProducts.map((rp) => (
+                                    <Link
+                                        key={rp.id}
+                                        href={`/shop/product/${rp.slug}`}
+                                        className="rounded-xl border bg-white p-3 no-underline transition hover:shadow-md"
+                                        style={{
+                                            borderColor: PALETTE.border,
+                                            color: 'inherit',
+                                        }}
+                                    >
+                                        <div className="mb-2 h-28 overflow-hidden rounded-lg bg-neutral-100">
+                                            {rp.image_url ? (
+                                                <img
+                                                    src={rp.image_url}
+                                                    alt={rp.name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : null}
+                                        </div>
+                                        <div className="line-clamp-1 text-sm font-semibold text-neutral-800">
+                                            {rp.name}
+                                        </div>
+                                        <div className="text-xs text-neutral-500">
+                                            {rp.category ?? 'Uncategorized'}
+                                        </div>
+                                        <div className="mt-1 text-sm font-bold text-emerald-700">
+                                            {formatPrice(rp.price)}
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
+                    )}
                 </div>
             </main>
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

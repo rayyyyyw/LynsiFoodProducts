@@ -10,7 +10,10 @@ use App\Http\Controllers\Products\InventoryController;
 use App\Http\Controllers\Products\ProductController;
 use App\Models\LandingPageSetting;
 use App\Models\Order;
+use App\Models\Coupon;
+use App\Models\ContactQuery;
 use App\Models\Product;
+use App\Models\ProductReview;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -173,9 +176,49 @@ Route::get('/shop/product/{slug}', function (string $slug) {
         ]),
     ];
 
+    $relatedProducts = Product::with('category', 'variants')
+        ->where('id', '!=', $product->id)
+        ->where(function ($q) use ($product) {
+            $q->where('featured', true);
+            if ($product->category_id) {
+                $q->orWhere('category_id', $product->category_id);
+            }
+        })
+        ->latest()
+        ->limit(6)
+        ->get()
+        ->map(fn ($p) => [
+            'id' => $p->id,
+            'name' => $p->name,
+            'slug' => $p->slug,
+            'image_url' => $p->image_url,
+            'category' => $p->category?->name,
+            'price' => (float) $p->variants->min('price'),
+        ])
+        ->values();
+
+    $reviews = ProductReview::with('user:id,name')
+        ->where('product_id', $product->id)
+        ->where('status', 'approved')
+        ->latest()
+        ->limit(25)
+        ->get()
+        ->map(fn ($r) => [
+            'id' => $r->id,
+            'rating' => (int) $r->rating,
+            'comment' => $r->comment,
+            'created_at' => $r->created_at->toDateTimeString(),
+            'user' => [
+                'name' => $r->user?->name ?? 'Customer',
+            ],
+        ])
+        ->values();
+
     /** @var \Illuminate\Http\Response $response */
     $response = Inertia::render('LandingPage/ProductDetail', [
         'product' => $payload,
+        'relatedProducts' => $relatedProducts,
+        'reviews' => $reviews,
         'canRegister' => Features::enabled(Features::registration()),
     ])->toResponse(request());
 
@@ -183,6 +226,27 @@ Route::get('/shop/product/{slug}', function (string $slug) {
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
     ]);
 })->name('shop.product');
+
+Route::post('/shop/product/{slug}/reviews', function (Request $request, string $slug) {
+    $product = Product::where('slug', $slug)->firstOrFail();
+    $data = $request->validate([
+        'rating' => ['required', 'integer', 'min:1', 'max:5'],
+        'comment' => ['nullable', 'string', 'max:500'],
+    ]);
+
+    ProductReview::updateOrCreate(
+        ['product_id' => $product->id, 'user_id' => $request->user()->id],
+        [
+            'rating' => $data['rating'],
+            'comment' => $data['comment'] ?? null,
+            'status' => 'pending',
+            'moderated_by' => null,
+            'moderated_at' => null,
+        ],
+    );
+
+    return back()->with('status', 'Review submitted.');
+})->middleware(['auth'])->name('shop.product.reviews.store');
 
 Route::get('/locations', function () {
     $locations = null;
@@ -309,6 +373,8 @@ Route::get('/account', function (\Illuminate\Http\Request $request) {
 })->middleware(['auth'])->name('account.profile');
 
 Route::get('/my-purchases', [OrderController::class, 'myOrders'])->middleware(['auth'])->name('account.orders');
+Route::post('/my-purchases/{order}/reorder', [OrderController::class, 'reorder'])->middleware(['auth'])->name('account.orders.reorder');
+Route::post('/my-purchases/{order}/return-request', [OrderController::class, 'requestReturn'])->middleware(['auth'])->name('account.orders.return-request');
 
 /* ── Checkout ── */
 Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
@@ -348,6 +414,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('products')->name('prod
 });
 
 Route::patch('dashboard/orders/{order}/status', [OrderController::class, 'updateStatus'])->middleware(['auth', 'verified', 'admin'])->name('dashboard.orders.update-status');
+Route::patch('dashboard/orders/{order}/return-status', function (Request $request, Order $order) {
+    $data = $request->validate([
+        'return_status' => ['required', 'in:none,requested,approved,rejected,received,refunded'],
+    ]);
+    $order->update(['return_status' => $data['return_status']]);
+    return back()->with('status', 'Return status updated.');
+})->middleware(['auth', 'verified', 'admin'])->name('dashboard.orders.update-return-status');
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::patch('dashboard/customers/{user}/toggle-active', function (User $user) {
@@ -361,6 +434,61 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         $user->delete();
         return back();
     })->name('dashboard.customers.destroy');
+
+    Route::post('dashboard/discounts', function (Request $request) {
+        $data = $request->validate([
+            'code' => ['required', 'string', 'max:30', 'unique:coupons,code'],
+            'type' => ['required', 'in:percent,fixed'],
+            'value' => ['required', 'numeric', 'min:0'],
+            'min_subtotal' => ['nullable', 'numeric', 'min:0'],
+            'usage_limit' => ['nullable', 'integer', 'min:1'],
+            'is_active' => ['nullable', 'boolean'],
+            'starts_at' => ['nullable', 'date'],
+            'ends_at' => ['nullable', 'date'],
+        ]);
+        Coupon::create([
+            'code' => strtoupper(trim($data['code'])),
+            'type' => $data['type'],
+            'value' => (float) $data['value'],
+            'min_subtotal' => (float) ($data['min_subtotal'] ?? 0),
+            'usage_limit' => $data['usage_limit'] ?? null,
+            'is_active' => (bool) ($data['is_active'] ?? true),
+            'starts_at' => $data['starts_at'] ?? null,
+            'ends_at' => $data['ends_at'] ?? null,
+        ]);
+        return back()->with('status', 'Coupon created.');
+    })->name('dashboard.discounts.store');
+
+    Route::patch('dashboard/discounts/{coupon}', function (Request $request, Coupon $coupon) {
+        $data = $request->validate([
+            'type' => ['nullable', 'in:percent,fixed'],
+            'value' => ['nullable', 'numeric', 'min:0'],
+            'min_subtotal' => ['nullable', 'numeric', 'min:0'],
+            'usage_limit' => ['nullable', 'integer', 'min:1'],
+            'is_active' => ['nullable', 'boolean'],
+            'starts_at' => ['nullable', 'date'],
+            'ends_at' => ['nullable', 'date'],
+        ]);
+        $coupon->update($data);
+        return back()->with('status', 'Coupon updated.');
+    })->name('dashboard.discounts.update');
+
+    Route::delete('dashboard/discounts/{coupon}', function (Coupon $coupon) {
+        $coupon->delete();
+        return back()->with('status', 'Coupon deleted.');
+    })->name('dashboard.discounts.destroy');
+
+    Route::patch('dashboard/reviews/{review}/status', function (Request $request, ProductReview $review) {
+        $data = $request->validate([
+            'status' => ['required', 'in:pending,approved,rejected'],
+        ]);
+        $review->update([
+            'status' => $data['status'],
+            'moderated_by' => $request->user()->id,
+            'moderated_at' => now(),
+        ]);
+        return back()->with('status', 'Review moderation updated.');
+    })->name('dashboard.reviews.update-status');
 });
 
 Route::get('dashboard/{section}', function (Request $request, string $section) {
@@ -443,10 +571,114 @@ Route::get('dashboard/{section}', function (Request $request, string $section) {
                     'unit_price' => (float) $item->unit_price,
                     'line_total' => (float) $item->line_total,
                 ]),
+                'return_status' => $order->return_status,
+                'return_reason' => $order->return_reason,
+                'return_requested_at' => $order->return_requested_at?->toDateTimeString(),
             ];
         });
         $payload['orders'] = $orders;
         $payload['orderCounts'] = $orderCounts;
+    }
+    if ($section === 'returns') {
+        $returns = Order::with('user:id,name,email')
+            ->where('return_status', '!=', 'none')
+            ->latest()
+            ->paginate(20);
+        $returns->getCollection()->transform(fn ($order) => [
+            'id' => $order->id,
+            'order_number' => $order->order_number,
+            'status' => $order->status,
+            'return_status' => $order->return_status,
+            'return_reason' => $order->return_reason,
+            'return_requested_at' => $order->return_requested_at?->toDateTimeString(),
+            'total' => (float) $order->total,
+            'user' => $order->user ? [
+                'name' => $order->user->name,
+                'email' => $order->user->email,
+            ] : null,
+        ]);
+        return Inertia::render('Orders/Returns', [
+            'section' => $section,
+            'returns' => $returns,
+        ]);
+    }
+    if ($section === 'discounts') {
+        $coupons = Coupon::latest()->paginate(20);
+        $coupons->getCollection()->transform(fn ($c) => [
+            'id' => $c->id,
+            'code' => $c->code,
+            'type' => $c->type,
+            'value' => (float) $c->value,
+            'min_subtotal' => (float) $c->min_subtotal,
+            'usage_limit' => $c->usage_limit,
+            'used_count' => (int) $c->used_count,
+            'is_active' => (bool) $c->is_active,
+            'starts_at' => $c->starts_at?->toDateTimeString(),
+            'ends_at' => $c->ends_at?->toDateTimeString(),
+        ]);
+        return Inertia::render('Reports/Discounts', [
+            'section' => $section,
+            'coupons' => $coupons,
+        ]);
+    }
+    if ($section === 'reviews') {
+        $reviews = ProductReview::with(['product:id,name,slug', 'user:id,name,email'])
+            ->latest()
+            ->paginate(25);
+        $reviews->getCollection()->transform(fn ($r) => [
+            'id' => $r->id,
+            'rating' => (int) $r->rating,
+            'comment' => $r->comment,
+            'status' => $r->status,
+            'created_at' => $r->created_at->toDateTimeString(),
+            'moderated_at' => $r->moderated_at?->toDateTimeString(),
+            'product' => $r->product ? ['name' => $r->product->name, 'slug' => $r->product->slug] : null,
+            'user' => $r->user ? ['name' => $r->user->name, 'email' => $r->user->email] : null,
+        ]);
+        return Inertia::render('Products/ReviewsModeration', [
+            'section' => $section,
+            'reviews' => $reviews,
+        ]);
+    }
+    if ($section === 'queries') {
+        $queries = ContactQuery::latest()->paginate(30);
+        $queries->getCollection()->transform(fn ($q) => [
+            'id' => $q->id,
+            'name' => $q->name,
+            'email' => $q->email,
+            'subject' => $q->subject,
+            'message' => $q->message,
+            'created_at' => $q->created_at->toDateTimeString(),
+        ]);
+        return Inertia::render('Support/Queries', [
+            'section' => $section,
+            'queries' => $queries,
+        ]);
+    }
+    if ($section === 'feedbacks') {
+        $feedbacks = ContactQuery::query()
+            ->where(function ($q) {
+                $q->where('subject', 'like', '%feedback%')
+                    ->orWhere('subject', 'like', '%suggest%')
+                    ->orWhere('subject', 'like', '%feature%')
+                    ->orWhere('message', 'like', '%feedback%')
+                    ->orWhere('message', 'like', '%suggest%')
+                    ->orWhere('message', 'like', '%improve%');
+            })
+            ->latest()
+            ->paginate(30);
+        $feedbacks->getCollection()->transform(fn ($q) => [
+            'id' => $q->id,
+            'name' => $q->name,
+            'email' => $q->email,
+            'subject' => $q->subject,
+            'message' => $q->message,
+            'created_at' => $q->created_at->toDateTimeString(),
+        ]);
+        return Inertia::render('Support/Feedbacks', [
+            'section' => $section,
+            'feedbacks' => $feedbacks,
+        ]);
     }
     if ($section === 'sales') {
         $range = $request->string('range')->toString();
@@ -641,6 +873,6 @@ Route::get('dashboard/{section}', function (Request $request, string $section) {
     }
 
     return Inertia::render('dashboard', $payload);
-})->middleware(['auth', 'verified', 'admin'])->where('section', 'orders|returns|customers|roles|discounts|coupons|banners|pages|blog|faq|sales|analytics|general|payments|shipping|email-templates')->name('dashboard.section');
+})->middleware(['auth', 'verified', 'admin'])->where('section', 'orders|returns|customers|roles|discounts|coupons|banners|pages|blog|faq|sales|analytics|general|payments|shipping|email-templates|reviews|queries|feedbacks')->name('dashboard.section');
 
 require __DIR__.'/settings.php';

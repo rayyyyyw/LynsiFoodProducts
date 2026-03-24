@@ -74,10 +74,12 @@ export default function Shop() {
     const [search, setSearch] = useState('');
     const [categoryId, setCategoryId] = useState<number | 'all'>('all');
     const [sortBy, setSortBy] = useState<SortKey>('latest');
+    const [inStockOnly, setInStockOnly] = useState(false);
     const [priceMin, setPriceMin] = useState('');
     const [priceMax, setPriceMax] = useState('');
     const [priceRangeApplied, setPriceRangeApplied] = useState(false);
     const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+    const [recentlyViewedIds, setRecentlyViewedIds] = useState<number[]>([]);
 
     const favoritesKey = `lynsi_favorites_${auth?.user?.id ?? 'guest'}`;
 
@@ -134,6 +136,24 @@ export default function Shop() {
             setFavoriteIds([]);
         }
     }, [favoritesKey]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = window.localStorage.getItem('lynsi_recently_viewed');
+            const arr = raw ? JSON.parse(raw) : [];
+            const ids = Array.isArray(arr)
+                ? (arr as unknown[]).filter(
+                      (id): id is number => typeof id === 'number',
+                  )
+                : [];
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setRecentlyViewedIds(ids);
+        } catch {
+             
+            setRecentlyViewedIds([]);
+        }
+    }, []);
 
     function syncFavorites(nextIds: number[]) {
         setFavoriteIds(nextIds);
@@ -208,6 +228,12 @@ export default function Shop() {
             list = list.filter((p) => p.category?.id === categoryId);
         }
 
+        if (inStockOnly) {
+            list = list.filter((p) =>
+                p.variants.some((v) => v.stock_quantity > 0),
+            );
+        }
+
         if (priceRangeApplied && (priceMin !== '' || priceMax !== '')) {
             const min = priceMin === '' ? -Infinity : parseFloat(priceMin);
             const max = priceMax === '' ? Infinity : parseFloat(priceMax);
@@ -242,10 +268,20 @@ export default function Shop() {
         search,
         categoryId,
         sortBy,
+        inStockOnly,
         priceRangeApplied,
         priceMin,
         priceMax,
     ]);
+
+    const recentlyViewedProducts = useMemo(() => {
+        if (!recentlyViewedIds.length) return [];
+        const map = new Map(products.map((p) => [p.id, p] as const));
+        return recentlyViewedIds
+            .map((id) => map.get(id))
+            .filter((p): p is ProductItem => !!p)
+            .slice(0, 6);
+    }, [products, recentlyViewedIds]);
 
     return (
         <>
@@ -455,7 +491,81 @@ export default function Shop() {
                                             {label}
                                         </button>
                                     ))}
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setInStockOnly((prev) => !prev)
+                                        }
+                                        className="shrink-0 touch-manipulation rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+                                        style={{
+                                            background: inStockOnly
+                                                ? PALETTE.accent
+                                                : PALETTE.white,
+                                            color: inStockOnly
+                                                ? PALETTE.white
+                                                : PALETTE.muted,
+                                            border: `1px solid ${inStockOnly ? PALETTE.accent : PALETTE.border}`,
+                                        }}
+                                    >
+                                        In stock only
+                                    </button>
                                 </div>
+
+                                {recentlyViewedProducts.length > 0 && (
+                                    <div
+                                        className="mb-4 rounded-xl border p-3 sm:mb-5 sm:p-4"
+                                        style={{
+                                            borderColor: PALETTE.border,
+                                            background: '#ffffffcc',
+                                        }}
+                                    >
+                                        <div className="mb-2 text-sm font-semibold text-neutral-800">
+                                            Recently viewed
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+                                            {recentlyViewedProducts.map(
+                                                (product) => (
+                                                    <Link
+                                                        key={product.id}
+                                                        href={`/shop/product/${product.slug}`}
+                                                        className="rounded-lg border p-2 text-left no-underline transition hover:shadow-sm"
+                                                        style={{
+                                                            borderColor:
+                                                                PALETTE.border,
+                                                            color: 'inherit',
+                                                            background:
+                                                                PALETTE.white,
+                                                        }}
+                                                    >
+                                                        <div className="mb-2 h-16 w-full overflow-hidden rounded-md bg-neutral-100">
+                                                            {product.image_url ? (
+                                                                <img
+                                                                    src={
+                                                                        product.image_url
+                                                                    }
+                                                                    alt={
+                                                                        product.name
+                                                                    }
+                                                                    className="h-full w-full object-cover"
+                                                                />
+                                                            ) : null}
+                                                        </div>
+                                                        <div className="line-clamp-1 text-xs font-medium text-neutral-800">
+                                                            {product.name}
+                                                        </div>
+                                                        <div className="text-xs text-emerald-700">
+                                                            {formatPrice(
+                                                                getDisplayPrice(
+                                                                    product,
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                    </Link>
+                                                ),
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {filteredAndSorted.length === 0 ? (
                                     <div

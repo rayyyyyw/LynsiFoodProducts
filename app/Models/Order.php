@@ -12,6 +12,7 @@ class Order extends Model
         'user_id',
         'order_number',
         'status',
+        'return_status',
         'payment_method',
         'payment_status',
         'shipping_name',
@@ -22,14 +23,20 @@ class Order extends Model
         'shipping_zip',
         'subtotal',
         'shipping_fee',
+        'discount_amount',
         'total',
+        'coupon_code',
         'notes',
+        'return_reason',
+        'return_requested_at',
     ];
 
     protected $casts = [
         'subtotal' => 'float',
         'shipping_fee' => 'float',
+        'discount_amount' => 'float',
         'total' => 'float',
+        'return_requested_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

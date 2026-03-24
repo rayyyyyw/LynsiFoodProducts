@@ -77,12 +77,17 @@ class User extends Authenticatable
     public function getProfilePhotoUrlAttribute(): ?string
     {
         return $this->profile_photo_path
-            ? Storage::disk('public')->url($this->profile_photo_path)
+            ? Storage::url($this->profile_photo_path)
             : null;
     }
 
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
     }
 }

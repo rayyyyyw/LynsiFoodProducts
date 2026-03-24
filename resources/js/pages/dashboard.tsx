@@ -110,6 +110,9 @@ const sectionLabels: Record<string, string> = {
     faq: 'FAQ',
     sales: 'Sales',
     analytics: 'Analytics',
+    reviews: 'Reviews',
+    queries: 'Queries',
+    feedbacks: 'Feedbacks',
     general: 'General',
     payments: 'Payments',
     shipping: 'Shipping',
@@ -244,7 +247,7 @@ export default function Dashboard() {
                             <Card>
                                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                                     <CardTitle className="text-sm font-medium text-muted-foreground">
-                                        Done
+                                        Delivered
                                     </CardTitle>
                                     <CheckCircle
                                         className={cn(
@@ -502,7 +505,9 @@ export default function Dashboard() {
                                                             <Select
                                                                 value={
                                                                     order.status ===
-                                                                    'shipped'
+                                                                        'confirmed' ||
+                                                                    order.status ===
+                                                                        'shipped'
                                                                         ? 'processing'
                                                                         : order.status
                                                                 }
@@ -528,6 +533,8 @@ export default function Dashboard() {
                                                                             'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
                                                                         (order.status ===
                                                                             'processing' ||
+                                                                            order.status ===
+                                                                                'confirmed' ||
                                                                             order.status ===
                                                                                 'shipped') &&
                                                                             'border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
@@ -564,7 +571,7 @@ export default function Dashboard() {
                                                                         className="flex items-center gap-2 text-xs"
                                                                     >
                                                                         <CheckCircle className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-                                                                        Done
+                                                                        Delivered
                                                                     </SelectItem>
                                                                     <SelectItem
                                                                         value="cancelled"
@@ -835,6 +842,8 @@ export default function Dashboard() {
                                                         (selectedOrder.status ===
                                                             'processing' ||
                                                             selectedOrder.status ===
+                                                                'confirmed' ||
+                                                            selectedOrder.status ===
                                                                 'shipped') &&
                                                             'border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
                                                         selectedOrder.status ===
@@ -846,7 +855,9 @@ export default function Dashboard() {
                                                     )}
                                                 >
                                                     {selectedOrder.status ===
-                                                    'shipped'
+                                                        'confirmed' ||
+                                                    selectedOrder.status ===
+                                                        'shipped'
                                                         ? 'processing'
                                                         : selectedOrder.status}
                                                 </span>

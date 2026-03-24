@@ -111,6 +111,14 @@ export default function Inventory({ variants = [] }: { variants: Variant[] }) {
         if (!size) return '—';
         return size.toLowerCase().endsWith('g') ? size : `${size}g`;
     };
+    const variantDisplayName = (v: Variant) => {
+        const flavor = v.flavor?.trim();
+        const grams = displayGrams(v);
+        const details = [flavor, grams !== '—' ? grams : null]
+            .filter(Boolean)
+            .join(' / ');
+        return details ? `${v.product?.name ?? 'Product'} (${details})` : (v.product?.name ?? 'Product');
+    };
 
     const filteredVariants = useMemo(() => {
         let list = variants;
@@ -129,6 +137,35 @@ export default function Inventory({ variants = [] }: { variants: Variant[] }) {
         }
         return list;
     }, [variants, search, statusFilter]);
+
+    const lowStockCount = useMemo(
+        () =>
+            variants.filter(
+                (v) =>
+                    v.stock_quantity > 0 &&
+                    v.stock_quantity <= LOW_STOCK_THRESHOLD,
+            ).length,
+        [variants],
+    );
+    const outOfStockCount = useMemo(
+        () => variants.filter((v) => v.stock_quantity === 0).length,
+        [variants],
+    );
+    const lowStockItems = useMemo(
+        () =>
+            variants
+                .filter(
+                    (v) =>
+                        v.stock_quantity > 0 &&
+                        v.stock_quantity <= LOW_STOCK_THRESHOLD,
+                )
+                .slice(0, 8),
+        [variants],
+    );
+    const outOfStockItems = useMemo(
+        () => variants.filter((v) => v.stock_quantity === 0).slice(0, 8),
+        [variants],
+    );
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -156,6 +193,52 @@ export default function Inventory({ variants = [] }: { variants: Variant[] }) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        {(lowStockCount > 0 || outOfStockCount > 0) && (
+                            <div className="space-y-2">
+                                {lowStockCount > 0 && (
+                                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700/40 dark:bg-amber-900/20 dark:text-amber-200">
+                                        <div className="font-medium">
+                                            Low stock warning ({lowStockCount})
+                                        </div>
+                                        <ul className="mt-1 list-inside list-disc text-xs opacity-95">
+                                            {lowStockItems.map((v) => (
+                                                <li key={`low-${v.id}`}>
+                                                    {variantDisplayName(v)} — {v.stock_quantity} left
+                                                </li>
+                                            ))}
+                                            {lowStockCount > lowStockItems.length && (
+                                                <li>
+                                                    ...and {lowStockCount - lowStockItems.length}{' '}
+                                                    more
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {outOfStockCount > 0 && (
+                                    <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900 dark:border-red-700/40 dark:bg-red-900/20 dark:text-red-200">
+                                        <div className="font-medium">
+                                            Out of stock - danger ({outOfStockCount})
+                                        </div>
+                                        <ul className="mt-1 list-inside list-disc text-xs opacity-95">
+                                            {outOfStockItems.map((v) => (
+                                                <li key={`out-${v.id}`}>
+                                                    {variantDisplayName(v)}
+                                                </li>
+                                            ))}
+                                            {outOfStockCount > outOfStockItems.length && (
+                                                <li>
+                                                    ...and{' '}
+                                                    {outOfStockCount - outOfStockItems.length}{' '}
+                                                    more
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="relative max-w-sm min-w-[200px] flex-1">
                                 <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />

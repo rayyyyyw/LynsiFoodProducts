@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
@@ -23,6 +24,7 @@ type OrderRow = {
     id: number;
     order_number: string;
     status: string;
+    return_status?: string;
     total: number;
     created_at: string;
     item_count: number;
@@ -46,6 +48,9 @@ function formatPrice(n: number) {
 }
 
 export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
+    const [returnOrderId, setReturnOrderId] = useState<number | null>(null);
+    const [returnReason, setReturnReason] = useState('');
+
     return (
         <>
             <Head title="My Orders – Lynsi Food Products" />
@@ -374,12 +379,93 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                             <div
                                                 style={{
                                                     marginTop: 10,
-                                                    fontSize: 13,
-                                                    color: P.accent,
-                                                    fontWeight: 600,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent:
+                                                        'space-between',
+                                                    gap: 10,
                                                 }}
                                             >
-                                                View order details →
+                                                <span
+                                                    style={{
+                                                        fontSize: 13,
+                                                        color: P.accent,
+                                                        fontWeight: 600,
+                                                    }}
+                                                >
+                                                    View order details →
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        router.post(
+                                                            `/my-purchases/${order.id}/reorder`,
+                                                        );
+                                                    }}
+                                                    style={{
+                                                        border: `1px solid ${P.border}`,
+                                                        borderRadius: 999,
+                                                        background: P.accentBg,
+                                                        color: P.primary,
+                                                        fontSize: 12,
+                                                        fontWeight: 700,
+                                                        padding: '6px 10px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    Reorder
+                                                </button>
+                                                {order.status === 'delivered' &&
+                                                    (order.return_status ??
+                                                        'none') === 'none' && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                setReturnOrderId(order.id);
+                                                                setReturnReason('');
+                                                            }}
+                                                            style={{
+                                                                border: `1px solid #fecaca`,
+                                                                borderRadius: 999,
+                                                                background:
+                                                                    '#fef2f2',
+                                                                color: '#b91c1c',
+                                                                fontSize: 12,
+                                                                fontWeight: 700,
+                                                                padding:
+                                                                    '6px 10px',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
+                                                            Request Return
+                                                        </button>
+                                                    )}
+                                                {order.return_status &&
+                                                    order.return_status !==
+                                                        'none' && (
+                                                        <span
+                                                            style={{
+                                                                border: `1px solid ${P.border}`,
+                                                                borderRadius: 999,
+                                                                background:
+                                                                    P.accentBg,
+                                                                color: P.primary,
+                                                                fontSize: 12,
+                                                                fontWeight: 700,
+                                                                padding:
+                                                                    '6px 10px',
+                                                            }}
+                                                        >
+                                                            Return:{' '}
+                                                            {
+                                                                order.return_status
+                                                            }
+                                                        </span>
+                                                    )}
                                             </div>
                                         </Link>
                                     );
@@ -433,6 +519,109 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                     )}
                 </main>
             </div>
+            {returnOrderId && (
+                <div
+                    onClick={() => setReturnOrderId(null)}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(15,23,42,0.55)',
+                        display: 'grid',
+                        placeItems: 'center',
+                        zIndex: 200,
+                        padding: 16,
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            width: '100%',
+                            maxWidth: 520,
+                            background: P.card,
+                            border: `1px solid ${P.border}`,
+                            borderRadius: 14,
+                            padding: 16,
+                        }}
+                    >
+                        <h3 style={{ fontSize: 16, fontWeight: 800, color: P.text }}>
+                            Request return
+                        </h3>
+                        <p
+                            style={{
+                                marginTop: 6,
+                                fontSize: 13,
+                                color: P.textMuted,
+                            }}
+                        >
+                            Tell us why you want to return this order.
+                        </p>
+                        <textarea
+                            value={returnReason}
+                            onChange={(e) => setReturnReason(e.target.value)}
+                            placeholder="Example: wrong item variant delivered."
+                            rows={4}
+                            style={{
+                                marginTop: 10,
+                                width: '100%',
+                                resize: 'vertical',
+                                border: `1px solid ${P.borderGray}`,
+                                borderRadius: 10,
+                                padding: 10,
+                                fontSize: 13,
+                                fontFamily: 'inherit',
+                            }}
+                        />
+                        <div
+                            style={{
+                                marginTop: 12,
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                gap: 8,
+                            }}
+                        >
+                            <button
+                                type="button"
+                                style={{
+                                    border: `1px solid ${P.borderGray}`,
+                                    borderRadius: 10,
+                                    background: '#fff',
+                                    color: P.text,
+                                    padding: '8px 12px',
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                }}
+                                onClick={() => setReturnOrderId(null)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                style={{
+                                    border: 'none',
+                                    borderRadius: 10,
+                                    background: P.primary,
+                                    color: '#fff',
+                                    padding: '8px 12px',
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                }}
+                                onClick={() => {
+                                    const reason = returnReason.trim();
+                                    if (!reason) return;
+                                    router.post(`/my-purchases/${returnOrderId}/return-request`, {
+                                        return_reason: reason,
+                                    });
+                                    setReturnOrderId(null);
+                                }}
+                            >
+                                Submit request
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
