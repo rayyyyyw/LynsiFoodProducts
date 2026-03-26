@@ -1022,7 +1022,7 @@ export default function Welcome({
                                     fill="rgba(255,255,255,0.15)"
                                 />
                             </svg>
-                        </div>
+                                    </div>
                     ))}
                     {/* Leaf shape B — wide oval */}
                     {[3, 6, 9, 12, 15].map((n) => (
@@ -1056,7 +1056,7 @@ export default function Welcome({
                                     fill="none"
                                 />
                             </svg>
-                        </div>
+                                </div>
                     ))}
                     {/* Leaf shape C — maple-ish */}
                     {[5, 8, 11, 14].map((n) => (
@@ -1179,7 +1179,7 @@ export default function Welcome({
                                 style={{ color: P.white, margin: '0 0 4px' }}
                             >
                                 {content.hero.titleLine1}
-                            </h1>
+                                </h1>
                             <h1
                                 className="section-title display-italic hero-headline anim-fadeinup anim-d3"
                                 style={{ margin: '0 0 20px' }}
@@ -1198,8 +1198,8 @@ export default function Welcome({
                                     margin: '0 auto 28px',
                                 }}
                             >
-                                {content.hero.subtitle}
-                            </p>
+                                    {content.hero.subtitle}
+                                </p>
 
                             {/* CTA buttons — centered */}
                             <div
@@ -1213,36 +1213,36 @@ export default function Welcome({
                                     marginBottom: 40,
                                 }}
                             >
-                                <a
-                                    href="#products"
+                                    <a
+                                        href="#products"
                                     className="btn-primary"
                                     style={{ minWidth: 140 }}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         scrollToSection('products');
                                     }}
-                                >
-                                    {content.hero.ctaPrimary}
-                                </a>
-                                <a
-                                    href="#how-it-works"
+                                    >
+                                        {content.hero.ctaPrimary}
+                                    </a>
+                                    <a
+                                        href="#how-it-works"
                                     className="btn-ghost-light"
                                     style={{ minWidth: 140 }}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         scrollToSection('how-it-works');
                                     }}
-                                >
-                                    {content.hero.ctaSecondary}
-                                </a>
-                            </div>
+                                    >
+                                        {content.hero.ctaSecondary}
+                                    </a>
+                                </div>
 
                             {/* Trusted brands — replaces hero stats strip */}
                             {(content.partners?.items?.length ?? 0) > 0 && (
                                 <div
                                     className="anim-fadeinup anim-d6"
-                                    style={{
-                                        width: '100%',
+                                            style={{
+                                                width: '100%',
                                         maxWidth: 920,
                                         margin: '0 auto',
                                         paddingTop: 22,
@@ -1266,9 +1266,9 @@ export default function Welcome({
                                                     {name}
                                                 </span>
                                             ))}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
                         </div>
                     </div>
                 </section>
@@ -1302,7 +1302,7 @@ export default function Welcome({
                             <div>
                                 <div className="badge badge-light">
                                     {content.products.badge}
-                                </div>
+                            </div>
                                 <h2
                                     className="section-title"
                                     style={{ color: P.textDark }}
@@ -1338,13 +1338,13 @@ export default function Welcome({
                         <div className="grid-products">
                             {featuredProducts && featuredProducts.length > 0
                                 ? featuredProducts.map((p) => {
-                                      const minPrice = p.variants?.length
+                                        const minPrice = p.variants?.length
                                           ? Math.min(
                                                 ...p.variants.map((v) =>
                                                     Number(v.price),
                                                 ),
                                             )
-                                          : null;
+                                            : null;
                                       const firstVariant = p.variants?.[0];
                                       const canAdd = !!(
                                           firstVariant &&
@@ -1353,14 +1353,14 @@ export default function Welcome({
                                       const addToCart = (
                                           e: React.MouseEvent,
                                       ) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
+                                            e.preventDefault();
+                                            e.stopPropagation();
                                           if (!canAdd) return;
-                                          router.post('/cart', {
-                                              variant_id: firstVariant!.id,
-                                              quantity: 1,
-                                          });
-                                      };
+                                            router.post('/cart', {
+                                                variant_id: firstVariant!.id,
+                                                quantity: 1,
+                                            });
+                                        };
                                       const inner = (
                                           <>
                                               <div
@@ -1369,7 +1369,7 @@ export default function Welcome({
                                                       background: '#ecfdf5',
                                                   }}
                                               >
-                                                  {p.image_url ? (
+                                                {p.image_url ? (
                                                       <img
                                                           src={p.image_url}
                                                           alt={p.name}
@@ -1391,7 +1391,7 @@ export default function Welcome({
                                                       flexDirection: 'column',
                                                   }}
                                               >
-                                                  {p.category && (
+                                                    {p.category && (
                                                       <div
                                                           style={{
                                                               fontSize: 11,
@@ -1404,9 +1404,9 @@ export default function Welcome({
                                                               marginBottom: 6,
                                                           }}
                                                       >
-                                                          {p.category}
-                                                      </div>
-                                                  )}
+                                                            {p.category}
+                                                        </div>
+                                                    )}
                                                   <h3
                                                       style={{
                                                           fontSize: 16,
@@ -1416,9 +1416,9 @@ export default function Welcome({
                                                           lineHeight: 1.4,
                                                       }}
                                                   >
-                                                      {p.name}
-                                                  </h3>
-                                                  {p.description && (
+                                                        {p.name}
+                                                    </h3>
+                                                    {p.description && (
                                                       <p
                                                           style={{
                                                               fontSize: 13,
@@ -1434,9 +1434,9 @@ export default function Welcome({
                                                                   'hidden',
                                                           }}
                                                       >
-                                                          {p.description}
-                                                      </p>
-                                                  )}
+                                                            {p.description}
+                                                        </p>
+                                                    )}
                                                   <div
                                                       style={{
                                                           marginTop: 'auto',
@@ -1448,9 +1448,9 @@ export default function Welcome({
                                                           gap: 12,
                                                       }}
                                                   >
-                                                      <div>
-                                                          {minPrice != null && (
-                                                              <>
+                                                        <div>
+                                                            {minPrice != null && (
+                                                                <>
                                                                   <span
                                                                       style={{
                                                                           fontSize: 13,
@@ -1472,41 +1472,41 @@ export default function Welcome({
                                                                           2,
                                                                       )}
                                                                   </span>
-                                                              </>
-                                                          )}
-                                                      </div>
-                                                      <button
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                        <button
                                                           className="add-btn"
-                                                          onClick={addToCart}
+                                                            onClick={addToCart}
                                                           disabled={!canAdd}
                                                           aria-label={
                                                               canAdd
                                                                   ? `Add ${p.name} to cart`
                                                                   : `${p.name} out of stock`
                                                           }
-                                                      >
-                                                          +
-                                                      </button>
-                                                  </div>
-                                              </div>
-                                          </>
-                                      );
-                                      return p.slug ? (
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        );
+                                        return p.slug ? (
                                           <Link
                                               key={p.id}
                                               href={`/shop/product/${p.slug}`}
                                               className="product-card glass-light"
                                           >
                                               {inner}
-                                          </Link>
-                                      ) : (
+                                            </Link>
+                                        ) : (
                                           <div
                                               key={p.id}
                                               className="product-card glass-light"
                                           >
                                               {inner}
-                                          </div>
-                                      );
+                                            </div>
+                                        );
                                   })
                                 : (content.products.items ?? []).map((p) => (
                                       <div
@@ -1529,14 +1529,14 @@ export default function Welcome({
                                                       '0 2px 10px rgba(3,26,12,0.08)',
                                               }}
                                           >
-                                              {p.badge}
-                                          </div>
+                                                {p.badge}
+                                            </div>
                                           <div
                                               className="product-img"
                                               style={{ background: p.color }}
                                           >
-                                              {p.icon}
-                                          </div>
+                                                {p.icon}
+                                            </div>
                                           <div
                                               style={{
                                                   fontSize: 11,
@@ -1547,8 +1547,8 @@ export default function Welcome({
                                                   marginBottom: 6,
                                               }}
                                           >
-                                              {p.category}
-                                          </div>
+                                                    {p.category}
+                                                </div>
                                           <h3
                                               style={{
                                                   fontSize: 16,
@@ -1558,8 +1558,8 @@ export default function Welcome({
                                                   lineHeight: 1.4,
                                               }}
                                           >
-                                              {p.name}
-                                          </h3>
+                                                    {p.name}
+                                                </h3>
                                           <div
                                               style={{
                                                   marginTop: 'auto',
@@ -1570,10 +1570,10 @@ export default function Welcome({
                                                   gap: 12,
                                               }}
                                           >
-                                              <div>
+                                                    <div>
                                                   <span
                                                       className="display"
-                                                      style={{
+                                                        style={{
                                                           fontSize: 22,
                                                           fontWeight: 700,
                                                           color: P.emerald,
@@ -1592,12 +1592,12 @@ export default function Welcome({
                                               </div>
                                               <button
                                                   className="add-btn"
-                                                  aria-label={`Add ${p.name} to cart`}
-                                              >
-                                                  +
-                                              </button>
-                                          </div>
-                                      </div>
+                                                        aria-label={`Add ${p.name} to cart`}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
                                   ))}
                         </div>
                     </div>
@@ -1959,8 +1959,8 @@ export default function Welcome({
                                             marginBottom: 8,
                                         }}
                                     >
-                                        {loc.phone}
-                                    </a>
+                                            {loc.phone}
+                                        </a>
                                     <p
                                         style={{
                                             fontSize: 13,
@@ -2088,7 +2088,7 @@ export default function Welcome({
                                 style={{
                                     borderRadius: 28,
                                     padding: 'clamp(36px,5vw,56px) 32px',
-                                    textAlign: 'center',
+                                textAlign: 'center',
                                     position: 'relative',
                                     overflow: 'hidden',
                                 }}
@@ -2358,8 +2358,8 @@ export default function Welcome({
                                             }}
                                         >
                                             {c.icon}
-                                        </div>
-                                        <div>
+                                </div>
+                                <div>
                                             <div
                                                 style={{
                                                     fontSize: 11,
@@ -2371,7 +2371,7 @@ export default function Welcome({
                                                 }}
                                             >
                                                 {c.label}
-                                            </div>
+                                </div>
                                             <div
                                                 style={{
                                                     fontSize: 15,
@@ -2380,8 +2380,8 @@ export default function Welcome({
                                                 }}
                                             >
                                                 {c.value}
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
                                     </a>
                                 ) : (
                                     <div
@@ -2404,10 +2404,10 @@ export default function Welcome({
                                             }}
                                         >
                                             {c.icon}
-                                        </div>
+                        </div>
                                         <div>
                                             <div
-                                                style={{
+                                style={{
                                                     fontSize: 11,
                                                     fontWeight: 700,
                                                     color: P.textMuted,

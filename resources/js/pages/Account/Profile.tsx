@@ -343,6 +343,14 @@ export default function BuyerProfile({
 }) {
     const { auth } = usePage().props as { auth: { user: AuthUser } };
     const user = auth.user;
+    const openReceiptDownload = (orderNumber: string) => {
+        if (typeof window === 'undefined') return;
+        window.open(
+            `/checkout/confirmation/${orderNumber}?download=1`,
+            '_blank',
+            'noopener,noreferrer',
+        );
+    };
     const fileRef = useRef<HTMLInputElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const [tab, setTab] = useState<Tab>('profile');
@@ -2603,7 +2611,7 @@ export default function BuyerProfile({
                                             style={{
                                                 display: 'flex',
                                                 flexDirection: 'column',
-                                                gap: 10,
+                                                gap: 14,
                                             }}
                                         >
                                             {orders.data.map((order) => {
@@ -2641,10 +2649,12 @@ export default function BuyerProfile({
                                                     <div
                                                         key={order.id}
                                                         style={{
-                                                            border: `1px solid ${P.border}`,
-                                                            borderRadius: 12,
+                                                            border: `1px solid ${P.borderGray}`,
+                                                            borderRadius: 14,
                                                             padding:
-                                                                '14px 14px',
+                                                                '16px 14px',
+                                                            boxShadow:
+                                                                '0 4px 14px rgba(15,23,42,0.04)',
                                                         }}
                                                     >
                                                         <div
@@ -2698,47 +2708,65 @@ export default function BuyerProfile({
                                                                     display:
                                                                         'flex',
                                                                     alignItems:
-                                                                        'center',
-                                                                    gap: 10,
+                                                                        'flex-end',
+                                                                    gap: 8,
+                                                                    flexDirection:
+                                                                        'column',
                                                                 }}
                                                             >
-                                                                <span
-                                                                    className="acc-order-status"
+                                                                <div
                                                                     style={{
-                                                                        background:
-                                                                            statusStyle.bg,
-                                                                        color: statusStyle.color,
+                                                                        display:
+                                                                            'flex',
+                                                                        alignItems:
+                                                                            'center',
+                                                                        gap: 10,
                                                                     }}
                                                                 >
-                                                                    {
-                                                                        normalizedStatus
-                                                                    }
-                                                                </span>
-                                                                <span
-                                                                    style={{
-                                                                        fontWeight: 800,
-                                                                        color: P.primary,
-                                                                    }}
-                                                                >
-                                                                    ₱
-                                                                    {Number(
-                                                                        order.total,
-                                                                    ).toLocaleString(
-                                                                        'en-PH',
+                                                                    <span
+                                                                        className="acc-order-status"
+                                                                        style={{
+                                                                            background:
+                                                                                statusStyle.bg,
+                                                                            color: statusStyle.color,
+                                                                        }}
+                                                                    >
                                                                         {
-                                                                            minimumFractionDigits: 2,
-                                                                        },
-                                                                    )}
-                                                                </span>
+                                                                            normalizedStatus
+                                                                        }
+                                                                    </span>
+                                                                    <span
+                                                                        style={{
+                                                                            fontWeight: 800,
+                                                                            color: P.primary,
+                                                                        }}
+                                                                    >
+                                                                        ₱
+                                                                        {Number(
+                                                                            order.total,
+                                                                        ).toLocaleString(
+                                                                            'en-PH',
+                                                                            {
+                                                                                minimumFractionDigits: 2,
+                                                                            },
+                                                                        )}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div
                                                             style={{
                                                                 marginTop: 10,
                                                                 display: 'flex',
+                                                                justifyContent:
+                                                                    'space-between',
+                                                                alignItems:
+                                                                    'center',
                                                                 gap: 8,
                                                                 flexWrap:
                                                                     'wrap',
+                                                                borderTop: `1px solid ${P.borderGray}`,
+                                                                paddingTop: 12,
                                                             }}
                                                         >
                                                             <Link
@@ -2747,35 +2775,98 @@ export default function BuyerProfile({
                                                                     textDecoration:
                                                                         'none',
                                                                     color: P.accent,
-                                                                    fontWeight: 600,
-                                                                    fontSize: 13,
+                                                                    fontWeight: 700,
+                                                                    fontSize: 12,
+                                                                    letterSpacing:
+                                                                        '0.01em',
                                                                 }}
                                                             >
                                                                 View order
                                                                 details
                                                             </Link>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    router.post(
-                                                                        `/my-purchases/${order.id}/reorder`,
-                                                                    )
-                                                                }
+                                                            <div
                                                                 style={{
-                                                                    border: `1px solid ${P.border}`,
-                                                                    borderRadius: 999,
-                                                                    background:
-                                                                        P.accentBg,
-                                                                    color: P.primary,
-                                                                    fontSize: 12,
-                                                                    fontWeight: 700,
-                                                                    padding:
-                                                                        '5px 10px',
-                                                                    cursor: 'pointer',
+                                                                    display:
+                                                                        'flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    gap: 8,
+                                                                    flexWrap:
+                                                                        'wrap',
+                                                                    marginLeft:
+                                                                        'auto',
                                                                 }}
                                                             >
-                                                                Reorder
-                                                            </button>
+                                                                {order.return_status &&
+                                                                    order.return_status !==
+                                                                        'none' && (
+                                                                        <span
+                                                                            style={{
+                                                                                border: `1px solid ${P.border}`,
+                                                                                borderRadius: 999,
+                                                                                background:
+                                                                                    P.accentBg,
+                                                                                color: P.primary,
+                                                                                fontSize: 11,
+                                                                                fontWeight: 700,
+                                                                                padding:
+                                                                                    '7px 10px',
+                                                                            }}
+                                                                        >
+                                                                            Return:{' '}
+                                                                            {
+                                                                                order.return_status
+                                                                            }
+                                                                        </span>
+                                                                    )}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        openReceiptDownload(
+                                                                            order.order_number,
+                                                                        )
+                                                                    }
+                                                                    style={{
+                                                                        border: `1px solid ${P.borderGray}`,
+                                                                        borderRadius: 10,
+                                                                        background:
+                                                                            P.white,
+                                                                        color: P.text,
+                                                                        fontSize: 12,
+                                                                        fontWeight: 700,
+                                                                        padding:
+                                                                            '7px 11px',
+                                                                        minHeight: 36,
+                                                                        cursor: 'pointer',
+                                                                    }}
+                                                                >
+                                                                    Receipt
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        router.post(
+                                                                            `/my-purchases/${order.id}/reorder`,
+                                                                        )
+                                                                    }
+                                                                    style={{
+                                                                        border: 'none',
+                                                                        borderRadius: 10,
+                                                                        background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`,
+                                                                        color: P.white,
+                                                                        fontSize: 12,
+                                                                        fontWeight: 800,
+                                                                        padding:
+                                                                            '8px 12px',
+                                                                        minHeight: 36,
+                                                                        cursor: 'pointer',
+                                                                        boxShadow:
+                                                                            '0 2px 8px rgba(6,95,70,0.25)',
+                                                                    }}
+                                                                >
+                                                                    Reorder
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 );

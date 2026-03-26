@@ -137,22 +137,80 @@ const PAYMENT_METHODS = [
     {
         id: 'cod',
         label: 'Cash on Delivery',
-        icon: '💵',
+        icon: 'cod',
         desc: 'Pay when your order arrives.',
     },
     {
         id: 'gcash',
         label: 'GCash',
-        icon: '📱',
+        icon: 'gcash',
         desc: 'Pay via GCash mobile wallet.',
     },
     {
         id: 'bank_transfer',
         label: 'Bank Transfer',
-        icon: '🏦',
+        icon: 'bank_transfer',
         desc: 'Direct bank deposit or online transfer.',
     },
 ];
+
+function PaymentIcon({ kind, active }: { kind: string; active: boolean }) {
+    const color = active ? P.primary : '#6b7280';
+    if (kind === 'cod') {
+        return (
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <rect x="1" y="3" width="15" height="13" />
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                <circle cx="5.5" cy="18.5" r="2.5" />
+                <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg>
+        );
+    }
+    if (kind === 'gcash') {
+        return (
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <rect x="5" y="2" width="14" height="20" rx="2" />
+                <path d="M12 18h.01" />
+                <path d="M8 6h8M8 10h8M8 14h5" />
+            </svg>
+        );
+    }
+    return (
+        <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="M3 10h18" />
+            <path d="M6 10V7a6 6 0 0 1 12 0v3" />
+            <rect x="3" y="10" width="18" height="10" rx="2" />
+            <path d="M7 15h.01M12 15h.01M17 15h.01" />
+        </svg>
+    );
+}
 
 function formatPrice(n: number) {
     return `₱${Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -229,6 +287,7 @@ function DeliveryMapPicker({
     const [suggestions, setSuggestions] = useState<
         Array<{ display_name: string; lat: string; lon: string }>
     >([]);
+    const [suggestionsLoading, setSuggestionsLoading] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const mapRef = useRef<L.Map | null>(null);
 
@@ -317,10 +376,14 @@ function DeliveryMapPicker({
 
     useEffect(() => {
         const q = search.trim();
-        if (q.length < 3) {
+        if (q.length < 1) {
             setSuggestions([]);
+            setShowSuggestions(false);
+            setSuggestionsLoading(false);
             return;
         }
+        setShowSuggestions(true);
+        setSuggestionsLoading(true);
         const t = window.setTimeout(async () => {
             try {
                 const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=ph&q=${encodeURIComponent(q)}&limit=5`;
@@ -331,18 +394,19 @@ function DeliveryMapPicker({
                     lon: string;
                 }>;
                 setSuggestions(json);
-                setShowSuggestions(true);
             } catch {
                 setSuggestions([]);
+            } finally {
+                setSuggestionsLoading(false);
             }
-        }, 280);
+        }, 120);
         return () => window.clearTimeout(t);
     }, [search]);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', gap: 8 }}>
-                <div style={{ position: 'relative', flex: 1 }}>
+                <div style={{ position: 'relative', flex: 1, zIndex: 20 }}>
                     <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -370,65 +434,6 @@ function DeliveryMapPicker({
                             fontSize: 14,
                         }}
                     />
-                    {showSuggestions && suggestions.length > 0 && (
-                        <div
-                            style={{
-                                position: 'absolute',
-                                top: 'calc(100% + 6px)',
-                                left: 0,
-                                right: 0,
-                                zIndex: 60,
-                                background: '#fff',
-                                border: `1px solid ${P.borderGray}`,
-                                borderRadius: 10,
-                                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                                maxHeight: 220,
-                                overflowY: 'auto',
-                            }}
-                        >
-                            {suggestions.map((s, idx) => (
-                                <button
-                                    key={`${s.lat}-${s.lon}-${idx}`}
-                                    type="button"
-                                    onClick={() => {
-                                        const lat = Number(s.lat);
-                                        const lng = Number(s.lon);
-                                        setSearch(s.display_name);
-                                        setPosition([lat, lng]);
-                                        onChange(lat, lng);
-                                        mapRef.current?.flyTo(
-                                            [lat, lng],
-                                            mapRef.current.getZoom(),
-                                            {
-                                                animate: true,
-                                                duration: 0.35,
-                                            },
-                                        );
-                                        setShowSuggestions(false);
-                                        setMapNote(
-                                            'Pin updated from place suggestion.',
-                                        );
-                                    }}
-                                    style={{
-                                        width: '100%',
-                                        textAlign: 'left',
-                                        border: 'none',
-                                        borderBottom:
-                                            idx < suggestions.length - 1
-                                                ? `1px solid ${P.borderGray}`
-                                                : 'none',
-                                        background: '#fff',
-                                        padding: '10px 12px',
-                                        fontSize: 13,
-                                        color: P.text,
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    {s.display_name}
-                                </button>
-                            ))}
-                        </div>
-                    )}
                 </div>
                 <button
                     type="button"
@@ -463,6 +468,73 @@ function DeliveryMapPicker({
                     ◎
                 </button>
             </div>
+
+            {showSuggestions &&
+                (suggestionsLoading || suggestions.length > 0) && (
+                    <div
+                        style={{
+                            background: '#fff',
+                            border: `1px solid ${P.borderGray}`,
+                            borderRadius: 10,
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                            maxHeight: 220,
+                            overflowY: 'auto',
+                        }}
+                    >
+                        {suggestionsLoading && (
+                            <div
+                                style={{
+                                    padding: '10px 12px',
+                                    fontSize: 13,
+                                    color: P.textMuted,
+                                }}
+                            >
+                                Searching places...
+                            </div>
+                        )}
+                        {suggestions.map((s, idx) => (
+                            <button
+                                key={`${s.lat}-${s.lon}-${idx}`}
+                                type="button"
+                                onClick={() => {
+                                    const lat = Number(s.lat);
+                                    const lng = Number(s.lon);
+                                    setSearch(s.display_name);
+                                    setPosition([lat, lng]);
+                                    onChange(lat, lng);
+                                    mapRef.current?.flyTo(
+                                        [lat, lng],
+                                        mapRef.current.getZoom(),
+                                        {
+                                            animate: true,
+                                            duration: 0.35,
+                                        },
+                                    );
+                                    setShowSuggestions(false);
+                                    setMapNote(
+                                        'Pin updated from place suggestion.',
+                                    );
+                                }}
+                                style={{
+                                    width: '100%',
+                                    textAlign: 'left',
+                                    border: 'none',
+                                    borderBottom:
+                                        idx < suggestions.length - 1
+                                            ? `1px solid ${P.borderGray}`
+                                            : 'none',
+                                    background: '#fff',
+                                    padding: '10px 12px',
+                                    fontSize: 13,
+                                    color: P.text,
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                {s.display_name}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
             <div
                 style={{
@@ -2317,6 +2389,10 @@ export default function CartIndex({
                                                                     selected
                                                                         ? P.accentBg
                                                                         : P.white,
+                                                                boxShadow:
+                                                                    selected
+                                                                        ? '0 2px 10px rgba(6,95,70,0.08)'
+                                                                        : 'none',
                                                                 transition:
                                                                     'all 0.15s',
                                                             }}
@@ -2341,13 +2417,34 @@ export default function CartIndex({
                                                                     height: 17,
                                                                 }}
                                                             />
-                                                            <span
+                                                            <div
                                                                 style={{
-                                                                    fontSize: 20,
+                                                                    width: 34,
+                                                                    height: 34,
+                                                                    borderRadius: 10,
+                                                                    display:
+                                                                        'inline-flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    justifyContent:
+                                                                        'center',
+                                                                    background:
+                                                                        selected
+                                                                            ? '#e7f6ef'
+                                                                            : '#f8fafc',
+                                                                    border: `1px solid ${selected ? P.border : P.borderGray}`,
+                                                                    flexShrink: 0,
                                                                 }}
                                                             >
-                                                                {pm.icon}
-                                                            </span>
+                                                                <PaymentIcon
+                                                                    kind={
+                                                                        pm.icon
+                                                                    }
+                                                                    active={
+                                                                        selected
+                                                                    }
+                                                                />
+                                                            </div>
                                                             <div>
                                                                 <div
                                                                     style={{
@@ -2582,19 +2679,25 @@ export default function CartIndex({
                                         fontWeight: 800,
                                         color: P.text,
                                         marginBottom: 16,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
                                     }}
                                 >
-                                    Order Summary
+                                    <span>Order Summary</span>
                                     <span
                                         style={{
                                             fontSize: 12,
-                                            fontWeight: 500,
-                                            color: P.textMuted,
-                                            marginLeft: 8,
+                                            fontWeight: 600,
+                                            color: P.primary,
+                                            background: P.accentBg,
+                                            border: `1px solid ${P.border}`,
+                                            borderRadius: 999,
+                                            padding: '3px 9px',
                                         }}
                                     >
-                                        ({totalQty}{' '}
-                                        {totalQty === 1 ? 'item' : 'items'})
+                                        {totalQty}{' '}
+                                        {totalQty === 1 ? 'item' : 'items'}
                                     </span>
                                 </h2>
 
@@ -2926,9 +3029,33 @@ export default function CartIndex({
                                             fontSize: 11,
                                             color: P.textLight,
                                             marginTop: 14,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: 6,
                                         }}
                                     >
-                                        🔒 Your order is safe and secure
+                                        <svg
+                                            width="12"
+                                            height="12"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            style={{ color: P.primary }}
+                                        >
+                                            <rect
+                                                x="3"
+                                                y="11"
+                                                width="18"
+                                                height="11"
+                                                rx="2"
+                                            />
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                        </svg>
+                                        Your order is safe and secure
                                     </p>
                                 )}
                             </div>

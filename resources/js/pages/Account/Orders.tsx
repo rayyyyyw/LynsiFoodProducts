@@ -85,6 +85,15 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
         return () => document.removeEventListener('mousedown', onDocClick);
     }, []);
 
+    const openReceiptDownload = (orderNumber: string) => {
+        if (typeof window === 'undefined') return;
+        window.open(
+            `/checkout/confirmation/${orderNumber}?download=1`,
+            '_blank',
+            'noopener,noreferrer',
+        );
+    };
+
     return (
         <>
             <Head title="My Orders – Lynsi Food Products" />
@@ -143,7 +152,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                         justify-content: space-between;
                     }
                     .orders-card-actions {
-                        justify-content: flex-start !important;
+                        justify-content: space-between !important;
                         flex-wrap: wrap !important;
                         row-gap: 8px !important;
                     }
@@ -527,7 +536,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    gap: 12,
+                                    gap: 14,
                                 }}
                             >
                                 {orders.data.map((order) => {
@@ -542,9 +551,9 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                             style={{
                                                 display: 'block',
                                                 background: P.card,
-                                                borderRadius: 16,
-                                                border: `1px solid ${P.border}`,
-                                                padding: 20,
+                                                borderRadius: 14,
+                                                border: `1px solid ${P.borderGray}`,
+                                                padding: 18,
                                                 textDecoration: 'none',
                                                 color: 'inherit',
                                                 transition:
@@ -617,37 +626,51 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                                     className="orders-card-meta"
                                                     style={{
                                                         display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: 12,
+                                                        alignItems: 'flex-end',
+                                                        gap: 8,
                                                         flexWrap: 'wrap',
+                                                        flexDirection: 'column',
                                                     }}
                                                 >
-                                                    <span
+                                                    <div
                                                         style={{
-                                                            fontSize: 12,
-                                                            fontWeight: 600,
-                                                            padding: '4px 10px',
-                                                            borderRadius: 50,
-                                                            background:
-                                                                statusStyle.bg,
-                                                            color: statusStyle.color,
-                                                            textTransform:
-                                                                'capitalize',
+                                                            display: 'flex',
+                                                            alignItems:
+                                                                'center',
+                                                            gap: 10,
+                                                            flexWrap: 'wrap',
+                                                            justifyContent:
+                                                                'flex-end',
                                                         }}
                                                     >
-                                                        {order.status}
-                                                    </span>
-                                                    <span
-                                                        style={{
-                                                            fontSize: 16,
-                                                            fontWeight: 800,
-                                                            color: P.primary,
-                                                        }}
-                                                    >
-                                                        {formatPrice(
-                                                            order.total,
-                                                        )}
-                                                    </span>
+                                                        <span
+                                                            style={{
+                                                                fontSize: 12,
+                                                                fontWeight: 600,
+                                                                padding:
+                                                                    '4px 10px',
+                                                                borderRadius: 50,
+                                                                background:
+                                                                    statusStyle.bg,
+                                                                color: statusStyle.color,
+                                                                textTransform:
+                                                                    'capitalize',
+                                                            }}
+                                                        >
+                                                            {order.status}
+                                                        </span>
+                                                        <span
+                                                            style={{
+                                                                fontSize: 16,
+                                                                fontWeight: 800,
+                                                                color: P.primary,
+                                                            }}
+                                                        >
+                                                            {formatPrice(
+                                                                order.total,
+                                                            )}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div
@@ -659,40 +682,102 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                                     justifyContent:
                                                         'space-between',
                                                     gap: 10,
+                                                    flexWrap: 'wrap',
+                                                    borderTop: `1px solid ${P.borderGray}`,
+                                                    paddingTop: 12,
                                                 }}
                                             >
                                                 <span
                                                     className="orders-card-view"
                                                     style={{
-                                                        fontSize: 13,
-                                                        color: P.accent,
-                                                        fontWeight: 600,
-                                                    }}
-                                                >
-                                                    View order details →
-                                                </span>
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        router.post(
-                                                            `/my-purchases/${order.id}/reorder`,
-                                                        );
-                                                    }}
-                                                    style={{
-                                                        border: `1px solid ${P.border}`,
-                                                        borderRadius: 999,
-                                                        background: P.accentBg,
-                                                        color: P.primary,
                                                         fontSize: 12,
+                                                        color: P.accent,
                                                         fontWeight: 700,
-                                                        padding: '6px 10px',
-                                                        cursor: 'pointer',
+                                                        letterSpacing: '0.01em',
                                                     }}
                                                 >
-                                                    Reorder
-                                                </button>
+                                                    View order details
+                                                </span>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 8,
+                                                        flexWrap: 'wrap',
+                                                        marginLeft: 'auto',
+                                                    }}
+                                                >
+                                                    {order.return_status &&
+                                                        order.return_status !==
+                                                            'none' && (
+                                                            <span
+                                                                style={{
+                                                                    border: `1px solid ${P.border}`,
+                                                                    borderRadius: 999,
+                                                                    background:
+                                                                        P.accentBg,
+                                                                    color: P.primary,
+                                                                    fontSize: 11,
+                                                                    fontWeight: 700,
+                                                                    padding:
+                                                                        '7px 10px',
+                                                                }}
+                                                            >
+                                                                Return:{' '}
+                                                                {
+                                                                    order.return_status
+                                                                }
+                                                            </span>
+                                                        )}
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            openReceiptDownload(
+                                                                order.order_number,
+                                                            );
+                                                        }}
+                                                        style={{
+                                                            border: `1px solid ${P.borderGray}`,
+                                                            borderRadius: 10,
+                                                            background: P.white,
+                                                            color: P.text,
+                                                            fontSize: 12,
+                                                            fontWeight: 700,
+                                                            padding: '8px 12px',
+                                                            minHeight: 36,
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        Receipt
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            router.post(
+                                                                `/my-purchases/${order.id}/reorder`,
+                                                            );
+                                                        }}
+                                                        style={{
+                                                            border: 'none',
+                                                            borderRadius: 10,
+                                                            background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`,
+                                                            color: P.white,
+                                                            fontSize: 12,
+                                                            fontWeight: 800,
+                                                            padding: '8px 12px',
+                                                            minHeight: 36,
+                                                            cursor: 'pointer',
+                                                            boxShadow:
+                                                                '0 2px 8px rgba(6,95,70,0.25)',
+                                                        }}
+                                                    >
+                                                        Reorder
+                                                    </button>
+                                                </div>
                                                 {order.status === 'delivered' &&
                                                     (order.return_status ??
                                                         'none') === 'none' && (
@@ -724,28 +809,6 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                                             Request Return
                                                         </button>
                                                     )}
-                                                {order.return_status &&
-                                                    order.return_status !==
-                                                        'none' && (
-                                                        <span
-                                                            style={{
-                                                                border: `1px solid ${P.border}`,
-                                                                borderRadius: 999,
-                                                                background:
-                                                                    P.accentBg,
-                                                                color: P.primary,
-                                                                fontSize: 12,
-                                                                fontWeight: 700,
-                                                                padding:
-                                                                    '6px 10px',
-                                                            }}
-                                                        >
-                                                            Return:{' '}
-                                                            {
-                                                                order.return_status
-                                                            }
-                                                        </span>
-                                                    )}
                                             </div>
                                         </Link>
                                     );
@@ -767,8 +830,8 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                             key={i}
                                             href={link.url || '#'}
                                             style={{
-                                                padding: '8px 14px',
-                                                borderRadius: 8,
+                                                padding: '9px 16px',
+                                                borderRadius: 10,
                                                 fontSize: 13,
                                                 fontWeight: 600,
                                                 textDecoration: 'none',
