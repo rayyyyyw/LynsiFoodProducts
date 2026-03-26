@@ -24,16 +24,25 @@ class CheckoutController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
+            'fulfillment_method' => ['nullable', 'in:delivery,pickup'],
             'shipping_name' => ['required', 'string', 'max:100'],
             'shipping_phone' => ['required', 'string', 'max:30'],
-            'shipping_address' => ['required', 'string', 'max:255'],
-            'shipping_city' => ['required', 'string', 'max:100'],
-            'shipping_province' => ['required', 'string', 'max:100'],
+            'shipping_address' => ['nullable', 'string', 'max:255'],
+            'shipping_city' => ['nullable', 'string', 'max:100'],
+            'shipping_province' => ['nullable', 'string', 'max:100'],
             'shipping_zip' => ['nullable', 'string', 'max:10'],
             'payment_method' => ['required', 'in:cod,gcash,bank_transfer'],
             'coupon_code' => ['nullable', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
+        $fulfillmentMethod = $data['fulfillment_method'] ?? 'delivery';
+        if ($fulfillmentMethod === 'delivery') {
+            $request->validate([
+                'shipping_address' => ['required', 'string', 'max:255'],
+                'shipping_city' => ['required', 'string', 'max:100'],
+                'shipping_province' => ['required', 'string', 'max:100'],
+            ]);
+        }
 
         $userId = $request->user()->id;
         $cartItems = CartItem::where('user_id', $userId)
@@ -45,7 +54,9 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $cartItems->reduce(fn ($carry, $item) => $carry + ($item->variant->price * $item->quantity), 0.0);
-        $shippingFee = $this->estimateShippingFee($data['shipping_province'] ?? '');
+        $shippingFee = $fulfillmentMethod === 'pickup'
+            ? 0.0
+            : $this->estimateShippingFee($data['shipping_province'] ?? '');
         $appliedCouponCode = null;
         $discountAmount = 0.0;
         if (! empty($data['coupon_code'])) {
@@ -69,9 +80,15 @@ class CheckoutController extends Controller
                 'payment_status' => 'unpaid',
                 'shipping_name' => $data['shipping_name'],
                 'shipping_phone' => $data['shipping_phone'],
-                'shipping_address' => $data['shipping_address'],
-                'shipping_city' => $data['shipping_city'],
-                'shipping_province' => $data['shipping_province'],
+                'shipping_address' => $fulfillmentMethod === 'pickup'
+                    ? 'Store Pickup'
+                    : ($data['shipping_address'] ?? ''),
+                'shipping_city' => $fulfillmentMethod === 'pickup'
+                    ? 'Store Pickup'
+                    : ($data['shipping_city'] ?? ''),
+                'shipping_province' => $fulfillmentMethod === 'pickup'
+                    ? 'Store Pickup'
+                    : ($data['shipping_province'] ?? ''),
                 'shipping_zip' => $data['shipping_zip'] ?? null,
                 'subtotal' => $subtotal,
                 'shipping_fee' => $shippingFee,

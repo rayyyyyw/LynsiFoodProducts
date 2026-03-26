@@ -366,9 +366,23 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified', 'admin'])->name('dashboard');
 
 Route::get('/account', function (\Illuminate\Http\Request $request) {
+    $orders = Order::where('user_id', $request->user()->id)
+        ->latest()
+        ->paginate(10)
+        ->through(fn (Order $order) => [
+            'id' => $order->id,
+            'order_number' => $order->order_number,
+            'status' => $order->status,
+            'return_status' => $order->return_status,
+            'total' => (float) $order->total,
+            'created_at' => $order->created_at->toDateTimeString(),
+            'item_count' => $order->items()->count(),
+        ]);
+
     return Inertia::render('Account/Profile', [
         'mustVerifyEmail' => $request->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail,
         'status' => $request->session()->get('status'),
+        'orders' => $orders,
     ]);
 })->middleware(['auth'])->name('account.profile');
 

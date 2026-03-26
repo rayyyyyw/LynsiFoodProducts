@@ -1,6 +1,7 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useRef, useState } from 'react';
+import { LandingNav } from '@/components/LandingNav';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
@@ -172,6 +173,7 @@ function estimateCouponDiscount(code: string, subtotal: number): number {
 }
 
 type CheckoutFormData = {
+    fulfillment_method: 'delivery' | 'pickup';
     shipping_name: string;
     shipping_phone: string;
     shipping_address: string;
@@ -437,6 +439,7 @@ export default function CartIndex({
     const totalQty = items.reduce((s, i) => s + i.quantity, 0);
 
     const { data, setData, post, processing, errors } = useForm({
+        fulfillment_method: 'delivery' as const,
         shipping_name: user?.name ?? '',
         shipping_phone: user?.phone ?? '',
         shipping_address: user?.address ?? '',
@@ -447,7 +450,10 @@ export default function CartIndex({
         coupon_code: '',
         notes: '',
     });
-    const shippingFee = estimateShippingFee(data.shipping_province ?? '');
+    const shippingFee =
+        data.fulfillment_method === 'pickup'
+            ? 0
+            : estimateShippingFee(data.shipping_province ?? '');
     const discountAmount = estimateCouponDiscount(
         data.coupon_code ?? '',
         subtotal,
@@ -511,8 +517,8 @@ export default function CartIndex({
             </Head>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-                *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-                body { font-family: 'Inter', sans-serif; background: ${P.bg}; }
+                .cart-root, .cart-root * { box-sizing: border-box; }
+                .cart-root { font-family: 'Inter', sans-serif; background: ${P.bg}; }
                 input:focus, textarea:focus, select:focus {
                     border-color: ${P.accent} !important;
                     box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
@@ -551,6 +557,7 @@ export default function CartIndex({
                     .confirm-modal-card { margin: 12px !important; max-height: 85vh !important; padding: 20px !important; }
                     .confirm-modal-actions { flex-direction: column !important; }
                     .confirm-modal-actions button { width: 100% !important; }
+                    .checkout-fulfillment-grid { grid-template-columns: 1fr !important; }
                 }
                 @media (max-width: 480px) {
                     .cart-step-text { display: none !important; }
@@ -561,9 +568,12 @@ export default function CartIndex({
                 }
             `}</style>
 
+            <LandingNav activeId="products" auth={auth} />
+
             {/* ── HEADER ── */}
             <header
                 style={{
+                    display: 'none',
                     position: 'sticky',
                     top: 0,
                     zIndex: 100,
@@ -737,7 +747,7 @@ export default function CartIndex({
                     background: P.white,
                     borderBottom: `1px solid ${P.border}`,
                     position: 'sticky',
-                    top: 58,
+                    top: 'clamp(56px, 7vw, 64px)',
                     zIndex: 90,
                 }}
             >
@@ -1454,6 +1464,27 @@ export default function CartIndex({
                                             gap: 20,
                                         }}
                                     >
+                                        <div>
+                                            <button
+                                                type="button"
+                                                onClick={() => goStep(1)}
+                                                style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: 6,
+                                                    padding: '8px 12px',
+                                                    borderRadius: 10,
+                                                    border: `1px solid ${P.border}`,
+                                                    background: P.white,
+                                                    color: P.primary,
+                                                    fontSize: 13,
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                ← Back to Review Cart
+                                            </button>
+                                        </div>
                                         <h1
                                             style={{
                                                 fontSize: 22,
@@ -1465,6 +1496,195 @@ export default function CartIndex({
                                         >
                                             Delivery & Payment
                                         </h1>
+
+                                        <section
+                                            className="checkout-section"
+                                            style={{
+                                                background: P.card,
+                                                borderRadius: 18,
+                                                border: `1px solid ${P.border}`,
+                                                padding: 18,
+                                                boxShadow:
+                                                    '0 1px 6px rgba(6,95,70,0.05)',
+                                            }}
+                                        >
+                                            <h2
+                                                style={{
+                                                    fontSize: 14,
+                                                    fontWeight: 800,
+                                                    color: P.text,
+                                                    marginBottom: 12,
+                                                }}
+                                            >
+                                                How would you like to receive
+                                                your order?
+                                            </h2>
+                                            <div
+                                                className="checkout-fulfillment-grid"
+                                                style={{
+                                                    display: 'grid',
+                                                    gridTemplateColumns:
+                                                        '1fr 1fr',
+                                                    gap: 10,
+                                                }}
+                                            >
+                                                {(
+                                                    [
+                                                        {
+                                                            id: 'delivery',
+                                                            label: 'Delivery',
+                                                            sub: "We'll deliver to your address",
+                                                        },
+                                                        {
+                                                            id: 'pickup',
+                                                            label: 'Pickup',
+                                                            sub: "Pick up from the seller's store",
+                                                        },
+                                                    ] as const
+                                                ).map((opt) => {
+                                                    const selected =
+                                                        data.fulfillment_method ===
+                                                        opt.id;
+                                                    return (
+                                                        <button
+                                                            key={opt.id}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setData(
+                                                                    'fulfillment_method',
+                                                                    opt.id,
+                                                                )
+                                                            }
+                                                            style={{
+                                                                textAlign:
+                                                                    'left',
+                                                                border: `1.5px solid ${selected ? P.primary : P.borderGray}`,
+                                                                borderRadius: 14,
+                                                                background:
+                                                                    selected
+                                                                        ? '#f3fbf7'
+                                                                        : P.white,
+                                                                color: selected
+                                                                    ? P.primary
+                                                                    : P.text,
+                                                                padding:
+                                                                    '14px 14px',
+                                                                boxShadow:
+                                                                    selected
+                                                                        ? '0 4px 14px rgba(6,95,70,0.08)'
+                                                                        : 'none',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
+                                                            <div
+                                                                style={{
+                                                                    display:
+                                                                        'flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    gap: 12,
+                                                                }}
+                                                            >
+                                                                <div
+                                                                    style={{
+                                                                        width: 44,
+                                                                        height: 44,
+                                                                        borderRadius: 12,
+                                                                        display:
+                                                                            'inline-flex',
+                                                                        alignItems:
+                                                                            'center',
+                                                                        justifyContent:
+                                                                            'center',
+                                                                        background:
+                                                                            selected
+                                                                                ? P.primary
+                                                                                : '#f3f4f6',
+                                                                        color: selected
+                                                                            ? '#ffffff'
+                                                                            : '#6b7280',
+                                                                        flexShrink: 0,
+                                                                    }}
+                                                                >
+                                                                    {opt.id ===
+                                                                    'delivery' ? (
+                                                                        <svg
+                                                                            width="22"
+                                                                            height="22"
+                                                                            viewBox="0 0 24 24"
+                                                                            fill="none"
+                                                                            stroke="currentColor"
+                                                                            strokeWidth="2"
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                        >
+                                                                            <rect
+                                                                                x="1"
+                                                                                y="3"
+                                                                                width="15"
+                                                                                height="13"
+                                                                            />
+                                                                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                                                                            <circle
+                                                                                cx="5.5"
+                                                                                cy="18.5"
+                                                                                r="2.5"
+                                                                            />
+                                                                            <circle
+                                                                                cx="18.5"
+                                                                                cy="18.5"
+                                                                                r="2.5"
+                                                                            />
+                                                                        </svg>
+                                                                    ) : (
+                                                                        <svg
+                                                                            width="22"
+                                                                            height="22"
+                                                                            viewBox="0 0 24 24"
+                                                                            fill="none"
+                                                                            stroke="currentColor"
+                                                                            strokeWidth="2"
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                        >
+                                                                            <path d="M3 10l9-7 9 7" />
+                                                                            <path d="M5 10v10h14V10" />
+                                                                            <path d="M9 14h6" />
+                                                                        </svg>
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 16,
+                                                                            fontWeight: 800,
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            opt.label
+                                                                        }
+                                                                    </div>
+                                                                    <div
+                                                                        style={{
+                                                                            marginTop: 2,
+                                                                            fontSize: 13,
+                                                                            color: selected
+                                                                                ? P.secondary
+                                                                                : P.textMuted,
+                                                                            lineHeight: 1.45,
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            opt.sub
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </section>
 
                                         {/* Delivery details */}
                                         <section
@@ -1592,51 +1812,80 @@ export default function CartIndex({
                                                         required
                                                     />
                                                 </div>
-                                                <CheckoutField
-                                                    data={data}
-                                                    setData={setData}
-                                                    errors={errors}
-                                                    label="Street Address"
-                                                    name="shipping_address"
-                                                    placeholder="House/Unit no., Street, Barangay"
-                                                    required
-                                                />
-                                                <div
-                                                    className="checkout-form-grid-3"
-                                                    style={{
-                                                        display: 'grid',
-                                                        gridTemplateColumns:
-                                                            '1fr 1fr 110px',
-                                                        gap: 14,
-                                                    }}
-                                                >
-                                                    <CheckoutField
-                                                        data={data}
-                                                        setData={setData}
-                                                        errors={errors}
-                                                        label="City / Municipality"
-                                                        name="shipping_city"
-                                                        placeholder="City or municipality"
-                                                        required
-                                                    />
-                                                    <CheckoutField
-                                                        data={data}
-                                                        setData={setData}
-                                                        errors={errors}
-                                                        label="Province"
-                                                        name="shipping_province"
-                                                        as="select"
-                                                        required
-                                                    />
-                                                    <CheckoutField
-                                                        data={data}
-                                                        setData={setData}
-                                                        errors={errors}
-                                                        label="ZIP Code"
-                                                        name="shipping_zip"
-                                                        placeholder="4000"
-                                                    />
-                                                </div>
+                                                {data.fulfillment_method ===
+                                                'delivery' ? (
+                                                    <>
+                                                        <CheckoutField
+                                                            data={data}
+                                                            setData={setData}
+                                                            errors={errors}
+                                                            label="Street Address"
+                                                            name="shipping_address"
+                                                            placeholder="House/Unit no., Street, Barangay"
+                                                            required
+                                                        />
+                                                        <div
+                                                            className="checkout-form-grid-3"
+                                                            style={{
+                                                                display: 'grid',
+                                                                gridTemplateColumns:
+                                                                    '1fr 1fr 110px',
+                                                                gap: 14,
+                                                            }}
+                                                        >
+                                                            <CheckoutField
+                                                                data={data}
+                                                                setData={
+                                                                    setData
+                                                                }
+                                                                errors={errors}
+                                                                label="City / Municipality"
+                                                                name="shipping_city"
+                                                                placeholder="City or municipality"
+                                                                required
+                                                            />
+                                                            <CheckoutField
+                                                                data={data}
+                                                                setData={
+                                                                    setData
+                                                                }
+                                                                errors={errors}
+                                                                label="Province"
+                                                                name="shipping_province"
+                                                                as="select"
+                                                                required
+                                                            />
+                                                            <CheckoutField
+                                                                data={data}
+                                                                setData={
+                                                                    setData
+                                                                }
+                                                                errors={errors}
+                                                                label="ZIP Code"
+                                                                name="shipping_zip"
+                                                                placeholder="4000"
+                                                            />
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            fontSize: 13,
+                                                            color: P.textMuted,
+                                                            background:
+                                                                P.accentBg,
+                                                            border: `1px solid ${P.border}`,
+                                                            borderRadius: 10,
+                                                            padding:
+                                                                '10px 12px',
+                                                        }}
+                                                    >
+                                                        Pickup selected. We will
+                                                        prepare your order for
+                                                        store pickup. Shipping
+                                                        fee is free.
+                                                    </div>
+                                                )}
                                             </div>
                                         </section>
 
@@ -2205,7 +2454,7 @@ export default function CartIndex({
                                 </div>
 
                                 {step === 1 && (
-                                    <>
+                                    <div className="cart-root">
                                         {user ? (
                                             <button
                                                 type="button"
@@ -2310,7 +2559,7 @@ export default function CartIndex({
                                         >
                                             ← Continue Shopping
                                         </Link>
-                                    </>
+                                    </div>
                                 )}
 
                                 {step === 2 && (

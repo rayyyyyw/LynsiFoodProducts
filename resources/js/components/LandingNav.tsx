@@ -563,22 +563,20 @@ export function LandingNav({
                                         top: 'calc(100% + 8px)',
                                         right: 0,
                                         minWidth: 220,
-                                        background: PALETTE.dropdownBg,
-                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        background: '#ffffff',
+                                        border: '1px solid rgba(17,24,39,0.12)',
                                         borderRadius: 14,
                                         boxShadow:
-                                            '0 16px 48px rgba(0,0,0,0.45)',
+                                            '0 16px 40px rgba(2,6,23,0.16)',
                                         padding: 8,
                                         zIndex: 1001,
-                                        backdropFilter: 'blur(12px)',
                                     }}
                                 >
                                     {/* User info */}
                                     <div
                                         style={{
                                             padding: '10px 12px 12px',
-                                            borderBottom:
-                                                '1px solid rgba(255,255,255,0.1)',
+                                            borderBottom: '1px solid #e5e7eb',
                                             marginBottom: 4,
                                         }}
                                     >
@@ -586,7 +584,7 @@ export function LandingNav({
                                             style={{
                                                 fontSize: 14,
                                                 fontWeight: 700,
-                                                color: PALETTE.navTextActive,
+                                                color: '#111827',
                                                 wordBreak: 'break-word',
                                                 lineHeight: 1.3,
                                             }}
@@ -597,7 +595,7 @@ export function LandingNav({
                                             <div
                                                 style={{
                                                     fontSize: 12,
-                                                    color: PALETTE.navText,
+                                                    color: '#6b7280',
                                                     marginTop: 2,
                                                     wordBreak: 'break-all',
                                                 }}
@@ -613,14 +611,13 @@ export function LandingNav({
                                         className="flex min-h-[44px] touch-manipulation items-center gap-2.5 rounded-xl px-3 py-3 text-sm font-medium"
                                         style={{
                                             textDecoration: 'none',
-                                            color: PALETTE.navTextHover,
+                                            color: '#111827',
                                             transition: 'background 0.15s',
                                         }}
                                         onMouseEnter={(e) => {
                                             (
                                                 e.currentTarget as HTMLAnchorElement
-                                            ).style.background =
-                                                PALETTE.hoverBg;
+                                            ).style.background = '#f8fafc';
                                         }}
                                         onMouseLeave={(e) => {
                                             (
@@ -629,14 +626,19 @@ export function LandingNav({
                                         }}
                                         onClick={() => setMenuOpen(false)}
                                     >
-                                        <span
-                                            style={{
-                                                width: 20,
-                                                textAlign: 'center',
-                                            }}
+                                        <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="#4b5563"
+                                            strokeWidth="1.9"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
                                         >
-                                            👤
-                                        </span>
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                            <circle cx="12" cy="7" r="4" />
+                                        </svg>
                                         My Account
                                     </Link>
 
@@ -646,14 +648,13 @@ export function LandingNav({
                                         className="flex min-h-[44px] touch-manipulation items-center gap-2.5 rounded-xl px-3 py-3 text-sm font-medium"
                                         style={{
                                             textDecoration: 'none',
-                                            color: PALETTE.navTextHover,
+                                            color: '#111827',
                                             transition: 'background 0.15s',
                                         }}
                                         onMouseEnter={(e) => {
                                             (
                                                 e.currentTarget as HTMLAnchorElement
-                                            ).style.background =
-                                                PALETTE.hoverBg;
+                                            ).style.background = '#f8fafc';
                                         }}
                                         onMouseLeave={(e) => {
                                             (
@@ -662,14 +663,20 @@ export function LandingNav({
                                         }}
                                         onClick={() => setMenuOpen(false)}
                                     >
-                                        <span
-                                            style={{
-                                                width: 20,
-                                                textAlign: 'center',
-                                            }}
+                                        <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="#4b5563"
+                                            strokeWidth="1.9"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
                                         >
-                                            🛒
-                                        </span>
+                                            <circle cx="9" cy="21" r="1" />
+                                            <circle cx="20" cy="21" r="1" />
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 1.94-1.51L23 6H6" />
+                                        </svg>
                                         My Purchase
                                     </Link>
 
@@ -680,14 +687,13 @@ export function LandingNav({
                                             className="flex min-h-[44px] touch-manipulation items-center gap-2.5 rounded-xl px-3 py-3 text-sm font-medium"
                                             style={{
                                                 textDecoration: 'none',
-                                                color: PALETTE.navTextHover,
+                                                color: '#111827',
                                                 transition: 'background 0.15s',
                                             }}
                                             onMouseEnter={(e) => {
                                                 (
                                                     e.currentTarget as HTMLAnchorElement
-                                                ).style.background =
-                                                    PALETTE.hoverBg;
+                                                ).style.background = '#f8fafc';
                                             }}
                                             onMouseLeave={(e) => {
                                                 (
@@ -697,14 +703,19 @@ export function LandingNav({
                                             }}
                                             onClick={() => setMenuOpen(false)}
                                         >
-                                            <span
-                                                style={{
-                                                    width: 20,
-                                                    textAlign: 'center',
-                                                }}
+                                            <svg
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="#4b5563"
+                                                strokeWidth="1.9"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
                                             >
-                                                ⚙️
-                                            </span>
+                                                <circle cx="12" cy="12" r="3" />
+                                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10.09 3H10a2 2 0 1 1 4 0h.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 21 10.09H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                            </svg>
                                             Dashboard
                                         </Link>
                                     )}
@@ -713,7 +724,7 @@ export function LandingNav({
                                     <div
                                         style={{
                                             height: 1,
-                                            background: 'rgba(255,255,255,0.1)',
+                                            background: '#e5e7eb',
                                             margin: '6px 0',
                                         }}
                                     />
@@ -728,15 +739,14 @@ export function LandingNav({
                                             background: 'none',
                                             border: 'none',
                                             cursor: 'pointer',
-                                            color: '#fca5a5',
+                                            color: '#dc2626',
                                             transition: 'background 0.15s',
                                             fontFamily: "'Inter', sans-serif",
                                         }}
                                         onMouseEnter={(e) => {
                                             (
                                                 e.currentTarget as HTMLButtonElement
-                                            ).style.background =
-                                                'rgba(239,68,68,0.18)';
+                                            ).style.background = '#fef2f2';
                                         }}
                                         onMouseLeave={(e) => {
                                             (
@@ -744,14 +754,25 @@ export function LandingNav({
                                             ).style.background = 'transparent';
                                         }}
                                     >
-                                        <span
-                                            style={{
-                                                width: 20,
-                                                textAlign: 'center',
-                                            }}
+                                        <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="#dc2626"
+                                            strokeWidth="1.9"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
                                         >
-                                            🚪
-                                        </span>
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                            <polyline points="16 17 21 12 16 7" />
+                                            <line
+                                                x1="21"
+                                                y1="12"
+                                                x2="9"
+                                                y2="12"
+                                            />
+                                        </svg>
                                         Logout
                                     </button>
                                 </div>

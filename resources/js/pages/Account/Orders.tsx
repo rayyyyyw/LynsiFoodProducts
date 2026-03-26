@@ -1,5 +1,6 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
+import { LandingNav } from '@/components/LandingNav';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
@@ -47,23 +48,117 @@ function formatPrice(n: number) {
     return `₱${Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function getInitials(name?: string | null) {
+    if (!name) return 'U';
+    return name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((p) => p[0]?.toUpperCase() ?? '')
+        .join('');
+}
+
 export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
+    const page = usePage<{
+        auth?: {
+            user?: {
+                name?: string | null;
+                email?: string | null;
+                profile_photo_url?: string | null;
+            } | null;
+        };
+    }>();
+    const authUser = page.props.auth?.user;
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement | null>(null);
     const [returnOrderId, setReturnOrderId] = useState<number | null>(null);
     const [returnReason, setReturnReason] = useState('');
+
+    useEffect(() => {
+        const onDocClick = (event: MouseEvent) => {
+            if (!menuRef.current) return;
+            if (!menuRef.current.contains(event.target as Node)) {
+                setMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', onDocClick);
+        return () => document.removeEventListener('mousedown', onDocClick);
+    }, []);
 
     return (
         <>
             <Head title="My Orders – Lynsi Food Products" />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-                *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-                body { font-family: 'Inter', sans-serif; background: ${P.bg}; }
+                .orders-root, .orders-root * { box-sizing: border-box; }
+                .orders-root { font-family: 'Inter', sans-serif; background: ${P.bg}; }
+
+                @media (max-width: 640px) {
+                    .orders-header-inner {
+                        padding: 8px 10px !important;
+                        min-height: 54px !important;
+                        gap: 8px !important;
+                        flex-wrap: nowrap !important;
+                    }
+                    .orders-brand-text {
+                        font-size: 13px !important;
+                    }
+                    .orders-header-sep,
+                    .orders-header-label {
+                        display: none !important;
+                    }
+                    .orders-nav-actions {
+                        width: auto !important;
+                        display: flex !important;
+                        gap: 8px !important;
+                        margin-left: auto !important;
+                    }
+                    .orders-nav-link {
+                        justify-content: center !important;
+                        text-align: center;
+                        padding: 7px 12px !important;
+                        font-size: 12px !important;
+                    }
+                    .orders-avatar-link {
+                        justify-content: center !important;
+                        padding: 6px 8px !important;
+                    }
+                    .orders-avatar-name {
+                        display: none !important;
+                    }
+                    .orders-main {
+                        padding: 18px 12px 64px !important;
+                    }
+                    .orders-page-title {
+                        font-size: 20px !important;
+                    }
+                    .orders-card {
+                        padding: 14px !important;
+                    }
+                    .orders-card-top {
+                        gap: 8px !important;
+                    }
+                    .orders-card-meta {
+                        width: 100%;
+                        justify-content: space-between;
+                    }
+                    .orders-card-actions {
+                        justify-content: flex-start !important;
+                        flex-wrap: wrap !important;
+                        row-gap: 8px !important;
+                    }
+                    .orders-card-view {
+                        width: 100%;
+                    }
+                }
             `}</style>
 
-            <div style={{ minHeight: '100vh' }}>
+            <div className="orders-root" style={{ minHeight: '100vh' }}>
+                <LandingNav activeId="" auth={{ user: authUser ?? null }} />
                 {/* Header – same as Account/Profile */}
                 <header
                     style={{
+                        display: 'none',
                         position: 'sticky',
                         top: 0,
                         zIndex: 100,
@@ -72,6 +167,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                     }}
                 >
                     <div
+                        className="orders-header-inner"
                         style={{
                             maxWidth: 1100,
                             margin: '0 auto',
@@ -98,6 +194,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                 style={{ height: 28, objectFit: 'contain' }}
                             />
                             <span
+                                className="orders-brand-text"
                                 style={{
                                     fontWeight: 800,
                                     fontSize: 15,
@@ -111,41 +208,41 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                 </span>
                             </span>
                         </Link>
+                        <span
+                            className="orders-header-sep"
+                            style={{
+                                fontSize: 13,
+                                color: 'rgba(255,255,255,0.35)',
+                            }}
+                        >
+                            |
+                        </span>
+                        <span
+                            className="orders-header-label"
+                            style={{
+                                fontSize: 13,
+                                color: 'rgba(255,255,255,0.75)',
+                                fontWeight: 500,
+                            }}
+                        >
+                            My Account
+                        </span>
                         <div
+                            className="orders-nav-actions"
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: 10,
+                                marginLeft: 'auto',
                             }}
                         >
                             <Link
-                                href="/account"
-                                style={{
-                                    fontSize: 13,
-                                    color: 'rgba(255,255,255,0.85)',
-                                    textDecoration: 'none',
-                                    padding: '7px 14px',
-                                    borderRadius: 8,
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    transition: 'background 0.15s',
-                                }}
-                                onMouseEnter={(e) => {
-                                    (
-                                        e.currentTarget as HTMLAnchorElement
-                                    ).style.background =
-                                        'rgba(255,255,255,0.1)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    (
-                                        e.currentTarget as HTMLAnchorElement
-                                    ).style.background = 'transparent';
-                                }}
-                            >
-                                My Account
-                            </Link>
-                            <Link
                                 href="/shop"
+                                className="orders-nav-link"
                                 style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 6,
                                     fontSize: 13,
                                     color: 'rgba(255,255,255,0.85)',
                                     textDecoration: 'none',
@@ -166,13 +263,186 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                     ).style.background = 'transparent';
                                 }}
                             >
-                                Continue Shopping
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <circle cx="9" cy="21" r="1" />
+                                    <circle cx="20" cy="21" r="1" />
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.94-1.51L23 6H6" />
+                                </svg>
+                                Shop
                             </Link>
+                            <div ref={menuRef} style={{ position: 'relative' }}>
+                                <button
+                                    type="button"
+                                    className="orders-avatar-link"
+                                    onClick={() => setMenuOpen((v) => !v)}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        padding: '6px 12px 6px 8px',
+                                        background: 'rgba(255,255,255,0.1)',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        borderRadius: 50,
+                                        color: P.white,
+                                        cursor: 'pointer',
+                                    }}
+                                    title="Account menu"
+                                >
+                                    {authUser?.profile_photo_url ? (
+                                        <img
+                                            src={authUser.profile_photo_url}
+                                            alt=""
+                                            style={{
+                                                width: 28,
+                                                height: 28,
+                                                borderRadius: '50%',
+                                                objectFit: 'cover',
+                                                flexShrink: 0,
+                                                border: '1px solid rgba(255,255,255,0.3)',
+                                            }}
+                                        />
+                                    ) : (
+                                        <span
+                                            style={{
+                                                width: 28,
+                                                height: 28,
+                                                borderRadius: '50%',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                background:
+                                                    'rgba(255,255,255,0.2)',
+                                                fontSize: 11,
+                                                fontWeight: 800,
+                                                color: P.white,
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            {getInitials(authUser?.name)}
+                                        </span>
+                                    )}
+                                    <span
+                                        className="orders-avatar-name"
+                                        style={{
+                                            fontSize: 12,
+                                            fontWeight: 600,
+                                            color: 'rgba(255,255,255,0.9)',
+                                        }}
+                                    >
+                                        My Account
+                                    </span>
+                                    <span
+                                        style={{ fontSize: 10, opacity: 0.85 }}
+                                    >
+                                        {menuOpen ? '▴' : '▾'}
+                                    </span>
+                                </button>
+                                {menuOpen && (
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            top: 'calc(100% + 8px)',
+                                            right: 0,
+                                            minWidth: 210,
+                                            background: P.white,
+                                            border: `1px solid ${P.borderGray}`,
+                                            borderRadius: 14,
+                                            boxShadow:
+                                                '0 12px 36px rgba(0,0,0,0.16)',
+                                            padding: 6,
+                                            zIndex: 200,
+                                        }}
+                                    >
+                                        <div
+                                            style={{
+                                                padding: '10px 12px',
+                                                borderBottom: `1px solid ${P.borderGray}`,
+                                                marginBottom: 4,
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    fontWeight: 700,
+                                                    fontSize: 14,
+                                                    color: P.text,
+                                                }}
+                                            >
+                                                {authUser?.name ?? 'User'}
+                                            </div>
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: P.textMuted,
+                                                }}
+                                            >
+                                                {authUser?.email ?? ''}
+                                            </div>
+                                        </div>
+                                        <Link
+                                            href="/account"
+                                            onClick={() => setMenuOpen(false)}
+                                            style={{
+                                                display: 'block',
+                                                padding: '9px 10px',
+                                                borderRadius: 10,
+                                                textDecoration: 'none',
+                                                color: P.text,
+                                                fontSize: 14,
+                                            }}
+                                        >
+                                            My Account
+                                        </Link>
+                                        <Link
+                                            href="/my-purchases"
+                                            onClick={() => setMenuOpen(false)}
+                                            style={{
+                                                display: 'block',
+                                                padding: '9px 10px',
+                                                borderRadius: 10,
+                                                textDecoration: 'none',
+                                                color: P.text,
+                                                fontSize: 14,
+                                            }}
+                                        >
+                                            My Purchase
+                                        </Link>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                router.post('/logout')
+                                            }
+                                            style={{
+                                                width: '100%',
+                                                textAlign: 'left',
+                                                border: 'none',
+                                                background: 'transparent',
+                                                padding: '9px 10px',
+                                                borderRadius: 10,
+                                                color: '#dc2626',
+                                                fontSize: 14,
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </header>
 
                 <main
+                    className="orders-main"
                     style={{
                         maxWidth: 760,
                         margin: '0 auto',
@@ -180,6 +450,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                     }}
                 >
                     <h1
+                        className="orders-page-title"
                         style={{
                             fontSize: 22,
                             fontWeight: 800,
@@ -265,6 +536,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                         STATUS_STYLE.pending;
                                     return (
                                         <Link
+                                            className="orders-card"
                                             key={order.id}
                                             href={`/checkout/confirmation/${order.order_number}`}
                                             style={{
@@ -292,6 +564,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                             }}
                                         >
                                             <div
+                                                className="orders-card-top"
                                                 style={{
                                                     display: 'flex',
                                                     flexWrap: 'wrap',
@@ -341,6 +614,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                                     </div>
                                                 </div>
                                                 <div
+                                                    className="orders-card-meta"
                                                     style={{
                                                         display: 'flex',
                                                         alignItems: 'center',
@@ -377,6 +651,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                                 </div>
                                             </div>
                                             <div
+                                                className="orders-card-actions"
                                                 style={{
                                                     marginTop: 10,
                                                     display: 'flex',
@@ -387,6 +662,7 @@ export default function AccountOrders({ orders }: { orders: OrdersPaginated }) {
                                                 }}
                                             >
                                                 <span
+                                                    className="orders-card-view"
                                                     style={{
                                                         fontSize: 13,
                                                         color: P.accent,

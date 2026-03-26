@@ -1,6 +1,7 @@
 import { Form, Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { useRef, useState, useEffect } from 'react';
 import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
+import { LandingNav } from '@/components/LandingNav';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
@@ -126,7 +127,21 @@ type AuthUser = {
     zip?: string | null;
 };
 
-type Tab = 'profile' | 'password' | 'delete';
+type OrderRow = {
+    id: number;
+    order_number: string;
+    status: string;
+    return_status?: string;
+    total: number;
+    created_at: string;
+    item_count: number;
+};
+type OrdersPaginated = {
+    data: OrderRow[];
+    links?: { url: string | null; label: string; active: boolean }[];
+};
+
+type Tab = 'profile' | 'password' | 'purchases' | 'delete';
 
 function getInitials(name: string) {
     return name
@@ -320,9 +335,11 @@ function Spin() {
 export default function BuyerProfile({
     mustVerifyEmail,
     status,
+    orders,
 }: {
     mustVerifyEmail: boolean;
     status?: string;
+    orders: OrdersPaginated;
 }) {
     const { auth } = usePage().props as { auth: { user: AuthUser } };
     const user = auth.user;
@@ -647,28 +664,46 @@ export default function BuyerProfile({
                     }}
                 />
 
-                <Link
-                    href="/my-purchases"
+                <button
+                    type="button"
+                    onClick={() => {
+                        setTab('purchases');
+                        setMobileOpen(false);
+                    }}
                     style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: 10,
                         padding: '10px 20px',
-                        textDecoration: 'none',
-                        color: P.textMuted,
+                        width: '100%',
+                        background:
+                            tab === 'purchases' ? P.accentBg : 'transparent',
+                        border: 'none',
+                        borderLeft:
+                            tab === 'purchases'
+                                ? `3px solid ${P.accent}`
+                                : '3px solid transparent',
+                        color: tab === 'purchases' ? P.primary : P.textMuted,
                         fontSize: 14,
-                        fontWeight: 400,
+                        fontWeight: tab === 'purchases' ? 600 : 400,
                         transition: 'all 0.15s',
+                        textAlign: 'left',
+                        fontFamily: "'Inter', sans-serif",
+                        cursor: 'pointer',
                     }}
                     onMouseEnter={(e) => {
-                        const a = e.currentTarget as HTMLAnchorElement;
-                        a.style.color = P.primary;
-                        a.style.background = P.accentBg;
+                        if (tab !== 'purchases') {
+                            const a = e.currentTarget as HTMLButtonElement;
+                            a.style.color = P.primary;
+                            a.style.background = P.accentBg;
+                        }
                     }}
                     onMouseLeave={(e) => {
-                        const a = e.currentTarget as HTMLAnchorElement;
-                        a.style.color = P.textMuted;
-                        a.style.background = 'none';
+                        if (tab !== 'purchases') {
+                            const a = e.currentTarget as HTMLButtonElement;
+                            a.style.color = P.textMuted;
+                            a.style.background = 'none';
+                        }
                     }}
                 >
                     <svg
@@ -687,7 +722,7 @@ export default function BuyerProfile({
                         <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.94-1.51L23 6H6" />
                     </svg>
                     My Purchase
-                </Link>
+                </button>
             </nav>
         </div>
     );
@@ -697,8 +732,8 @@ export default function BuyerProfile({
             <Head title="My Account – Lynsi Food Products" />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-                *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-                body { font-family: 'Inter', sans-serif; background: ${P.bg}; }
+                .acc-root, .acc-root * { box-sizing: border-box; }
+                .acc-root { font-family: 'Inter', sans-serif; background: ${P.bg}; overflow-x: hidden; }
 
                 .acc-input {
                     display: block; width: 100%;
@@ -750,17 +785,81 @@ export default function BuyerProfile({
                 @keyframes acc-spin { to { transform: rotate(360deg); } }
                 @keyframes acc-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
                 .acc-panel { animation: acc-fade-in 0.22s ease; }
+                .acc-order-status {
+                    font-size: 12px;
+                    font-weight: 600;
+                    padding: 4px 10px;
+                    border-radius: 999px;
+                    text-transform: capitalize;
+                }
+                .acc-header-sep,
+                .acc-header-label { display: inline; }
+                @media (max-width: 768px) {
+                    .acc-root { overflow-x: hidden; }
+                    .acc-header-inner {
+                        padding: 8px 10px !important;
+                        min-height: auto !important;
+                        gap: 8px !important;
+                    }
+                    .acc-header-brand {
+                        gap: 8px !important;
+                        min-width: 0;
+                    }
+                    .acc-brand-text {
+                        font-size: 13px !important;
+                    }
+                    .acc-header-sep,
+                    .acc-header-label {
+                        display: none !important;
+                    }
+                    .acc-header-actions {
+                        gap: 6px !important;
+                    }
+                    .acc-shop-link {
+                        padding: 7px 10px !important;
+                        font-size: 12px !important;
+                    }
+                    .acc-user-btn {
+                        padding: 6px 8px !important;
+                    }
+                    .acc-user-name {
+                        display: none !important;
+                    }
+                    .acc-body {
+                        padding: 14px 12px 70px !important;
+                        gap: 12px !important;
+                    }
+                    .acc-panel-head {
+                        padding: 16px 14px !important;
+                        align-items: flex-start !important;
+                        gap: 10px !important;
+                    }
+                    .acc-panel-body {
+                        padding: 18px 14px !important;
+                    }
+                    .acc-profile-layout {
+                        flex-direction: column-reverse !important;
+                        gap: 18px !important;
+                    }
+                    .acc-avatar-col {
+                        width: 100%;
+                        align-items: flex-start !important;
+                    }
+                }
             `}</style>
 
             <div
+                className="acc-root"
                 style={{
                     minHeight: '100vh',
                     fontFamily: "'Inter', sans-serif",
                 }}
             >
+                <LandingNav activeId="" auth={auth} />
                 {/* ── TOP HEADER ─────────────────────────────────────────────────── */}
                 <header
                     style={{
+                        display: 'none',
                         position: 'sticky',
                         top: 0,
                         zIndex: 100,
@@ -769,6 +868,7 @@ export default function BuyerProfile({
                     }}
                 >
                     <div
+                        className="acc-header-inner"
                         style={{
                             maxWidth: 1200,
                             margin: '0 auto',
@@ -782,6 +882,7 @@ export default function BuyerProfile({
                     >
                         {/* Brand */}
                         <div
+                            className="acc-header-brand"
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -807,6 +908,7 @@ export default function BuyerProfile({
                                     }}
                                 />
                                 <span
+                                    className="acc-brand-text"
                                     style={{
                                         fontWeight: 800,
                                         fontSize: 15,
@@ -821,6 +923,7 @@ export default function BuyerProfile({
                                 </span>
                             </Link>
                             <span
+                                className="acc-header-sep"
                                 style={{
                                     fontSize: 13,
                                     color: 'rgba(255,255,255,0.35)',
@@ -829,6 +932,7 @@ export default function BuyerProfile({
                                 |
                             </span>
                             <span
+                                className="acc-header-label"
                                 style={{
                                     fontSize: 13,
                                     color: 'rgba(255,255,255,0.75)',
@@ -841,6 +945,7 @@ export default function BuyerProfile({
 
                         {/* Right actions */}
                         <div
+                            className="acc-header-actions"
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -848,6 +953,7 @@ export default function BuyerProfile({
                             }}
                         >
                             <Link
+                                className="acc-shop-link"
                                 href="/shop"
                                 style={{
                                     display: 'inline-flex',
@@ -894,6 +1000,7 @@ export default function BuyerProfile({
                             {/* User pill dropdown */}
                             <div ref={menuRef} style={{ position: 'relative' }}>
                                 <button
+                                    className="acc-user-btn"
                                     type="button"
                                     onClick={() => setMenuOpen(!menuOpen)}
                                     style={{
@@ -954,6 +1061,7 @@ export default function BuyerProfile({
                                         </div>
                                     )}
                                     <span
+                                        className="acc-user-name"
                                         style={{
                                             fontSize: 13,
                                             fontWeight: 600,
@@ -1036,60 +1144,117 @@ export default function BuyerProfile({
                                                 {user.email}
                                             </div>
                                         </div>
-                                        {[
-                                            {
-                                                icon: '👤',
-                                                label: 'My Account',
-                                                href: '/account',
-                                            },
-                                            {
-                                                icon: '🛒',
-                                                label: 'My Purchase',
-                                                href: '/my-purchases',
-                                            },
-                                        ].map((item) => (
-                                            <Link
-                                                key={item.label}
-                                                href={item.href}
-                                                onClick={() =>
-                                                    setMenuOpen(false)
-                                                }
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 10,
-                                                    padding: '9px 12px',
-                                                    borderRadius: 8,
-                                                    textDecoration: 'none',
-                                                    color: P.textSub,
-                                                    fontSize: 13,
-                                                    fontWeight: 500,
-                                                    transition:
-                                                        'background 0.12s',
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    (
-                                                        e.currentTarget as HTMLAnchorElement
-                                                    ).style.background =
-                                                        P.accentBg;
-                                                    (
-                                                        e.currentTarget as HTMLAnchorElement
-                                                    ).style.color = P.primary;
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    (
-                                                        e.currentTarget as HTMLAnchorElement
-                                                    ).style.background =
-                                                        'transparent';
-                                                    (
-                                                        e.currentTarget as HTMLAnchorElement
-                                                    ).style.color = P.textSub;
-                                                }}
+                                        <Link
+                                            href="/account"
+                                            onClick={() => {
+                                                setTab('profile');
+                                                setMenuOpen(false);
+                                            }}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 10,
+                                                padding: '9px 12px',
+                                                borderRadius: 8,
+                                                textDecoration: 'none',
+                                                color: P.textSub,
+                                                fontSize: 13,
+                                                fontWeight: 500,
+                                                transition: 'background 0.12s',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                (
+                                                    e.currentTarget as HTMLAnchorElement
+                                                ).style.background = P.accentBg;
+                                                (
+                                                    e.currentTarget as HTMLAnchorElement
+                                                ).style.color = P.primary;
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                (
+                                                    e.currentTarget as HTMLAnchorElement
+                                                ).style.background =
+                                                    'transparent';
+                                                (
+                                                    e.currentTarget as HTMLAnchorElement
+                                                ).style.color = P.textSub;
+                                            }}
+                                        >
+                                            <svg
+                                                width="15"
+                                                height="15"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="1.9"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                style={{ color: '#4b5563' }}
                                             >
-                                                <span>{item.icon}</span>
-                                                {item.label}
-                                            </Link>
-                                        ))}
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                                <circle cx="12" cy="7" r="4" />
+                                            </svg>
+                                            My Account
+                                        </Link>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setTab('purchases');
+                                                setMenuOpen(false);
+                                            }}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 10,
+                                                width: '100%',
+                                                padding: '9px 12px',
+                                                borderRadius: 8,
+                                                border: 'none',
+                                                background: 'transparent',
+                                                color: P.textSub,
+                                                fontSize: 13,
+                                                fontWeight: 500,
+                                                transition: 'background 0.12s',
+                                                cursor: 'pointer',
+                                                textAlign: 'left',
+                                                fontFamily:
+                                                    "'Inter', sans-serif",
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                (
+                                                    e.currentTarget as HTMLButtonElement
+                                                ).style.background = P.accentBg;
+                                                (
+                                                    e.currentTarget as HTMLButtonElement
+                                                ).style.color = P.primary;
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                (
+                                                    e.currentTarget as HTMLButtonElement
+                                                ).style.background =
+                                                    'transparent';
+                                                (
+                                                    e.currentTarget as HTMLButtonElement
+                                                ).style.color = P.textSub;
+                                            }}
+                                        >
+                                            <svg
+                                                width="15"
+                                                height="15"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="1.9"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                style={{ color: '#4b5563' }}
+                                            >
+                                                <circle cx="9" cy="21" r="1" />
+                                                <circle cx="20" cy="21" r="1" />
+                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 1.94-1.51L23 6H6" />
+                                            </svg>
+                                            My Purchase
+                                        </button>
                                         <div
                                             style={{
                                                 height: 1,
@@ -1133,7 +1298,27 @@ export default function BuyerProfile({
                                                     'transparent';
                                             }}
                                         >
-                                            <span>🚪</span> Logout
+                                            <svg
+                                                width="15"
+                                                height="15"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="1.9"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                style={{ color: '#b91c1c' }}
+                                            >
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                                <polyline points="16 17 21 12 16 7" />
+                                                <line
+                                                    x1="21"
+                                                    y1="12"
+                                                    x2="9"
+                                                    y2="12"
+                                                />
+                                            </svg>
+                                            Logout
                                         </button>
                                     </div>
                                 )}
@@ -1144,6 +1329,7 @@ export default function BuyerProfile({
 
                 {/* ── BODY ───────────────────────────────────────────────────────── */}
                 <div
+                    className="acc-body"
                     style={{
                         maxWidth: 1100,
                         margin: '0 auto',
@@ -1286,6 +1472,7 @@ export default function BuyerProfile({
                             >
                                 {/* Panel header */}
                                 <div
+                                    className="acc-panel-head"
                                     style={{
                                         padding: '22px 28px',
                                         borderBottom: `1px solid ${P.border}`,
@@ -1320,7 +1507,10 @@ export default function BuyerProfile({
                                     <Badge>✔ Active</Badge>
                                 </div>
 
-                                <div style={{ padding: '32px 28px' }}>
+                                <div
+                                    className="acc-panel-body"
+                                    style={{ padding: '32px 28px' }}
+                                >
                                     <form
                                         onSubmit={(e) => {
                                             e.preventDefault();
@@ -1332,6 +1522,7 @@ export default function BuyerProfile({
                                     >
                                         {/* Two-column: form left, avatar right */}
                                         <div
+                                            className="acc-profile-layout"
                                             style={{
                                                 display: 'flex',
                                                 gap: 48,
@@ -1341,6 +1532,7 @@ export default function BuyerProfile({
                                         >
                                             {/* Form fields */}
                                             <div
+                                                className="acc-avatar-col"
                                                 style={{
                                                     flex: '1 1 280px',
                                                     minWidth: 0,
@@ -2347,6 +2539,249 @@ export default function BuyerProfile({
                                             </div>
                                         </div>
                                     </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── PURCHASES PANEL ──────────────────────────────────── */}
+                        {tab === 'purchases' && (
+                            <div
+                                className="acc-panel"
+                                style={{
+                                    background: P.white,
+                                    borderRadius: 16,
+                                    border: `1px solid ${P.border}`,
+                                    overflow: 'hidden',
+                                    boxShadow: '0 2px 12px rgba(6,95,70,0.07)',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        padding: '22px 28px',
+                                        borderBottom: `1px solid ${P.border}`,
+                                        background: `linear-gradient(90deg, ${P.accentBg} 0%, ${P.white} 100%)`,
+                                    }}
+                                >
+                                    <h1
+                                        style={{
+                                            fontSize: 20,
+                                            fontWeight: 800,
+                                            color: P.text,
+                                            margin: 0,
+                                        }}
+                                    >
+                                        My Purchase
+                                    </h1>
+                                    <p
+                                        style={{
+                                            fontSize: 13,
+                                            color: P.textMuted,
+                                            marginTop: 3,
+                                        }}
+                                    >
+                                        View and track your orders from the same
+                                        account page.
+                                    </p>
+                                </div>
+
+                                <div style={{ padding: '24px 20px' }}>
+                                    {!orders.data.length ? (
+                                        <div
+                                            style={{
+                                                padding: 24,
+                                                border: `1px solid ${P.border}`,
+                                                borderRadius: 12,
+                                                textAlign: 'center',
+                                                color: P.textMuted,
+                                                fontSize: 14,
+                                            }}
+                                        >
+                                            No orders yet.
+                                        </div>
+                                    ) : (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 10,
+                                            }}
+                                        >
+                                            {orders.data.map((order) => {
+                                                const normalizedStatus =
+                                                    order.status ===
+                                                        'confirmed' ||
+                                                    order.status === 'shipped'
+                                                        ? 'processing'
+                                                        : order.status;
+                                                const statusStyle =
+                                                    normalizedStatus ===
+                                                    'delivered'
+                                                        ? {
+                                                              bg: '#ecfdf5',
+                                                              color: P.primary,
+                                                          }
+                                                        : normalizedStatus ===
+                                                            'cancelled'
+                                                          ? {
+                                                                bg: '#fef2f2',
+                                                                color: '#dc2626',
+                                                            }
+                                                          : normalizedStatus ===
+                                                              'processing'
+                                                            ? {
+                                                                  bg: '#eff6ff',
+                                                                  color: '#1d4ed8',
+                                                              }
+                                                            : {
+                                                                  bg: '#fef3c7',
+                                                                  color: '#b45309',
+                                                              };
+
+                                                return (
+                                                    <div
+                                                        key={order.id}
+                                                        style={{
+                                                            border: `1px solid ${P.border}`,
+                                                            borderRadius: 12,
+                                                            padding:
+                                                                '14px 14px',
+                                                        }}
+                                                    >
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                justifyContent:
+                                                                    'space-between',
+                                                                gap: 10,
+                                                                flexWrap:
+                                                                    'wrap',
+                                                            }}
+                                                        >
+                                                            <div>
+                                                                <div
+                                                                    style={{
+                                                                        fontFamily:
+                                                                            'monospace',
+                                                                        fontSize: 13,
+                                                                        fontWeight: 700,
+                                                                        color: P.primary,
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        order.order_number
+                                                                    }
+                                                                </div>
+                                                                <div
+                                                                    style={{
+                                                                        marginTop: 2,
+                                                                        fontSize: 12,
+                                                                        color: P.textMuted,
+                                                                    }}
+                                                                >
+                                                                    {new Date(
+                                                                        order.created_at,
+                                                                    ).toLocaleString()}{' '}
+                                                                    ·{' '}
+                                                                    {
+                                                                        order.item_count
+                                                                    }{' '}
+                                                                    {order.item_count ===
+                                                                    1
+                                                                        ? 'item'
+                                                                        : 'items'}
+                                                                </div>
+                                                            </div>
+                                                            <div
+                                                                style={{
+                                                                    display:
+                                                                        'flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    gap: 10,
+                                                                }}
+                                                            >
+                                                                <span
+                                                                    className="acc-order-status"
+                                                                    style={{
+                                                                        background:
+                                                                            statusStyle.bg,
+                                                                        color: statusStyle.color,
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        normalizedStatus
+                                                                    }
+                                                                </span>
+                                                                <span
+                                                                    style={{
+                                                                        fontWeight: 800,
+                                                                        color: P.primary,
+                                                                    }}
+                                                                >
+                                                                    ₱
+                                                                    {Number(
+                                                                        order.total,
+                                                                    ).toLocaleString(
+                                                                        'en-PH',
+                                                                        {
+                                                                            minimumFractionDigits: 2,
+                                                                        },
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div
+                                                            style={{
+                                                                marginTop: 10,
+                                                                display: 'flex',
+                                                                gap: 8,
+                                                                flexWrap:
+                                                                    'wrap',
+                                                            }}
+                                                        >
+                                                            <Link
+                                                                href={`/checkout/confirmation/${order.order_number}`}
+                                                                style={{
+                                                                    textDecoration:
+                                                                        'none',
+                                                                    color: P.accent,
+                                                                    fontWeight: 600,
+                                                                    fontSize: 13,
+                                                                }}
+                                                            >
+                                                                View order
+                                                                details
+                                                            </Link>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    router.post(
+                                                                        `/my-purchases/${order.id}/reorder`,
+                                                                    )
+                                                                }
+                                                                style={{
+                                                                    border: `1px solid ${P.border}`,
+                                                                    borderRadius: 999,
+                                                                    background:
+                                                                        P.accentBg,
+                                                                    color: P.primary,
+                                                                    fontSize: 12,
+                                                                    fontWeight: 700,
+                                                                    padding:
+                                                                        '5px 10px',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                Reorder
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
