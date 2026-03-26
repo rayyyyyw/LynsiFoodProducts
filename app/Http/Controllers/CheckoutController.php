@@ -31,6 +31,8 @@ class CheckoutController extends Controller
             'shipping_city' => ['nullable', 'string', 'max:100'],
             'shipping_province' => ['nullable', 'string', 'max:100'],
             'shipping_zip' => ['nullable', 'string', 'max:10'],
+            'delivery_latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'delivery_longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'payment_method' => ['required', 'in:cod,gcash,bank_transfer'],
             'coupon_code' => ['nullable', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:500'],
@@ -71,7 +73,7 @@ class CheckoutController extends Controller
         }
         $total = max(0, $subtotal + $shippingFee - $discountAmount);
 
-        $order = DB::transaction(function () use ($data, $userId, $cartItems, $subtotal, $shippingFee, $discountAmount, $total, $appliedCouponCode) {
+        $order = DB::transaction(function () use ($data, $userId, $cartItems, $subtotal, $shippingFee, $discountAmount, $total, $appliedCouponCode, $fulfillmentMethod) {
             $order = Order::create([
                 'user_id' => $userId,
                 'order_number' => Order::generateOrderNumber(),
@@ -95,7 +97,7 @@ class CheckoutController extends Controller
                 'discount_amount' => $discountAmount,
                 'total' => $total,
                 'coupon_code' => $appliedCouponCode,
-                'notes' => $data['notes'] ?? null,
+                'notes' => $this->composeOrderNotes($data, $fulfillmentMethod),
             ]);
 
             if ($appliedCouponCode) {
@@ -175,6 +177,25 @@ class CheckoutController extends Controller
         }
 
         return 129.0;
+    }
+
+    private function composeOrderNotes(array $data, string $fulfillmentMethod): ?string
+    {
+        $base = trim((string) ($data['notes'] ?? ''));
+        if (
+            $fulfillmentMethod === 'delivery' &&
+            ! empty($data['delivery_latitude']) &&
+            ! empty($data['delivery_longitude'])
+        ) {
+            $pin = sprintf(
+                'Pinned map location: %s, %s',
+                $data['delivery_latitude'],
+                $data['delivery_longitude'],
+            );
+            return $base !== '' ? $base."\n".$pin : $pin;
+        }
+
+        return $base !== '' ? $base : null;
     }
 
 }

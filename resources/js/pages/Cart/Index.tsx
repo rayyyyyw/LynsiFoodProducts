@@ -1,7 +1,10 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import L from 'leaflet';
 import type { FormEvent } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import { LandingNav } from '@/components/LandingNav';
+import 'leaflet/dist/leaflet.css';
 
 const LOGO_URL = '/mylogo/logopng%20(1).png';
 
@@ -183,7 +186,318 @@ type CheckoutFormData = {
     payment_method: string;
     coupon_code: string;
     notes: string;
+    delivery_latitude: string;
+    delivery_longitude: string;
 };
+
+// Ensure marker icons render in Vite builds.
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl:
+        'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+const deliveryPinIcon = L.divIcon({
+    className: 'delivery-pin-icon',
+    html: `
+      <div style="position:relative;width:30px;height:36px;display:flex;align-items:center;justify-content:center;background:#047857;border:2px solid #ffffff;border-radius:999px;box-shadow:0 4px 12px rgba(6,95,70,0.28);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-check-icon lucide-map-pin-check"><path d="M19.43 12.935c.357-.967.57-1.955.57-2.935a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 1.202 0 32.197 32.197 0 0 0 .813-.728"/><circle cx="12" cy="10" r="3"/><path d="m16 18 2 2 4-4"/></svg>
+      </div>
+    `,
+    iconSize: [30, 36],
+    iconAnchor: [15, 34],
+});
+
+function DeliveryMapPicker({
+    latitude,
+    longitude,
+    onChange,
+}: {
+    latitude: string;
+    longitude: string;
+    onChange: (lat: number, lng: number) => void;
+}) {
+    const initial: [number, number] =
+        latitude && longitude
+            ? [Number(latitude), Number(longitude)]
+            : [10.6713, 122.9511]; // Bacuyangan area default
+    const [position, setPosition] = useState<[number, number]>(initial);
+    const [search, setSearch] = useState('');
+    const [searching, setSearching] = useState(false);
+    const [mapNote, setMapNote] = useState<string>('');
+    const [suggestions, setSuggestions] = useState<
+        Array<{ display_name: string; lat: string; lon: string }>
+    >([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const mapRef = useRef<L.Map | null>(null);
+
+    useEffect(() => {
+        if (latitude && longitude) {
+            setPosition([Number(latitude), Number(longitude)]);
+        }
+    }, [latitude, longitude]);
+
+    function InteractiveMarker() {
+        const map = useMapEvents({
+            click: (e) => {
+                const next: [number, number] = [e.latlng.lat, e.latlng.lng];
+                setPosition(next);
+                onChange(next[0], next[1]);
+                setMapNote('Pin updated from map click.');
+                map.panTo(next);
+            },
+        });
+
+        return (
+            <Marker
+                position={position}
+                icon={deliveryPinIcon}
+                draggable
+                eventHandlers={{
+                    dragend: (e) => {
+                        const ll = e.target.getLatLng();
+                        const next: [number, number] = [ll.lat, ll.lng];
+                        setPosition(next);
+                        onChange(ll.lat, ll.lng);
+                        setMapNote('Pin updated by dragging.');
+                        map.panTo(next);
+                    },
+                }}
+            />
+        );
+    }
+
+    async function geocode() {
+        const q = search.trim();
+        if (!q) return;
+        setSearching(true);
+        setMapNote('');
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=ph&q=${encodeURIComponent(q)}&limit=1`;
+            const res = await fetch(url);
+            const json = (await res.json()) as Array<{
+                lat: string;
+                lon: string;
+            }>;
+            if (!json.length) {
+                setMapNote('No location found. Try a more specific address.');
+                return;
+            }
+            const lat = Number(json[0].lat);
+            const lng = Number(json[0].lon);
+            setPosition([lat, lng]);
+            onChange(lat, lng);
+            mapRef.current?.flyTo([lat, lng], mapRef.current.getZoom(), {
+                animate: true,
+                duration: 0.35,
+            });
+            setSuggestions([]);
+            setShowSuggestions(false);
+            setMapNote('Pin updated from search result.');
+        } finally {
+            setSearching(false);
+        }
+    }
+
+    function useGps() {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition((p) => {
+            const lat = p.coords.latitude;
+            const lng = p.coords.longitude;
+            setPosition([lat, lng]);
+            onChange(lat, lng);
+            mapRef.current?.flyTo([lat, lng], mapRef.current.getZoom(), {
+                animate: true,
+                duration: 0.35,
+            });
+            setMapNote('Pin updated from GPS.');
+        });
+    }
+
+    useEffect(() => {
+        const q = search.trim();
+        if (q.length < 3) {
+            setSuggestions([]);
+            return;
+        }
+        const t = window.setTimeout(async () => {
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=ph&q=${encodeURIComponent(q)}&limit=5`;
+                const res = await fetch(url);
+                const json = (await res.json()) as Array<{
+                    display_name: string;
+                    lat: string;
+                    lon: string;
+                }>;
+                setSuggestions(json);
+                setShowSuggestions(true);
+            } catch {
+                setSuggestions([]);
+            }
+        }, 280);
+        return () => window.clearTimeout(t);
+    }, [search]);
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                    <input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        onFocus={() =>
+                            suggestions.length && setShowSuggestions(true)
+                        }
+                        onBlur={() =>
+                            window.setTimeout(
+                                () => setShowSuggestions(false),
+                                120,
+                            )
+                        }
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                geocode();
+                            }
+                        }}
+                        placeholder="Pin your exact location (Philippines)"
+                        style={{
+                            width: '100%',
+                            padding: '9px 12px',
+                            border: `1px solid ${P.borderGray}`,
+                            borderRadius: 10,
+                            fontSize: 14,
+                        }}
+                    />
+                    {showSuggestions && suggestions.length > 0 && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 'calc(100% + 6px)',
+                                left: 0,
+                                right: 0,
+                                zIndex: 60,
+                                background: '#fff',
+                                border: `1px solid ${P.borderGray}`,
+                                borderRadius: 10,
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                maxHeight: 220,
+                                overflowY: 'auto',
+                            }}
+                        >
+                            {suggestions.map((s, idx) => (
+                                <button
+                                    key={`${s.lat}-${s.lon}-${idx}`}
+                                    type="button"
+                                    onClick={() => {
+                                        const lat = Number(s.lat);
+                                        const lng = Number(s.lon);
+                                        setSearch(s.display_name);
+                                        setPosition([lat, lng]);
+                                        onChange(lat, lng);
+                                        mapRef.current?.flyTo(
+                                            [lat, lng],
+                                            mapRef.current.getZoom(),
+                                            {
+                                                animate: true,
+                                                duration: 0.35,
+                                            },
+                                        );
+                                        setShowSuggestions(false);
+                                        setMapNote(
+                                            'Pin updated from place suggestion.',
+                                        );
+                                    }}
+                                    style={{
+                                        width: '100%',
+                                        textAlign: 'left',
+                                        border: 'none',
+                                        borderBottom:
+                                            idx < suggestions.length - 1
+                                                ? `1px solid ${P.borderGray}`
+                                                : 'none',
+                                        background: '#fff',
+                                        padding: '10px 12px',
+                                        fontSize: 13,
+                                        color: P.text,
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {s.display_name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <button
+                    type="button"
+                    onClick={geocode}
+                    disabled={searching}
+                    style={{
+                        border: 'none',
+                        background: `linear-gradient(135deg, ${P.secondary}, ${P.primary})`,
+                        color: '#fff',
+                        borderRadius: 10,
+                        padding: '0 14px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        opacity: searching ? 0.75 : 1,
+                    }}
+                >
+                    {searching ? 'Searching…' : 'Search'}
+                </button>
+                <button
+                    type="button"
+                    onClick={useGps}
+                    style={{
+                        border: `1px solid ${P.borderGray}`,
+                        background: '#fff',
+                        borderRadius: 10,
+                        padding: '0 12px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                    }}
+                    title="Use GPS"
+                >
+                    ◎
+                </button>
+            </div>
+
+            <div
+                style={{
+                    border: `1px solid ${P.border}`,
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                }}
+            >
+                <MapContainer
+                    center={position}
+                    zoom={15}
+                    style={{ height: 340, width: '100%' }}
+                    whenReady={(e) => {
+                        mapRef.current = e.target;
+                    }}
+                >
+                    <TileLayer
+                        attribution="&copy; OpenStreetMap contributors"
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <InteractiveMarker />
+                </MapContainer>
+            </div>
+            {mapNote && (
+                <div style={{ fontSize: 12, color: P.textMuted }}>
+                    {mapNote}
+                </div>
+            )}
+            <div style={{ fontSize: 12, color: P.textMuted }}>
+                Pinned coordinates: {position[0].toFixed(6)},{' '}
+                {position[1].toFixed(6)}
+            </div>
+        </div>
+    );
+}
 
 function CheckoutField({
     data,
@@ -449,6 +763,8 @@ export default function CartIndex({
         payment_method: 'cod',
         coupon_code: '',
         notes: '',
+        delivery_latitude: '',
+        delivery_longitude: '',
     });
     const shippingFee =
         data.fulfillment_method === 'pickup'
@@ -1864,6 +2180,47 @@ export default function CartIndex({
                                                                 label="ZIP Code"
                                                                 name="shipping_zip"
                                                                 placeholder="4000"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label
+                                                                style={{
+                                                                    display:
+                                                                        'block',
+                                                                    fontSize: 13,
+                                                                    fontWeight: 700,
+                                                                    color: P.text,
+                                                                    marginBottom: 8,
+                                                                }}
+                                                            >
+                                                                Pin exact
+                                                                delivery
+                                                                location on map
+                                                            </label>
+                                                            <DeliveryMapPicker
+                                                                latitude={
+                                                                    data.delivery_latitude
+                                                                }
+                                                                longitude={
+                                                                    data.delivery_longitude
+                                                                }
+                                                                onChange={(
+                                                                    lat,
+                                                                    lng,
+                                                                ) => {
+                                                                    setData(
+                                                                        'delivery_latitude',
+                                                                        lat.toFixed(
+                                                                            6,
+                                                                        ),
+                                                                    );
+                                                                    setData(
+                                                                        'delivery_longitude',
+                                                                        lng.toFixed(
+                                                                            6,
+                                                                        ),
+                                                                    );
+                                                                }}
                                                             />
                                                         </div>
                                                     </>
